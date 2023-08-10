@@ -86,6 +86,8 @@ class Presentation extends Konva.Stage {
             // do nothing, animation just need to update the layer
         }, this.baseLayer);
 
+        this.anim.start()
+
         this.baseLayer.add(this.#video);
 
         this.#textLayer.add(this.#textBG)
@@ -141,8 +143,8 @@ class Presentation extends Konva.Stage {
             height: this.#simpleText.getClientRect().height + this.#padding,
             width: this.#simpleText.getTextWidth() + this.#padding,
         })
-        console.log(`Slide ${this.#currentTextSlide} of ${this.#textSlides.length - 1}`,
-            `Slide ${this.#currentSlide} of ${this.#slides.length - 1}`)
+        console.log(`Text ${this.#currentTextSlide + 1} of ${this.#textSlides.length},`,
+            `Slide ${this.#currentSlide + 1} of ${this.#slides.length}`)
         return this.#currentTextSlide
     }
 
