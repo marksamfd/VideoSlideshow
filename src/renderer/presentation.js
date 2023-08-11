@@ -52,7 +52,7 @@ class Presentation extends Konva.Stage {
 
         this.#simpleText = new Konva.Text({
             x: 0,
-            y: this.height() - 150,
+            y: this.height() - 225,
             text: `${this.#textSlides[this.#currentTextSlide]}\u200f`,
             /*
              \u200f The right-to-left mark (RLM) is a non-printing character used in the computerized typesetting of bi-directional
@@ -103,7 +103,7 @@ class Presentation extends Konva.Stage {
     changeSlide(number = 1) {
         (this.#currentTextSlide += number)
         if (this.#currentTextSlide < this.#textSlides.length && this.#currentTextSlide >= 0) {
-            this.#simpleText.text(this.#textSlides[this.#currentTextSlide])
+            this.#simpleText.text(`${this.#textSlides[this.#currentTextSlide]}\u200f`)
         } else if (this.#currentTextSlide === this.#textSlides.length && this.#currentSlide !== this.#slides.length - 1) {
             this.#currentTextSlide = 0
             this.#currentSlide++
@@ -111,7 +111,7 @@ class Presentation extends Konva.Stage {
                 mode: "separator",
                 separator: ":"
             })
-            this.#simpleText.text(this.#textSlides[this.#currentTextSlide])
+            this.#simpleText.text(`${this.#textSlides[this.#currentTextSlide]}\u200f`)
             /*this.#Video2Obj.src = `${this.#basePath}/${this.#slides[this.#currentSlide].videoFile}`
             this.#Video2Obj.load()*/
             this.#videoObjs[this.#currentSlide].play()
@@ -124,7 +124,7 @@ class Presentation extends Konva.Stage {
                 separator: ":"
             })
             this.#currentTextSlide = this.#textSlides.length + this.#currentTextSlide
-            this.#simpleText.text(this.#textSlides[this.#currentTextSlide])
+            this.#simpleText.text(`${this.#textSlides[this.#currentTextSlide]}\u200f`)
             /*this.#Video2Obj.src = `${this.#basePath}/${this.#slides[this.#currentSlide].videoFile}`
             this.#Video2Obj.load()*/
             this.#videoObjs[this.#currentSlide].play()
@@ -144,7 +144,9 @@ class Presentation extends Konva.Stage {
             width: this.#simpleText.getTextWidth() + this.#padding,
         })
         console.log(`Text ${this.#currentTextSlide + 1} of ${this.#textSlides.length},`,
-            `Slide ${this.#currentSlide + 1} of ${this.#slides.length}`)
+            `Slide ${this.#currentSlide + 1} of ${this.#slides.length}`,
+            `Text Height: ${this.#simpleText.getClientRect().y - this.#padding / 2}`,
+            `compare to height: ${ + this.#simpleText.getClientRect().y - this.#padding / 2}`)
         return this.#currentTextSlide
     }
 
