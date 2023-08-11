@@ -1,7 +1,6 @@
 module.exports = {
   packagerConfig: {
     asar: true,
-    arch:'ia32'
   },
   rebuildConfig: {},
   makers: [
