@@ -3,40 +3,20 @@ class Slide {
         return this._textX;
     }
 
-    set textX(value) {
-        this._textX = value;
-    }
-
     get textY() {
         return this._textY;
-    }
-
-    set textY(value) {
-        this._textY = value;
     }
 
     get text() {
         return this._text;
     }
 
-    set text(value) {
-        this._text = value;
-    }
-
     get videoFile() {
         return this._videoFile;
     }
 
-    set videoFile(value) {
-        this._videoFile = value;
-    }
-
     get loop() {
         return this._loop;
-    }
-
-    set loop(value) {
-        this._loop = value;
     }
 
     constructor(text,
@@ -52,24 +32,25 @@ class Slide {
         this._loop = loop || true
     };
 
-    splitText({mode = "words", numberOfWords = 6, separator = " "} ) {
+    splitText({mode = "words", sepBy = 6}) {
         let subtitledText = []
         console.log(mode)
         if (mode === "words") {
             let textSplit = this._text.split(" ")
-            for (let i = 0; i < textSplit.length; i += numberOfWords) {
+            for (let i = 0; i < textSplit.length; i += sepBy) {
                 let tempText = []
-                for (let j = 0; j < numberOfWords; j++) {
+                for (let j = 0; j < sepBy; j++) {
                     tempText.push(textSplit[i + j])
                 }
-                console.log(numberOfWords)
+                console.log(sepBy)
                 subtitledText.push(tempText.join(" "))
             }
 
-        }else if(mode ==="separator"){
-            subtitledText = this._text.split(separator)
+        } else if (mode === "separator") {
+            subtitledText = this._text.split(sepBy)
         }
         return subtitledText
     }
 }
 
+export default Slide;

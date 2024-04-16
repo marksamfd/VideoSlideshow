@@ -1,3 +1,15 @@
+/**
+ * The complete Triforce, or one or more components of the Triforce.
+ * @typedef {Object} presentation_Props
+ * @property {string} basePath - Indicates whether the Courage component is present.
+ * @property {boolean} hasPower - Indicates whether the Power component is present.
+ * @property {boolean} hasWisdom - Indicates whether the Wisdom component is present.
+ */
+/**
+ * A class for creating presentation
+ * @class Presentation
+ */
+import "konva";
 class Presentation extends Konva.Stage {
     #w;
     #h;
@@ -12,6 +24,8 @@ class Presentation extends Konva.Stage {
     #textBG;
     #padding = 30;
     #videoObjs;
+    #mode;
+    #sepBy;
 
     #createVideo(slide) {
         let VideoObj = document.createElement('video');
@@ -22,6 +36,11 @@ class Presentation extends Konva.Stage {
         return VideoObj
     }
 
+    /**
+     * Create a point.
+     * @param {presentation_Props} props - presentation props
+     */
+
     constructor(props) {
         super(props)
 
@@ -31,9 +50,15 @@ class Presentation extends Konva.Stage {
         this.#basePath = props.basePath
         this.#currentSlide = 0
         this.#currentTextSlide = 0
-        this.#textSlides = this.#slides[this.#currentSlide].splitText({
+        this.#mode = props.mode
+        this.#sepBy = props.sepBy
+        /*this.#textSlides = this.#slides[this.#currentSlide].splitText({
             mode: "separator",
             separator: ":"
+        })*/
+        this.#textSlides = this.#slides[this.#currentSlide].splitText({
+            mode: this.#mode,
+            sepBy:this.#sepBy
         })
         this.#videoObjs = this.#slides.map(this.#createVideo.bind(this))
         console.log(this.#videoObjs)
@@ -100,6 +125,7 @@ class Presentation extends Konva.Stage {
 
     }
 
+
     changeSlide(number = 1) {
         (this.#currentTextSlide += number)
         if (this.#currentTextSlide < this.#textSlides.length && this.#currentTextSlide >= 0) {
@@ -108,25 +134,21 @@ class Presentation extends Konva.Stage {
             this.#currentTextSlide = 0
             this.#currentSlide++
             this.#textSlides = this.#slides[this.#currentSlide].splitText({
-                mode: "separator",
-                separator: ":"
+                mode: this.#mode,
+                sepBy:this.#sepBy
             })
             this.#simpleText.text(`${this.#textSlides[this.#currentTextSlide]}\u200f`)
-            /*this.#Video2Obj.src = `${this.#basePath}/${this.#slides[this.#currentSlide].videoFile}`
-            this.#Video2Obj.load()*/
             this.#videoObjs[this.#currentSlide].play()
             this.#videoObjs[this.#currentSlide - 1].pause()
             this.#video.setAttr("image", this.#videoObjs[this.#currentSlide])
         } else if (this.#currentTextSlide < 0 && this.#currentSlide !== 0) {
             this.#currentSlide--
             this.#textSlides = this.#slides[this.#currentSlide].splitText({
-                mode: "separator",
-                separator: ":"
+                mode: this.#mode,
+                sepBy:this.#sepBy
             })
             this.#currentTextSlide = this.#textSlides.length + this.#currentTextSlide
             this.#simpleText.text(`${this.#textSlides[this.#currentTextSlide]}\u200f`)
-            /*this.#Video2Obj.src = `${this.#basePath}/${this.#slides[this.#currentSlide].videoFile}`
-            this.#Video2Obj.load()*/
             this.#videoObjs[this.#currentSlide].play()
             this.#videoObjs[this.#currentSlide + 1].pause()
             this.#video.setAttr("image", this.#videoObjs[this.#currentSlide])
@@ -146,8 +168,10 @@ class Presentation extends Konva.Stage {
         console.log(`Text ${this.#currentTextSlide + 1} of ${this.#textSlides.length},`,
             `Slide ${this.#currentSlide + 1} of ${this.#slides.length}`,
             `Text Height: ${this.#simpleText.getClientRect().y - this.#padding / 2}`,
-            `compare to height: ${ + this.#simpleText.getClientRect().y - this.#padding / 2}`)
+            `compare to height: ${+this.#simpleText.getClientRect().y - this.#padding / 2}`)
         return this.#currentTextSlide
     }
 
 }
+
+export default Presentation;

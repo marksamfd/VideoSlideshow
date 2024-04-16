@@ -4,8 +4,11 @@
 // Preload (Isolated World)
 const {contextBridge, ipcRenderer} = require('electron')
 contextBridge.exposeInMainWorld("file",{
-    open: ()=> ipcRenderer.invoke("file-open")
+    open: (mode)=> ipcRenderer.invoke("file-open",mode),
+    fileOpened:(fileParams)=>ipcRenderer.invoke("file-opened",fileParams)
 })
+
+
 
 /*
 ipcRenderer.on("file-opened",(event, basePath, fileContent)=>{

@@ -1,5 +1,9 @@
+import Presentation from "../js/PresentationClass";
+import Slide from "../js/SlideClass";
+import hotkeys from 'hotkeys-js';
+import "./index.scss";
 
-let f = document.getElementById("dd")
+let presentContainer = document.getElementById("presentContainer")
 let present
 
 hotkeys('down,ctrl+o,up,space', function (event, handler){
@@ -12,17 +16,18 @@ hotkeys('down,ctrl+o,up,space', function (event, handler){
             present.changeSlide(-1)
             break;
         case 'ctrl+o':
-            file.open().then(([basePath, content]) => {
+            file.open("c").then(([basePath, content]) => {
                 let presentation = JSON.parse(content)
                 let slides = presentation.map(e => new Slide(e.text.value, e.video.path))
                 present = new Presentation({
                     container: "dd",
-                    width: f.clientWidth,
-                    height: f.clientHeight,
+                    width: presentContainer.clientWidth,
+                    height: presentContainer.clientHeight,
                     slides,
-                    basePath
+                    basePath,
+                    mode: "words",
+                    by:"6"
                 })
-                console.log(slides,present)
             })
             break;
     }
