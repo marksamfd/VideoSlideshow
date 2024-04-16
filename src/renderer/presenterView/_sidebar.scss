@@ -1,0 +1,43 @@
+$list-group-active-bg: none;
+$list-group-active-border-color: #fff;
+$list-group-border-width:           1px;
+$list-group-border-radius:          5px;
+#sideBar { 
+    background: rgb(30, 31, 34);
+
+    overflow-y: scroll;
+    height: 100vh;
+    ol {
+    counter-reset: item;
+    list-style-type: none;
+
+    li:before { 
+        content: counter(item) "  ";
+        counter-increment: item 
+    }    
+
+    .list-group-item{
+        margin-bottom: 3%;
+        display: -webkit-box;
+        .slideThumbContainer{
+            display: flex;
+            flex-direction: column;
+            margin-left: 2%;
+            align-items: center;
+        .slideThumb{
+            width:100%;
+
+        }
+        }
+    }
+
+    .list-group-item:not(.active){
+        border-bottom-width:0 !important;
+    }
+
+    .list-group-item.active { 
+        border-width: $list-group-border-width;
+        border-radius: $list-group-border-radius;
+    }
+
+}}

@@ -1,0 +1,47 @@
+
+body {
+    margin: .5% .1%;
+    height: -webkit-fill-available;
+    user-select: none;
+}
+img{
+    -webkit-user-drag: none;
+}
+
+#slidePreview {
+    flex-basis: 75%;
+    background: rgb(43, 45, 48);
+    padding-right: .2%;
+    height: 100vh;
+    #currentSlideThumbContainer{
+        height: 50%;
+        .currentSlideThumb{
+            height: 100%;
+            object-fit: contain;
+        }
+    }
+}
+
+#slidePreview:before {
+    background: black;
+}
+
+#textSlidesContainer {
+    font-size: 22pt;
+    text-align: center;
+    ul {
+        list-style: none;
+        color: black;
+        font-weight: 800;
+        user-select: none;
+        cursor: pointer;
+    }
+}
+
+#textSlidesList > li:hover {
+    color: rgba(255, 255, 255, 0.50);
+}
+
+.active-slide {
+    color: white;
+}
