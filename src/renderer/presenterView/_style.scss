@@ -16,8 +16,11 @@ img{
     #currentSlideThumbContainer{
         height: 50%;
         .currentSlideThumb{
+            width: auto;
             height: 100%;
+            aspect-ratio: 16/9;
             object-fit: contain;
+            border-radius: $slideThumbCornerRadius;
         }
     }
 }
@@ -27,7 +30,7 @@ img{
 }
 
 #textSlidesContainer {
-    font-size: 22pt;
+    font-size: 26pt;
     text-align: center;
     ul {
         list-style: none;
@@ -38,10 +41,10 @@ img{
     }
 }
 
-#textSlidesList > li:hover {
+#textSlidesList > li:hover:not(.active-text-slide){
     color: rgba(255, 255, 255, 0.50);
 }
 
-.active-slide {
+.active-text-slide {
     color: white;
 }

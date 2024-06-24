@@ -32,13 +32,14 @@ module.exports = {
             name: '@electron-forge/plugin-webpack',
             config: {
                 mainConfig: './webpack.main.config.js',
+                devContentSecurityPolicy:"media-src file:",
                 renderer: {
                     config: './webpack.renderer.config.js',
                     entryPoints: [
                         {
                             html: './src/renderer/presenterView/index.html',
                             css: './src/renderer/presenterView/index.scss',
-                            js: './src/renderer/presenterView/sideBarResize.js',
+                            js: './src/renderer/presenterView/mainPresenter.js',
                             name: 'main_window',
                             preload: {
                                 js: './src/renderer/preload.js'
@@ -57,7 +58,7 @@ module.exports = {
                             js: './src/renderer/presentationView/renderer.js',
                             name: 'presentation_view',
                             preload: {
-                                js: './src/renderer/preload.js'
+                                js: './src/renderer/preloadPresentationView.js'
                             }
                         }
                     ]

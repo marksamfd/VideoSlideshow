@@ -1,3 +1,6 @@
+/** Class representing a slide.
+ * @class
+ */
 class Slide {
     get textX() {
         return this._textX;
@@ -25,32 +28,44 @@ class Slide {
                 Y = 0,
                 loop = true,
     ) {
+        /** @type{string} Video file name */
         this._videoFile = videoFile;
+        /** @type{string} text attached to the video */
         this._text = text;
+        /** @type{number} text X position */
         this._textX = X || 0;
+        /** @type{number} text Y position */
         this._textY = Y || 0;
+        /** @type{boolean} weather to loop the video */
         this._loop = loop || true
     };
 
-    splitText({mode = "words", sepBy = 6}) {
+    /**
+     *
+     * @param mode
+     * @param sepBy
+     * @return {string[]}
+     */
+    splitText({mode = 0, sepBy = 6}) {
         let subtitledText = []
-        console.log(mode)
+
         if (mode === "words") {
+            sepBy *= 1
             let textSplit = this._text.split(" ")
             for (let i = 0; i < textSplit.length; i += sepBy) {
-                let tempText = []
-                for (let j = 0; j < sepBy; j++) {
-                    tempText.push(textSplit[i + j])
-                }
-                console.log(sepBy)
-                subtitledText.push(tempText.join(" "))
+                subtitledText.push(textSplit.slice(i, i + sepBy).join(" "))
             }
 
-        } else if (mode === "separator") {
+        } else if (mode === "delimiter") {
             subtitledText = this._text.split(sepBy)
         }
+        console.log(subtitledText)
         return subtitledText
     }
+
+    // get HTMLslides(){
+    //     let splittedText =
+    // }
 }
 
 export default Slide;
