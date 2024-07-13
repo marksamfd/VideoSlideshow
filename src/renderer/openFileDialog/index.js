@@ -5,7 +5,7 @@ const openFileBtn = document.querySelector("#openFileBtn")
 const fileDestField = document.querySelector("#fileDestContainer")
 //input[name=mode]:checked
 selectFileBtn.addEventListener("click", () => {
-    file.open("d").then(([dist])=>{
+    file.open("o").then(([dist])=>{
         fileDestField.value = dist
     })
 })

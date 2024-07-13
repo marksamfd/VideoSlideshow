@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8"/>
+    <title>Hello World!</title>
+</head>
+
+<body class="m-0">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col flex-grow-0 pt-1 align-items-center ps-0 justify-content-between d-flex flex-column"
+             id="slidePreview">
+            <div class="row w-100 h-50 justify-content-between pb-2" id="currentSlideThumbContainer">
+                <div id="videoToolBar" class="d-flex justify-content-center align-content-center">
+                    <div class="p-2 align-content-center">
+                        <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
+                            <button class="btn btn-primary" id="replaceVideo"><i class="material-symbols-outlined">find_replace</i>
+                            </button>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div id="currentSlideThumbCanvas" class="currentSlideThumb "></div>
+
+                <div style="width: fit-content; visibility: collapse">dd</div>
+
+            </div>
+            <div class="row w-100 h-50 mt-1 mb-1" id="textSlidesEditor">
+                <div class="col">
+                    <!-- <div class="row">
+                         <ul>
+                             <li class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                                 <div class="btn-group">
+                                     <input type="radio" class="btn-check" name="textDirection" id="ltrRadioBtn"
+                                            autocomplete="off"
+                                            >
+                                     <label class="btn btn-outline-secondary" title="Left-to-Right text"
+                                            for="ltrRadioBtn">
+                                         <span class="material-symbols-outlined">
+                                             format_textdirection_l_to_r
+                                         </span>
+                                     </label>
+
+                                     <input type="radio" class="btn-check" name="textDirection" id="rtlRadioBtn"
+                                            autocomplete="off" checked>
+                                     <label class="btn btn-outline-secondary" title="Right-to-Left text"
+                                            for="rtlRadioBtn">
+                                          <span class="material-symbols-outlined">
+                                             format_textdirection_r_to_l
+                                         </span>
+                                     </label>
+                                 </div>
+
+                             </li>
+                         </ul>
+                </div>-->
+                    <div class="row">
+                        <div class="col h-100">
+                            <textarea class="h-100 form-control bg-transparent border-1"
+                                      id="textSlidesContent" dir="rtl" placeholder="Please Enter Slide Text"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        <div class="col flex-shrink-0 d-flex flex-column align-items-center overflow-y-hidden" id="sideBar">
+            <div class="d-grid w-100">
+                <button class="btn btn-primary mb-2" id="slideAdd">
+                    Add New Slide
+                </button>
+            </div>
+            <ol class="list-group list-group-numbered p-2 w-100 overflow-y-auto"
+                id="sidebarSlidesContainer">
+
+
+            </ol>
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>

@@ -11,20 +11,30 @@
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\""
   },
-  "keywords": ["ff","dd"],
+  "keywords": [
+    "ff",
+    "dd"
+  ],
   "author": {
     "name": "mark Samuel",
     "email": "marksamfd511@gmail.com"
   },
   "license": "MIT",
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.5.2",
     "@popperjs/core": "^2.11.8",
+    "adm-zip": "^0.5.14",
+    "archiver": "^7.0.1",
     "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
+    "canvg": "^4.0.2",
     "electron-reload": "^2.0.0-alpha.1",
     "electron-squirrel-startup": "^1.0.0",
+    "fswin": "^3.24.524",
     "hotkeys-js": "^3.13.7",
     "interactjs": "^1.10.27",
-    "konva": "^9.3.6"
+    "konva": "^9.3.6",
+    "unzipper": "^0.12.1"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.3.1",
@@ -45,6 +55,7 @@
     "postcss-loader": "^8.1.1",
     "sass": "^1.74.1",
     "sass-loader": "^14.1.1",
-    "style-loader": "^3.3.4"
+    "style-loader": "^3.3.4",
+    "svg-inline-loader": "^0.8.2"
   }
 }

@@ -9,7 +9,7 @@ module.exports = [
     {
       // Note: I dont have `svg` here because I run my .svg through the `@svgr/webpack` loader, 
       // but you can add it if you have no special requirements
-      test: /\.(gif|icns|ico|jpg|png|otf|eot|woff|woff2|ttf)$/,    
+      test: /\.(gif|icns|ico|jpg|png|otf|eot|woff|woff2|ttf|svg)$/,
       type: 'asset/resource',
         generator:{
           outputPath:"./"

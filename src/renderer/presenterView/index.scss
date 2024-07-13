@@ -1,5 +1,5 @@
 $slideThumbCornerRadius: .2rem;
-@import "sidebar";
-@import "style";
-@import "scroll";
 @import "~bootstrap/scss/bootstrap";
+@import "../css/sidebar";
+@import "../css/style";
+@import "../css/scroll";

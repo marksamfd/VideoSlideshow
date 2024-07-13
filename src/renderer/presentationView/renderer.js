@@ -1,5 +1,5 @@
-import Presentation from "../js/PresentationClass";
-import Slide from "../js/SlideClass";
+import Show from "../js/Classes/ShowClass";
+import Slide from "../js/Classes/SlideClass";
 import hotkeys from 'hotkeys-js';
 import "./index.scss";
 
@@ -14,13 +14,13 @@ comm.onPresenterMessage((msg) => {
         case "init":
             let fileParams = JSON.parse(msg.data)
             let presentation = JSON.parse(fileParams.content)
-            let slides = presentation.map(e => new Slide(e.text.value, e.video.path))
-            present = new Presentation({
+            let slides = presentation.map(e => new Slide(e))
+            present = new Show({
                 container: "presentContainer",
                 width: presentContainer.clientWidth,
                 height: presentContainer.clientHeight,
                 slides,
-                basePath:fileParams.basePath,
+                basePath: fileParams.basePath,
                 mode: fileParams.mode,
                 sepBy: fileParams.sepBy
             })
