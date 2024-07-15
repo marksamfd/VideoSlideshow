@@ -7,6 +7,7 @@ const AdmZip = require("adm-zip");
 
 import {createPresentationView, createShowCreatorView, createPresenterView} from './createViews'
 
+let projectRandom
 let workingFile = {}
 let presentationView, presenterView, showCreatorView;
 
@@ -45,14 +46,13 @@ app.on('window-all-closed', () => {
 
 function saveShow(content) {
     const zip = new AdmZip();
-    zip.addFile(workingFile["projectName"] + '.json', content)
-    fs.readdir(workingFile["basePath"], (err, files) => {
-        if (files.length > 0) {
-            zip.addLocalFolder(workingFile["basePath"], "videos");
-        } else {
-            zip.addFile("videos/", null)
-        }
-    })
+    zip.addFile('slides.json', content)
+    let files = fs.readdirSync(workingFile["basePath"])
+    if (files.length > 0) {
+        zip.addLocalFolder(workingFile["basePath"], "videos");
+    } else {
+        zip.addFile("videos/", null)
+    }
     return zip.writeZipPromise(workingFile.filePath)
 }
 
@@ -88,22 +88,26 @@ ipcMain.handle("file-opened", async (e, data) => {
     let filePathParsed = path.parse(filePath)
     let directory = filePathParsed.dir
     let fileName = filePathParsed.name
-    let workingTempDir = path.join(directory, "temp-" + fileName)
+    projectRandom = Math.floor(Math.random() * 9999)
+    let workingTempDir = "temp-" + projectRandom
 
-    console.log({filePath, directory, fileName, workingTempDir})
+    let workingTempDirPath = path.join(directory, workingTempDir)
 
-    data["basePath"] = workingTempDir
+
+    data["basePath"] = workingTempDirPath
     workingFile = structuredClone(data)
-
+    workingFile['directory'] = directory
     workingFile["projectName"] = fileName
+
+    console.log(workingFile)
     if (!fs.existsSync(filePath)) {
         console.log(filePath)
         fs.writeFile(filePath, JSON.stringify(filePath, null, 2), (err) => {
 
         })
-        if (!fs.existsSync(workingTempDir)) {
-            fs.mkdirSync(workingTempDir);
-            fswin.setAttributesSync(workingTempDir, {IS_HIDDEN: true});
+        if (!fs.existsSync(workingTempDirPath)) {
+            fs.mkdirSync(workingTempDirPath);
+            fswin.setAttributesSync(workingTempDirPath, {IS_HIDDEN: true});
         }
         data["content"] = "[]"
     } else {
@@ -111,17 +115,31 @@ ipcMain.handle("file-opened", async (e, data) => {
         let zip = new AdmZip(filePath)
 
         zip.extractAllTo(directory)
+        fs.renameSync(path.join(directory, "videos"), path.join(directory, workingTempDir))
+        fs.renameSync(path.join(directory, "slides.json"), path.join(directory, projectRandom + ".json"))
 
-        data["content"] = fs.readFileSync(path.join(path.dirname(filePath), workingFile.projectName + ".json"), {encoding: "utf8"})
+        data["content"] = fs.readFileSync(path.join(directory, projectRandom + ".json"), {encoding: "utf8"})
 
     }
-    console.log(mainWindow)
+
     mainWindow.setTitle(fileName)
     mainWindow.webContents.send("file-params", data);
 })
 
 ipcMain.handle("file-save", (e, content) => {
-    saveShow(content)
+    saveShow(content).then(() => {
+        dialog.showMessageBoxSync({
+            title: "File Save",
+            message: "File Saved Successfully",
+            type: "info"
+        })
+    }).catch(err => {
+        dialog.showMessageBoxSync({
+            title: "File Save",
+            message: `An error occurred during saving the file \n ${err}`,
+            type: "info"
+        })
+    })
 })
 
 ipcMain.handle("create-thumb", (e, props) => {
@@ -148,9 +166,20 @@ ipcMain.handle("save-quit", (e, content) => {
             if (fs.existsSync(workingFile["basePath"])) {
                 saveShow(content).then(() => {
                     fs.rmSync(workingFile["basePath"], {recursive: true, force: true});
-                    fs.rmSync(workingFile["filePath"].replace(".chs", ".json"))
+                    fs.rmSync(path.join(workingFile['directory'], `${projectRandom}.json`))
+                    dialog.showMessageBoxSync({
+                        title: "File Save",
+                        message: "File Saved Successfully",
+                        type: "info"
+                    })
                     showCreatorView.destroy()
                     app.quit()
+                }).catch(err => {
+                    dialog.showMessageBoxSync({
+                        title: "File Save",
+                        message: `An error occurred during saving the file \n ${err}`,
+                        type: "info"
+                    })
                 })
             } else {
                 showCreatorView.destroy()
@@ -197,7 +226,7 @@ ipcMain.handle("slideshow:start", (e, content) => {
 //presenter:main
 //main:presentation
 ipcMain.on("to-presentation", (e, msg) => {
-    console.log(msg)
+    // console.log(msg)
     presentationView?.webContents.send("main:presentation", msg)
 })
 

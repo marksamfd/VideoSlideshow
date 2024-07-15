@@ -12,7 +12,6 @@ window.file.onFileParams(function (fileParams) {
 
     let slidePreviewCanv = document.getElementById("currentSlideThumbCanvas");
     console.log(slidePreviewCanv)
-    comm.toPresentation({type: "init", data: JSON.stringify(fileParams)})
     present = new ShowPresenterView({
         container: "currentSlideThumbCanvas",
         sidebarSlidesContainer: document.getElementById("sidebarSlidesContainer"),
