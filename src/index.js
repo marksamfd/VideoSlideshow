@@ -1,5 +1,5 @@
 const fswin = require("fswin");
-const {app, BrowserWindow, ipcMain, dialog, Menu, MessageChannelMain, protocol, net, shell} = require('electron');
+const {app, BrowserWindow, ipcMain, dialog, protocol, net} = require('electron');
 const path = require('path'), fs = require("fs")
 const {pathToFileURL} = require('url')
 const electron = require("electron");
@@ -190,7 +190,15 @@ ipcMain.handle("save-quit", (e, content) => {
 })
 
 ipcMain.handle("slideshow:start", (e, content) => {
-    saveShow(content).then(() => {
+
+    let choice = dialog.showMessageBoxSync(showCreatorView,
+        {
+            type: 'question',
+            title: 'Save your Work',
+            message: 'Please make sure that you have saved the show before starting \nAre you sure you want to continue ?',
+            buttons: ['Yes', 'No'],
+        });
+    if (choice === 0) {
         let displays = electron.screen.getAllDisplays()
         const externalDisplay = displays.find((display) => {
             return display.bounds.x !== 0 || display.bounds.y !== 0
@@ -209,18 +217,17 @@ ipcMain.handle("slideshow:start", (e, content) => {
                 fs.rmSync(workingFile["filePath"].replace(".chs", ".json"))
             })
             presentationView = createPresentationView(presenterView, externalDisplay.bounds.x, externalDisplay.bounds.y)
+            showCreatorView.destroy()
         } else {
-            // presentationView = createPresentationView(null)
-            // "Please make sure to connect another screen and the projection mode is set to Extend"
             dialog.showMessageBoxSync(showCreatorView, {
                 type: 'error',
                 title: "No Second Screen Detected",
                 message: "Please make sure to connect another screen and the projection mode is set to Extend"
             })
         }
-        showCreatorView.destroy()
-        console.log(workingFile)
-    })
+    }
+    console.log(workingFile)
+
 })
 
 //presenter:main
