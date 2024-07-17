@@ -112,6 +112,7 @@ class ShowCreator extends Konva.Stage {
         this.#currentSlide = this.#findSelectedSlidePos()
         this.#slideTextInput.value = this.#slides[this.#currentSlide].text
         this.#videoObj.src = "file://" + this.#basePath + "/" + this.#slides[this.#currentSlide].videoFileName + "." + this.#slides[this.#currentSlide].videoFileFormat
+        this.#setCanvasToVideo()
         console.log(this.#currentSlide, this.#slides.length);
 
     }
@@ -153,22 +154,26 @@ class ShowCreator extends Konva.Stage {
         this.#setCanvasToVideo(currentSlideImg)
     }
 
-    #setCanvasToVideo(/** Slide*/slide) {
-        this.container().style.background = "transparent"
-        this.#videoObj.src = "file://" + this.#basePath + "/" + slide.videoFileName + "." + slide.videoFileFormat
-        console.log(this.#videoObj)
-        this.#background.setAttrs({
-            image: this.#videoObj,
-            x: 0,
-            y: 0,
-            width: this.width(),
-            height: this.height(),
-        });
+    #setCanvasToVideo(/** Slide*/slide = this.#slides[this.#currentSlide]) {
+        if (slide.videoFileName !== undefined) {
+            this.container().style.background = "transparent"
+            this.#videoObj.src = "file://" + this.#basePath + "/" + slide.videoFileName + "." + slide.videoFileFormat
+            console.log(this.#videoObj)
+            this.#background.setAttrs({
+                image: this.#videoObj,
+                x: 0,
+                y: 0,
+                width: this.width(),
+                height: this.height(),
+            });
 
-        this.#videoObj.play()
-        this.#anim.start()
+            this.#videoObj.play()
+            this.#anim.start()
 
-        this.#slideTextInput.value = slide.text
+            this.#slideTextInput.value = slide.text
+        } else {
+            this.#createCanvasVideoPicker()
+        }
     }
 
     #createCanvasVideoPicker() {
@@ -192,6 +197,7 @@ class ShowCreator extends Konva.Stage {
         this.#slideTextEditor = props.slideTextEditor
         this.#slideTextInput = this.#slideTextEditor.querySelector(`textarea`);
 
+        while (this.#sideBarSlidesContainer.firstChild && this.#sideBarSlidesContainer.removeChild(this.#sideBarSlidesContainer.firstChild)) ;
 
         this.#basePath = props.basePath
         this.#slides = props.slides
@@ -272,6 +278,9 @@ class ShowCreator extends Konva.Stage {
         this.#sideBarSlidesContainer.insertBefore(this.#createSlideSidebarPreview(newSlide, ++this.slideNumber), itemToInsertBefore)
         document.querySelectorAll("#sidebarSlidesContainer input")[this.#currentSlide].checked = true
 
+        let scrollBehaviour = {behavior: "smooth", block: "start"}
+        this.#sideBarSlidesContainer.children[this.#currentSlide].scrollIntoView(scrollBehaviour)
+
         if (newSlide.videoFileName === undefined) {
             this.#slides.splice(this.#currentSlide + 1, 0, newSlide)
             this.#slideTextInput.value = ""
@@ -279,6 +288,7 @@ class ShowCreator extends Konva.Stage {
         } else {
             this.#setCanvasToVideo(this.#slides[this.#currentSlide])
         }
+
     }
 
 

@@ -63,7 +63,9 @@ class Show extends ShowPresentationBase {
     changeSlide(number = 1) {
         let {currentTextSlide, currentSlide, isNewSlide} = super.changeSlide(number)
         if (isNewSlide) {
-            this._backgroundObjs[currentSlide].play()
+            if (this.slides[currentSlide] !== undefined) {
+                this._backgroundObjs[currentSlide].play()
+            }
             if (currentSlide !== this._slides.length - 1) {
                 this._backgroundObjs[currentSlide + number].pause()
             }
