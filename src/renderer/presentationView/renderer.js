@@ -12,8 +12,9 @@ comm.onPresenterMessage((msg) => {
     let msgType = msg.type
     switch (msgType) {
         case "init":
-            let fileParams = JSON.parse(msg.data)
+            let fileParams = msg.data
             let presentation = JSON.parse(fileParams.content)
+            console.log(fileParams)
             let slides = presentation.map(e => new Slide(e))
             present = new Show({
                 container: "presentContainer",

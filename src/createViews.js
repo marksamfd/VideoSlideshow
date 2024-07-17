@@ -71,19 +71,19 @@ const createPresenterView = () => {
         {
             label: 'File',
             submenu: [
-                {
+                /*{
                     label: 'Open Presentation',
                     click: () => {
                         createOpenFileDialog(presenterView)
                     }
                 },
-                /*{
+                {
                     label: 'Reload Presentation',
                     click: () => {
                         createOpenFileDialog()
                     }
-                },*/
-                {type: 'separator'},
+                },
+                {type: 'separator'},*/
                 isMac ? {role: 'close'} : {role: 'quit'},
             ]
         },
@@ -117,18 +117,6 @@ const createPresenterView = () => {
                     : [
                         {role: 'close'}
                     ])
-            ]
-        },
-        {
-            role: 'help',
-            submenu: [
-                {
-                    label: 'Learn More',
-                    click: async () => {
-                        const {shell} = require('electron')
-                        await shell.openExternal('https://electronjs.org')
-                    }
-                }
             ]
         }
     ]
@@ -245,18 +233,6 @@ const createShowCreatorView = () => {
                     label: 'Start Show',
                     click: async () => {
                         showCreatorView.webContents.send("slideshow:init")
-                    }
-                }
-            ]
-        },
-        {
-            role: 'help',
-            submenu: [
-                {
-                    label: 'Learn More',
-                    click: async () => {
-                        const {shell} = require('electron')
-                        await shell.openExternal('https://electronjs.org')
                     }
                 }
             ]

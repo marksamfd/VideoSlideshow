@@ -5,15 +5,16 @@
   "description": "My Electron application description",
   "main": "./.webpack/main",
   "scripts": {
-    "start": "electron-forge start -- --js-flags=--max-old-space-size=8192",
+    "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\""
   },
   "keywords": [
-    "ff",
-    "dd"
+    "choir",
+    "slides",
+    "slideshow","video slideshow"
   ],
   "author": {
     "name": "mark Samuel",
@@ -28,6 +29,7 @@
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "canvg": "^4.0.2",
+    "electron-log": "^5.1.5",
     "electron-reload": "^2.0.0-alpha.1",
     "electron-squirrel-startup": "^1.0.0",
     "fswin": "^3.24.524",

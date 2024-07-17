@@ -33,11 +33,11 @@ window.file.onFileParams(function (fileParams) {
         }
     })
 
-    window.onbeforeunload = (e) => {
-        e.preventDefault()
-        file.saveAndQuit(present.saveShow())
-
-    }
+    // window.onbeforeunload = (e) => {
+    //     e.preventDefault()
+    //     file.saveAndQuit(present.saveShow())
+    //
+    // }
 
     comm.onSlideshowInitialized(() => {
         comm.startSlideshow(present.saveShow())

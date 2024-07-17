@@ -1,14 +1,20 @@
-const fswin = require("fswin");
 const {app, BrowserWindow, ipcMain, dialog, protocol, net} = require('electron');
 const path = require('path'), fs = require("fs")
 const {pathToFileURL} = require('url')
 const electron = require("electron");
-const AdmZip = require("adm-zip");
 
 import {createPresentationView, createShowCreatorView, createPresenterView} from './createViews'
+import WorkingFile from './workingFile'
+import log from 'electron-log/main';
 
-let projectRandom
-let workingFile = {}
+log.initialize();
+Object.assign(console, log.functions);
+
+/**
+ *  The open project Now
+ * @type {WorkingFile}
+ */
+let currentProject = new WorkingFile({filePath: pathToFileURL(process.cwd())});
 let presentationView, presenterView, showCreatorView;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -17,7 +23,6 @@ if (require('electron-squirrel-startup')) {
 }
 
 app.disableHardwareAcceleration()
-
 
 protocol.registerSchemesAsPrivileged([{
     scheme: 'media-loader',
@@ -31,7 +36,21 @@ app.on('ready', () => {
     protocol.handle('media-loader', (request) => net.fetch(pathToFileURL(decodeURIComponent(request.url.slice('media-loader://'.length)))))
 
     showCreatorView = createShowCreatorView()
-
+    showCreatorView.on('close', (e) => {
+        let choice = dialog.showMessageBoxSync(showCreatorView,
+            {
+                type: 'question',
+                title: 'Save your Work',
+                message: 'Make sure to save your work before Quitting \nAre you sure you want to Quit?',
+                buttons: ['Yes', 'No'],
+            })
+        if (choice === 1) {
+            e.preventDefault()
+        } else {
+            if (currentProject.isOpened)
+                currentProject.closeProject()
+        }
+    })
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -43,18 +62,6 @@ app.on('window-all-closed', () => {
     }
 });
 
-
-function saveShow(content) {
-    const zip = new AdmZip();
-    zip.addFile('slides.json', content)
-    let files = fs.readdirSync(workingFile["basePath"])
-    if (files.length > 0) {
-        zip.addLocalFolder(workingFile["basePath"], "videos");
-    } else {
-        zip.addFile("videos/", null)
-    }
-    return zip.writeZipPromise(workingFile.filePath)
-}
 
 app.on('activate', () => {
     // On OS X it's common to re-create a window in the app when the
@@ -84,50 +91,24 @@ ipcMain.handle("file-opened", async (e, data) => {
     let mainWindow = BrowserWindow.getFocusedWindow().getParentWindow();
     BrowserWindow.getFocusedWindow().destroy()
 
-    let filePath = data["filePath"];
-    let filePathParsed = path.parse(filePath)
-    let directory = filePathParsed.dir
-    let fileName = filePathParsed.name
-    projectRandom = Math.floor(Math.random() * 9999)
-    let workingTempDir = "temp-" + projectRandom
-
-    let workingTempDirPath = path.join(directory, workingTempDir)
-
-
-    data["basePath"] = workingTempDirPath
-    workingFile = structuredClone(data)
-    workingFile['directory'] = directory
-    workingFile["projectName"] = fileName
-
-    console.log(workingFile)
-    if (!fs.existsSync(filePath)) {
-        console.log(filePath)
-        fs.writeFile(filePath, JSON.stringify(filePath, null, 2), (err) => {
-
-        })
-        if (!fs.existsSync(workingTempDirPath)) {
-            fs.mkdirSync(workingTempDirPath);
-            fswin.setAttributesSync(workingTempDirPath, {IS_HIDDEN: true});
-        }
-        data["content"] = "[]"
-    } else {
-
-        let zip = new AdmZip(filePath)
-
-        zip.extractAllTo(directory)
-        fs.renameSync(path.join(directory, "videos"), path.join(directory, workingTempDir))
-        fs.renameSync(path.join(directory, "slides.json"), path.join(directory, projectRandom + ".json"))
-
-        data["content"] = fs.readFileSync(path.join(directory, projectRandom + ".json"), {encoding: "utf8"})
-
+    if (currentProject.isOpened) {
+        currentProject.closeProject()
     }
 
-    mainWindow.setTitle(fileName)
-    mainWindow.webContents.send("file-params", data);
+    currentProject = new WorkingFile(data)
+
+    if (!fs.existsSync(data["filePath"])) {
+        currentProject.createProject()
+    } else {
+        currentProject.openProject()
+    }
+    console.log(currentProject.toObject())
+    mainWindow.setTitle(currentProject.projectName)
+    mainWindow.webContents.send("file-params", currentProject.toObject());
 })
 
 ipcMain.handle("file-save", (e, content) => {
-    saveShow(content).then(() => {
+    currentProject.saveProject(content).then(() => {
         dialog.showMessageBoxSync({
             title: "File Save",
             message: "File Saved Successfully",
@@ -144,18 +125,19 @@ ipcMain.handle("file-save", (e, content) => {
 
 ipcMain.handle("create-thumb", (e, props) => {
     const base64Data = props.pic.replace(/^data:image\/png;base64,/, "");
-    return fs.writeFileSync(`${workingFile.basePath}/${props.filename}.png`, base64Data, 'base64');
+    return fs.writeFileSync(`${currentProject.basePath}/${props.filename}.png`, base64Data, 'base64');
 })
 
 ipcMain.handle("copy-video", (e, videoOriginalPath) => {
     console.log(videoOriginalPath)
     let videoFileName = path.basename(videoOriginalPath)
-    return fs.copyFileSync(`${videoOriginalPath}`, `${workingFile.basePath}/${videoFileName}`)
+    return fs.copyFileSync(`${videoOriginalPath}`, `${currentProject.basePath}/${videoFileName}`)
 })
 
-ipcMain.handle("save-quit", (e, content) => {
-    if (JSON.stringify(workingFile) !== "{}") {
-        let choice = dialog.showMessageBoxSync(this,
+ipcMain.handle("save-quit", async (e, content) => {
+    log.info("Save and quit IPC")
+    /*if (JSON.stringify(workingFile) !== "{}") {
+        let choice = dialog.showMessageBoxSync(BrowserWindow.fromWebContents(e.sender),
             {
                 type: 'question',
                 title: 'Save your Work',
@@ -164,29 +146,33 @@ ipcMain.handle("save-quit", (e, content) => {
             });
         if (choice === 0) {
             if (fs.existsSync(workingFile["basePath"])) {
-                saveShow(content).then(() => {
-                    fs.rmSync(workingFile["basePath"], {recursive: true, force: true});
+                try {
+                    await saveShow(content)
                     fs.rmSync(path.join(workingFile['directory'], `${projectRandom}.json`))
-                    dialog.showMessageBoxSync({
+                    fs.rmSync(workingFile["basePath"], {recursive: true, force: true});
+                    dialog.showMessageBoxSync(BrowserWindow.fromWebContents(e.sender), {
                         title: "File Save",
                         message: "File Saved Successfully",
                         type: "info"
                     })
                     showCreatorView.destroy()
                     app.quit()
-                }).catch(err => {
-                    dialog.showMessageBoxSync({
+                } catch (err) {
+                    dialog.showMessageBoxSync(BrowserWindow.fromWebContents(e.sender), {
                         title: "File Save",
                         message: `An error occurred during saving the file \n ${err}`,
-                        type: "info"
+                        type: "error"
                     })
-                })
+                }
             } else {
                 showCreatorView.destroy()
                 app.quit()
             }
+        } else {
+            showCreatorView.destroy()
+            app.quit()
         }
-    }
+    }*/
 })
 
 ipcMain.handle("slideshow:start", (e, content) => {
@@ -204,8 +190,7 @@ ipcMain.handle("slideshow:start", (e, content) => {
             return display.bounds.x !== 0 || display.bounds.y !== 0
         })
 
-        let data = structuredClone(workingFile)
-        data["content"] = content
+        let data = currentProject.toObject()
         if (externalDisplay) {
             presenterView = createPresenterView()
             presenterView.webContents.once('dom-ready', () => {
@@ -213,10 +198,12 @@ ipcMain.handle("slideshow:start", (e, content) => {
             })
 
             presenterView.on('close', () => {
-                fs.rmSync(workingFile["basePath"], {recursive: true, force: true});
-                fs.rmSync(workingFile["filePath"].replace(".chs", ".json"))
+                currentProject.closeProject()
             })
             presentationView = createPresentationView(presenterView, externalDisplay.bounds.x, externalDisplay.bounds.y)
+            presentationView.webContents.once('dom-ready', () => {
+                presentationView.webContents.send("main:presentation", {type: "init", data})
+            })
             showCreatorView.destroy()
         } else {
             dialog.showMessageBoxSync(showCreatorView, {
@@ -226,8 +213,6 @@ ipcMain.handle("slideshow:start", (e, content) => {
             })
         }
     }
-    console.log(workingFile)
-
 })
 
 //presenter:main
