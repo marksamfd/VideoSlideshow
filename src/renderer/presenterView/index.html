@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8"/>
+    <title>Hello World!</title>
+</head>
+
+<body class="m-0">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col flex-grow-0 pt-1 align-items-center ps-0 justify-content-between d-flex flex-column"
+             id="slidePreview">
+            <div class="row w-100 justify-content-center" id="currentSlideThumbContainer">
+                <div id="currentSlideThumbCanvas" class="currentSlideThumb"></div>
+                <!--                <img src="Presentation1.png" class="currentSlideThumb visually-hidden" alt="ff">-->
+                <!--                <canvas id="slidePreviewCanv" class="currentSlideThumb "></canvas>-->
+            </div>
+            <div class="row w-100 h-50 mt-1 mb-1" id="textSlidesContainer">
+                <div class="col">
+                    <div class="row h-100 overflow-x-auto align-items-center">
+                        <ul id="textSlidesList">
+                            <li data-textSlideNumber="0" class="active-text-slide">Press File then Open Show</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col flex-shrink-0 d-flex flex-column align-items-center" id="sideBar">
+            <ol class="list-group list-group-numbered list-group-flush w-100" id="sidebarSlidesContainer">
+
+                <li class="list-group-item list-group-item-action visually-hidden" id="slideAdd">
+                    <div class="slideThumbContainer">
+                        <span> Add New Slide</span>
+                    </div>
+                </li>
+            </ol>
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>

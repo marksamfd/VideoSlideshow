@@ -1,0 +1,67 @@
+$list-group-active-bg: none;
+$list-group-active-border-color: #fff;
+$list-group-border-width: 1px;
+$list-group-border-radius: 5px;
+
+
+#sideBar {
+  background: rgb(30, 31, 34);
+
+  overflow-y: scroll;
+  height: 100vh;
+
+  ol {
+    counter-reset: item;
+    list-style-type: none;
+
+    li:before {
+      content: counter(item) "  ";
+      counter-increment: item;
+      margin-right: 2%;
+    }
+
+    .list-group-item {
+      .slideThumbContainer {
+        display: flex;
+        flex-direction: column;
+        margin-left: 2%;
+        align-items: center;
+
+        .slideThumb {
+          width: 100%;
+          border-radius: $slideThumbCornerRadius;
+        }
+
+        .slideText {
+          text-align: center;
+          margin-top: 2.5%;
+          font-weight: 5;
+        }
+      }
+    }
+
+    #slideAdd::before {
+      content: none;
+    }
+
+  }
+
+  #sidebarSlidesContainer {
+    input[type="radio"] {
+      appearance: none;
+      /* Add if not using autoprefixer */
+      -webkit-appearance: none;
+
+      /* For iOS < 15 to remove gradient background */
+      background-color: #fff;
+      /* Not removed via appearance */
+      margin: 0;
+    }
+
+    .list-group-item-action:has(input[type=radio]:checked + label) {
+      outline: #e1e1e1 solid 2px;
+    }
+
+
+  }
+}

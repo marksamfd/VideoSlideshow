@@ -3,9 +3,26 @@
 
 // Preload (Isolated World)
 const {contextBridge, ipcRenderer} = require('electron')
-contextBridge.exposeInMainWorld("file",{
-    open: ()=> ipcRenderer.invoke("file-open")
+
+contextBridge.exposeInMainWorld("file", {
+    open: (mode) => ipcRenderer.invoke("file-dialog-open", mode),
+    save: (fileContent) => ipcRenderer.invoke("file-save", fileContent),
+    saveAndQuit: (fileContent) => ipcRenderer.invoke("save-quit", fileContent),
+    copyVideo: (vidPath) => ipcRenderer.invoke("copy-video", vidPath),
+    fileOpened: (fileParams) => ipcRenderer.invoke("file-opened", JSON.parse(JSON.stringify(fileParams))),
+    onFileParams: (callback) => ipcRenderer.on("file-params", (_event, fileParams) => callback(fileParams))
 })
+
+contextBridge.exposeInMainWorld("thumbs", {
+    create: (props) => ipcRenderer.invoke("create-thumb", props)
+})
+
+contextBridge.exposeInMainWorld("comm", {
+    toPresentation: (props) => ipcRenderer.send("to-presentation", props),
+    onSlideshowInitialized: (callback) => ipcRenderer.on("slideshow:init", (_e) => callback()),
+    startSlideshow: (content) => ipcRenderer.invoke("slideshow:start", content),
+})
+
 
 /*
 ipcRenderer.on("file-opened",(event, basePath, fileContent)=>{

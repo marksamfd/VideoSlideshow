@@ -1,0 +1,82 @@
+@font-face {
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  src: url(../asset/resource/MaterialSymbolsRounded.woff2) format('woff');
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.5em;  /* Preferred icon size */
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+}
+
+body {
+  margin: .5% .1%;
+  height: -webkit-fill-available;
+  user-select: none;
+}
+
+img {
+  -webkit-user-drag: none;
+}
+
+#slidePreview {
+  flex-basis: 75%;
+  background: rgb(43, 45, 48);
+  padding-right: .2%;
+  height: 100vh;
+
+  #currentSlideThumbContainer {
+    height: 50%;
+
+    #videoToolBar {
+      width: fit-content;
+      height: 100%;
+    }
+
+    .currentSlideThumb {
+      width: auto;
+      height: 100%;
+      aspect-ratio: 16/9;
+      //object-fit: contain;
+      border-radius: $slideThumbCornerRadius;
+    }
+  }
+}
+
+#slidePreview:before {
+  background: black;
+}
+
+#textSlidesContainer {
+  font-size: 26pt;
+  text-align: center;
+
+  ul {
+    list-style: none;
+    color: black;
+    font-weight: 800;
+    user-select: none;
+    cursor: pointer;
+  }
+}
+
+.slideThumb {
+  width: 100%;
+}
+
+#textSlidesList > li:hover:not(.active-text-slide) {
+  color: rgba(255, 255, 255, 0.50);
+}
+
+.active-text-slide {
+  color: white;
+}

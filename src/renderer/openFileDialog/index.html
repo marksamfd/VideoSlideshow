@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>Open File Dialog</title>
+    <!-- <link rel="stylesheet" href="../css/bootstrap.min.css"> -->
+    <!-- <script src="../js/bootstrap.bundle.js"></script> -->
+</head>
+<body>
+<div class="container-fluid mt-2">
+    <div class="row">
+        <div class="col-9 pe-1">
+            <input type="text" placeholder="File destination" readonly class="form-control-plaintext" id="fileDestContainer">
+        </div>
+        <div class="col ps-0 ">
+            <button type="button" class="btn btn-primary w-100" id="selectFileBtn">Select a file</button>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col">
+            <div class="input-group">
+                <div class="input-group-text">
+                    <input class="form-check-input mt-0" type="radio" name="mode" id="inlineRadio2" checked value="words">
+                </div>
+                <label class="input-group-text" for="inlineRadio2">By number of words</label>
+                <input type="number" value="6" aria-label="Last name" class="form-control" id="words">
+            </div>
+        </div>
+        <div class="col">
+            <div class="input-group">
+                <div class="input-group-text">
+                    <input class="form-check-input mt-0" type="radio" name="mode" id="inlineRadio1" value="separator">
+                </div>
+                <label class="input-group-text" for="inlineRadio1">Separator delimiter</label>
+                <input type="text" value=":" aria-label="Last name" class="form-control" id="separator">
+            </div>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col">
+            <button class="btn btn-primary w-100" id="openFileBtn">Open file</button>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

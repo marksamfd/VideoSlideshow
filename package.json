@@ -1,9 +1,9 @@
 {
-  "name": "videoslideshow",
-  "productName": "Video Slideshow",
-  "version": "1.0.3",
-  "description": "My Electron application description",
-  "main": "src/index.js",
+  "name": "choirslides",
+  "productName": "ChoirSlides",
+  "version": "2.0.0",
+  "description": "A software designed to create lyric slideshows. This software allows users to combine lyrics with background videos, resulting in a visually engaging slideshow that synchronizes the lyrics with the video footage.",
+  "main": "./.webpack/main",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
@@ -11,24 +11,53 @@
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\""
   },
-  "keywords": [],
+  "keywords": [
+    "choir",
+    "slides",
+    "slideshow","video slideshow"
+  ],
   "author": {
     "name": "mark Samuel",
     "email": "marksamfd511@gmail.com"
   },
   "license": "MIT",
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.5.2",
+    "@popperjs/core": "^2.11.8",
+    "adm-zip": "^0.5.14",
+    "archiver": "^7.0.1",
+    "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
+    "canvg": "^4.0.2",
+    "electron-log": "^5.1.5",
     "electron-reload": "^2.0.0-alpha.1",
-    "electron-squirrel-startup": "^1.0.0"
+    "electron-squirrel-startup": "^1.0.0",
+    "fswin": "^3.24.524",
+    "hotkeys-js": "^3.13.7",
+    "interactjs": "^1.10.27",
+    "konva": "^9.3.6",
+    "unzipper": "^0.12.1"
   },
   "devDependencies": {
-    "@electron-forge/cli": "^6.2.1",
-    "@electron-forge/maker-deb": "^6.2.1",
-    "@electron-forge/maker-rpm": "^6.2.1",
-    "@electron-forge/maker-squirrel": "^6.2.1",
-    "@electron-forge/maker-zip": "^6.2.1",
+    "@electron-forge/cli": "^7.3.1",
+    "@electron-forge/maker-deb": "^7.3.1",
+    "@electron-forge/maker-rpm": "^7.3.1",
+    "@electron-forge/maker-squirrel": "^7.3.1",
+    "@electron-forge/maker-zip": "^7.3.1",
     "@electron-forge/plugin-auto-unpack-natives": "^6.2.1",
+    "@electron-forge/plugin-webpack": "^7.3.1",
     "@electron-forge/publisher-github": "^6.3.0",
-    "electron": "25.3.2"
+    "@vercel/webpack-asset-relocator-loader": "^1.7.3",
+    "autoprefixer": "^10.4.19",
+    "copy-webpack-plugin": "^12.0.2",
+    "css-loader": "^6.11.0",
+    "electron": "^31.0.2",
+    "file-loader": "^6.2.0",
+    "node-loader": "^2.0.0",
+    "postcss-loader": "^8.1.1",
+    "sass": "^1.74.1",
+    "sass-loader": "^14.1.1",
+    "style-loader": "^3.3.4",
+    "svg-inline-loader": "^0.8.2"
   }
 }
