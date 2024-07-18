@@ -22,33 +22,29 @@ if (require('electron-squirrel-startup')) {
     app.quit();
 }
 
-app.disableHardwareAcceleration()
 
-protocol.registerSchemesAsPrivileged([{
-    scheme: 'media-loader',
-    privileges: {bypassCSP: true, supportFetchAPI: true, stream: true, secure: true}
-}])
+app.disableHardwareAcceleration()
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
-    protocol.handle('media-loader', (request) => net.fetch(pathToFileURL(decodeURIComponent(request.url.slice('media-loader://'.length)))))
-
     showCreatorView = createShowCreatorView()
     showCreatorView.on('close', (e) => {
-        let choice = dialog.showMessageBoxSync(showCreatorView,
-            {
-                type: 'question',
-                title: 'Save your Work',
-                message: 'Make sure to save your work before Quitting \nAre you sure you want to Quit?',
-                buttons: ['Yes', 'No'],
-            })
-        if (choice === 1) {
-            e.preventDefault()
-        } else {
-            if (currentProject.isOpened)
-                currentProject.closeProject()
+        if(currentProject.isOpened){
+            let choice = dialog.showMessageBoxSync(showCreatorView,
+                {
+                    type: 'question',
+                    title: 'Save your Work',
+                    message: 'Make sure to save your work before Quitting \nAre you sure you want to Quit?',
+                    buttons: ['Yes', 'No'],
+                })
+            if (choice === 1) {
+                e.preventDefault()
+            } else {
+                if (currentProject.isOpened)
+                    currentProject.closeProject()
+            }
         }
     })
 });
@@ -103,7 +99,7 @@ ipcMain.handle("file-opened", async (e, data) => {
         currentProject.openProject()
     }
     console.log(currentProject.toObject())
-    mainWindow.setTitle(currentProject.projectName)
+    mainWindow.setTitle(`ChoirSlide • ${currentProject.projectName}`)
     mainWindow.webContents.send("file-params", currentProject.toObject());
 })
 

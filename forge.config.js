@@ -2,7 +2,8 @@ module.exports = {
     packagerConfig: {
         asar: {
             unpackDir: "files"
-        }
+        },
+        icon:'./src/icons/icon.ico',
     },
     rebuildConfig: {},
     makers: [

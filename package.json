@@ -1,8 +1,8 @@
 {
-  "name": "videoslideshow",
-  "productName": "Video Slideshow",
+  "name": "choirslides",
+  "productName": "ChoirSlides",
   "version": "1.0.3",
-  "description": "My Electron application description",
+  "description": "A software designed to create lyric slideshows. This software allows users to combine lyrics with background videos, resulting in a visually engaging slideshow that synchronizes the lyrics with the video footage.",
   "main": "./.webpack/main",
   "scripts": {
     "start": "electron-forge start",
