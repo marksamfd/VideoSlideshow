@@ -151,8 +151,13 @@ class WorkingFile {
     closeProject() {
         if (this.#isOpened) {
             fs.rmSync(this.#baseFilePath)
-            fs.rmSync(this.basePath, {recursive: true, force: true});
-            this.#isOpened = false
+            try {
+                fs.rmSync(this.basePath, {recursive: true, force: true});
+                this.#isOpened = false
+            } catch (err) {
+                console.log(err)
+            }
+
         }
     }
 

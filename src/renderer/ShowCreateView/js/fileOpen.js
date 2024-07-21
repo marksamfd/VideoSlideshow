@@ -39,9 +39,17 @@ window.file.onFileParams(function (fileParams) {
     //
     // }
 
-    comm.onSlideshowInitialized(() => {
-        comm.startSlideshow(present.saveShow())
-    })
-
 
 })
+
+comm.onSlideshowInitialized(() => {
+    comm.startSlideshow(present.saveShow())
+})
+
+comm.onSlideshowDestroy(() => {
+    present.destroyShow()
+})
+window.onbeforeunload = () => {
+    console.log("Destroying show")
+    present?.destroyCreator()
+}

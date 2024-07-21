@@ -1,7 +1,8 @@
 import {contextBridge, ipcRenderer} from "electron";
 
 contextBridge.exposeInMainWorld("comm", {
-    onPresenterMessage: (callback) => ipcRenderer.on("main:presentation", (_, data) => callback(data))
+    onPresenterMessage: (callback) => ipcRenderer.on("main:presentation", (_, data) => callback(data)),
+    onSlideshowDestroy: (callback) => ipcRenderer.on("slideshow:destroy", (_e) => callback()),
 })
 
 contextBridge.exposeInMainWorld("file", {

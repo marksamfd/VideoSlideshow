@@ -315,6 +315,12 @@ class ShowCreator extends Konva.Stage {
     saveShow() {
         return JSON.stringify(this.#slides)
     }
+
+    destroyShow() {
+        this.#videoObj.pause()
+        this.#videoObj.src = ''
+        this.#videoObj.load()
+    }
 }
 
 export default ShowCreator;
