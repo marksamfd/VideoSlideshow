@@ -21,6 +21,8 @@ contextBridge.exposeInMainWorld("comm", {
     toPresentation: (props) => ipcRenderer.send("to-presentation", props),
     onSlideshowInitialized: (callback) => ipcRenderer.on("slideshow:init", (_e) => callback()),
     startSlideshow: (content) => ipcRenderer.invoke("slideshow:start", content),
+    onSlideshowDestroy: (callback) => ipcRenderer.on("slideshow:destroy", (_e) => callback()),
+
 })
 
 

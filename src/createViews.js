@@ -1,4 +1,4 @@
-import {app, BrowserWindow, Menu, shell} from "electron";
+import {app, BrowserWindow, Menu} from "electron";
 
 const createPresentationView = (parent, x = 0, y = 0) => {
     // Create the browser window.

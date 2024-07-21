@@ -1,7 +1,7 @@
 {
   "name": "choirslides",
   "productName": "ChoirSlides",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A software designed to create lyric slideshows. This software allows users to combine lyrics with background videos, resulting in a visually engaging slideshow that synchronizes the lyrics with the video footage.",
   "main": "./.webpack/main",
   "scripts": {
@@ -14,7 +14,8 @@
   "keywords": [
     "choir",
     "slides",
-    "slideshow","video slideshow"
+    "slideshow",
+    "video slideshow"
   ],
   "author": {
     "name": "mark Samuel",
@@ -36,6 +37,7 @@
     "hotkeys-js": "^3.13.7",
     "interactjs": "^1.10.27",
     "konva": "^9.3.6",
+    "node-fetch": "^3.3.2",
     "unzipper": "^0.12.1"
   },
   "devDependencies": {

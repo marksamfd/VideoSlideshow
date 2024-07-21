@@ -7,8 +7,13 @@ import {createPresentationView, createShowCreatorView, createPresenterView} from
 import WorkingFile from './workingFile'
 import log from 'electron-log/main';
 
-log.initialize();
-Object.assign(console, log.functions);
+
+if (app.isPackaged) {
+    log.initialize({spyRendererConsole: true});
+    log.transports.file.format = '[{h}:{i}:{s}.{ms}] [{processType}] {text}';
+// log.transports.console.level = false;
+    Object.assign(console, log.functions);
+}
 
 /**
  *  The open project Now
@@ -31,7 +36,7 @@ app.disableHardwareAcceleration()
 app.on('ready', () => {
     showCreatorView = createShowCreatorView()
     showCreatorView.on('close', (e) => {
-        if(currentProject.isOpened){
+        if (currentProject.isOpened) {
             let choice = dialog.showMessageBoxSync(showCreatorView,
                 {
                     type: 'question',
@@ -42,8 +47,7 @@ app.on('ready', () => {
             if (choice === 1) {
                 e.preventDefault()
             } else {
-                if (currentProject.isOpened)
-                    currentProject.closeProject()
+
             }
         }
     })
@@ -53,6 +57,8 @@ app.on('ready', () => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
+    /*if (currentProject.isOpened)
+        currentProject.closeProject()*/
     if (process.platform !== 'darwin') {
         app.quit();
     }
@@ -87,9 +93,9 @@ ipcMain.handle("file-opened", async (e, data) => {
     let mainWindow = BrowserWindow.getFocusedWindow().getParentWindow();
     BrowserWindow.getFocusedWindow().destroy()
 
-    if (currentProject.isOpened) {
+    /*if (currentProject.isOpened) {
         currentProject.closeProject()
-    }
+    }*/
 
     currentProject = new WorkingFile(data)
 

@@ -23,7 +23,7 @@ window.file.onFileParams(function (fileParams) {
         mode: fileParams.mode,
         sepBy: fileParams.sepBy
     })
-    hotkeys('down,ctrl+o,up,space,f5', function (event, handler) {
+    hotkeys('down,ctrl+o,up,space', function (event, handler) {
         switch (handler.key) {
             case 'down':
             case 'space':
@@ -34,7 +34,6 @@ window.file.onFileParams(function (fileParams) {
                 present.changeSlide(-1)
                 comm.toPresentation({type: "change", data: -1})
                 break;
-
         }
     });
 })

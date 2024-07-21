@@ -55,6 +55,15 @@ class Show extends ShowPresentationBase {
         this.anim.start()
     }
 
+    destroyShow() {
+        this._backgroundObjs.forEach((element, index) => {
+            element.pause()
+            element.src = ''
+            element.load()
+
+        })
+    }
+
     /**
      * Changes the slides dynamically the lyrics first then the video
      * @param number
@@ -72,6 +81,7 @@ class Show extends ShowPresentationBase {
         }
         return {currentTextSlide, currentSlide, isNewSlide}
     }
+
 
 }
 

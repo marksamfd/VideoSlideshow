@@ -10,7 +10,7 @@ selectFileBtn.addEventListener("click", () => {
     })
 })
 
-openFileBtn.addEventListener("click",(e)=>{
+openFileBtn.addEventListener("click",()=>{
     if (fileDestField.value!== ""){
         let mode = document.querySelector("input[name=mode]:checked").value
         let sepBy = document.querySelector(`#${mode}`).value

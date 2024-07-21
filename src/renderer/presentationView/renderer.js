@@ -28,7 +28,12 @@ comm.onPresenterMessage((msg) => {
             break;
         case "change":
             present.changeSlide(msg.data)
+            break;
+
     }
-
-
 })
+
+window.onbeforeunload = () => {
+    console.log("Destroying show")
+    present.destroyShow()
+}
