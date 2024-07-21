@@ -1,20 +1,25 @@
-# Video Slideshow
+# ChoirSlides
+A software designed to create lyric slideshows. This software allows users to combine lyrics with background videos,
+resulting in a visually engaging slideshow that synchronizes the lyrics with the video footage.
 
-This project is a video slideshow application that allows users to create dynamic slideshows using video clips.
-
+![demo](/video/demo.gif)
 ## Features
-
-- Import video clips from various sources
-- Add text overlays and captions
+- Create shows
+- Add text overlays with videos in background
 - Preview final slideshow
-- Manual Select of text
+- Presenter view and lyric preview mode resembles Spotify lyrics
+- Manual Select of text or slide during presentation  'Coming Soon!'
 
 ## Installation
+
 ### Automatic
-1. Go to [Website](https://github.com/marksamfd/VideoSlideshow)
+
+1. Go to [Website](https://github.com/marksamfd/VideoSlideshow/releases)
 2. Press Releases
 3. Download the package corresponding to your Operating System.
+
 ### Manual:
+
 1. Clone the repository: `git clone https://github.com/marksamfd/VideoSlideshow.git`
 2. Install the required dependencies: `npm install`
 3. Start the application: `npm start`
@@ -22,12 +27,11 @@ This project is a video slideshow application that allows users to create dynami
 ## Usage
 
 1. Launch the application.
-2. Import video clips by clicking on the File > "Open Presentation".
+2. Select File -> **Create new Presentation** or **Open Existing one**
 3. Select the file of your presentation
-4. Select your spliting mode
+4. Select your splitting mode and the delimiter
 5. Wait for the file to load
 6. Have Fun!
-
 
 ## Contributing
 
