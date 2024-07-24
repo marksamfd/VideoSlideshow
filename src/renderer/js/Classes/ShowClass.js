@@ -28,8 +28,8 @@ class Show extends ShowPresentationBase {
      */
     _createBackground(slide) {
         let VideoObj = document.createElement('video');
-        // VideoObj.src = `media-loader://${encodeURIComponent(`${this.#basePath}/${slide.videoFile}`)}`
-        VideoObj.src = `${this._basePath}/${slide.videoFileName}.${slide.videoFileFormat}`
+        VideoObj.src =  "media://" + encodeURIComponent(slide.videoFileName + "." + slide.videoFileFormat)
+        // VideoObj.src = `${this._basePath}/${slide.videoFileName}.${slide.videoFileFormat}`
         VideoObj.muted = true
         VideoObj.loop = true
         VideoObj.preload = "auto"

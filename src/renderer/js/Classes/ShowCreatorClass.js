@@ -32,7 +32,6 @@ class ShowCreator extends Konva.Stage {
     #basePath;
     #sideBarSlidesContainer;
     #addSlideBtn;
-    #addVidBtn;
     #baseLayer;
     #background;
     #slideTextEditor;
@@ -40,6 +39,7 @@ class ShowCreator extends Konva.Stage {
     #videoObj;
     #anim;
     #filePicker;
+    #controller;
 
     #slidesRadioSelector() {
         return document.querySelectorAll(`#${this.#sideBarSlidesContainer.id} input`)
@@ -100,6 +100,7 @@ class ShowCreator extends Konva.Stage {
     }
 
     #changeSlideText(e) {
+
         // change slide text values and sidebar
         this.#slides[this.#currentSlide].text = e.target.value;
         this.#sideBarSlidesContainer.children[this.#currentSlide].querySelector("span").innerText = e.target.value
@@ -109,6 +110,7 @@ class ShowCreator extends Konva.Stage {
         /**
          * https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events#event_delegation
          */
+
         this.#currentSlide = this.#findSelectedSlidePos()
         this.#slideTextInput.value = this.#slides[this.#currentSlide].text
         this.#videoObj.src = "file://" + this.#basePath + "/" + this.#slides[this.#currentSlide].videoFileName + "." + this.#slides[this.#currentSlide].videoFileFormat
@@ -121,7 +123,7 @@ class ShowCreator extends Konva.Stage {
         let filePicker = document.createElement("input");
         filePicker.type = "file";
         filePicker.accept = "video/*";
-        filePicker.addEventListener("change", this.#onVideoFilePicked.bind(this));
+        filePicker.addEventListener("change", this.#onVideoFilePicked.bind(this), {signal: this.#controller.signal});
         return filePicker
     }
 
@@ -137,6 +139,7 @@ class ShowCreator extends Konva.Stage {
     }
 
     async #onVideoFilePicked(e) {
+
         let filePicker = e.target
         console.log(filePicker.files.item(0))
         let file = filePicker.files.item(0)
@@ -157,7 +160,8 @@ class ShowCreator extends Konva.Stage {
     #setCanvasToVideo(/** Slide*/slide = this.#slides[this.#currentSlide]) {
         if (slide.videoFileName !== undefined) {
             this.container().style.background = "transparent"
-            this.#videoObj.src = "file://" + this.#basePath + "/" + slide.videoFileName + "." + slide.videoFileFormat
+            // this.#videoObj.src = "file://" + this.#basePath + "/" + slide.videoFileName + "." + slide.videoFileFormat
+            this.#videoObj.src = "media://" + encodeURIComponent(slide.videoFileName + "." + slide.videoFileFormat)
             console.log(this.#videoObj)
             this.#background.setAttrs({
                 image: this.#videoObj,
@@ -196,14 +200,15 @@ class ShowCreator extends Konva.Stage {
         this.#sideBarSlidesContainer = props.sidebarSlidesContainer
         this.#slideTextEditor = props.slideTextEditor
         this.#slideTextInput = this.#slideTextEditor.querySelector(`textarea`);
+        this.#addSlideBtn = document.querySelector(`#slideAdd`);
 
-        while (this.#sideBarSlidesContainer.firstChild && this.#sideBarSlidesContainer.removeChild(this.#sideBarSlidesContainer.firstChild)) ;
+        this.#controller = new AbortController();
+
 
         this.#basePath = props.basePath
         this.#slides = props.slides
 
         console.log(this.#slides)
-        this.#addSlideBtn = document.querySelector(`#slideAdd`);
 
         this.#videoObj = document.createElement("video");
         this.#videoObj.autoplay = true;
@@ -217,11 +222,12 @@ class ShowCreator extends Konva.Stage {
         this.#baseLayer = new Konva.Layer({});
         this.add(this.#baseLayer)
 
+
         this.#addSlideBtn.addEventListener("click", () => {
             this.addNewSlide()
-        })
-        this.#sideBarSlidesContainer.addEventListener("change", this.#onSlideClick.bind(this))
-        this.#slideTextInput.addEventListener("input", this.#changeSlideText.bind(this))
+        }, {signal: this.#controller.signal})
+        this.#sideBarSlidesContainer.addEventListener("change", this.#onSlideClick.bind(this), {signal: this.#controller.signal})
+        this.#slideTextInput.addEventListener("input", this.#changeSlideText.bind(this), {signal: this.#controller.signal})
 
         this.#anim = new Konva.Animation(function () {
             // do nothing, animation just need to update the layer
@@ -256,11 +262,9 @@ class ShowCreator extends Konva.Stage {
         // mapping slides must be at end
         this.#slides.forEach(slide => this.addNewSlide(slide))
 
-
         if (this.#slides.length === 0) {
             this.addNewSlide()
         }
-
     }
 
 
@@ -316,10 +320,13 @@ class ShowCreator extends Konva.Stage {
         return JSON.stringify(this.#slides)
     }
 
-    destroyShow() {
+    destroyCreator() {
         this.#videoObj.pause()
         this.#videoObj.src = ''
         this.#videoObj.load()
+        while (this.#sideBarSlidesContainer.firstChild && this.#sideBarSlidesContainer.removeChild(this.#sideBarSlidesContainer.firstChild)) ;
+        this.#controller.abort()
+        this.destroy()
     }
 }
 
