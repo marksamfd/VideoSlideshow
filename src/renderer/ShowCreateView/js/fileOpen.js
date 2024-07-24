@@ -10,7 +10,7 @@ window.file.onFileParams(function (fileParams) {
     let slides = presentation.map(e => new Slide(e))
     let slidePreviewCanv = document.getElementById("currentSlideThumbCanvas");
     console.log(slidePreviewCanv)
-    comm.toPresentation({type: "init", data: JSON.stringify(fileParams)})
+    // comm.toPresentation({type: "init", data: JSON.stringify(fileParams)})
     present = new ShowCreator({
         container: "currentSlideThumbCanvas",
         sidebarSlidesContainer: document.getElementById("sidebarSlidesContainer"),
@@ -23,15 +23,6 @@ window.file.onFileParams(function (fileParams) {
         mode: fileParams.mode,
         sepBy: fileParams.sepBy
     })
-    hotkeys('delete,ctrl+s', function (event, handler) {
-        switch (handler.key) {
-            case 'delete':
-                present.removeSlide()
-                break;
-            case 'ctrl+s':
-                file.save(present.saveShow())
-        }
-    })
 
     // window.onbeforeunload = (e) => {
     //     e.preventDefault()
@@ -41,15 +32,24 @@ window.file.onFileParams(function (fileParams) {
 
 
 })
+hotkeys('delete,ctrl+s', function (event, handler) {
+    switch (handler.key) {
+        case 'delete':
+            present?.removeSlide()
+            break;
+        case 'ctrl+s':
+            file.save(present.saveShow())
+    }
+})
 
-comm.onSlideshowInitialized(() => {
+window.comm.onSlideshowInitialized(() => {
     comm.startSlideshow(present.saveShow())
 })
 
-comm.onSlideshowDestroy(() => {
-    present.destroyShow()
-})
-window.onbeforeunload = () => {
-    console.log("Destroying show")
+window.comm.onSlideshowDestroy(() => {
     present?.destroyCreator()
-}
+})
+// window.onbeforeunload = () => {
+//     console.log("Destroying show")
+//     present?.destroyCreator()
+// }

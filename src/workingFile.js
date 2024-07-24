@@ -1,6 +1,7 @@
 import path from "path";
 import AdmZip from "adm-zip";
 import fs from "fs";
+import fsp from "fs/promises";
 import fswin from "fswin";
 
 class WorkingFile {
@@ -131,10 +132,12 @@ class WorkingFile {
         fswin.setAttributesSync(this.#baseFilePath, {IS_HIDDEN: true});
         this.#lastSavedData = fs.readFileSync(path.join(this.#openedFileDirectory, this.#projectRandom + ".json"), {encoding: "utf8"})
         this.#isOpened = true
+        console.log(`Opening ${this.#projectRandom}`)
     }
 
     saveProject(content) {
         const zip = new AdmZip();
+        console.log("saving project")
         zip.addFile('slides.json', content)
         let files = fs.readdirSync(this.basePath)
         if (files.length > 0) {
@@ -148,16 +151,28 @@ class WorkingFile {
         })
     }
 
+    async removeAllFilesAsync(directory) {
+        const files = await fsp.readdir(directory);
+
+        for (const file of files) {
+            const filePath = path.join(directory, file);
+            await fs.unlinkSync(filePath);
+        }
+    }
+
     closeProject() {
         if (this.#isOpened) {
-            fs.rmSync(this.#baseFilePath)
-            try {
-                fs.rmSync(this.basePath, {recursive: true, force: true});
+            console.log(`Closing ${this.#projectRandom}`)
+            fsp.rm(this.#baseFilePath).then(() => {
+                return this.removeAllFilesAsync(this.basePath)
+            }).then(() => {
+                return fsp.rm(this.basePath, {recursive: true, force: true})
+            }).then(() => {
                 this.#isOpened = false
-            } catch (err) {
-                console.log(err)
-            }
-
+                console.log(`${this.#projectRandom} is ${this.isOpened}`)
+            }).catch(e => {
+                console.log(e)
+            });
         }
     }
 

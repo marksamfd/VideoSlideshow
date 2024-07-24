@@ -4,7 +4,7 @@ class ShowPresentationBase extends Konva.Stage {
     #w;
     #h;
     #textToHeightRatio = 0.125
-    #textToSpacingRatio = .75
+    #textToSpacingRatio = .15
     _basePath;
     #simpleText;
     #background;
@@ -110,7 +110,8 @@ class ShowPresentationBase extends Konva.Stage {
         });
 
         this.#textBG = new Konva.Rect({
-            x: this.#w / 2 - this.#simpleText.getTextWidth() / 2 - this.#padding / 2,
+            // x: this.#w / 2 - this.#simpleText.getTextWidth() / 2 - this.#padding / 2,
+            x: this.#simpleText.getClientRect().x - this.#padding / 2,
             y: this.#simpleText.getClientRect().y - this.#padding / 2,
             height: this.#simpleText.getClientRect().height + this.#padding,
             width: this.#simpleText.getTextWidth() + this.#padding,

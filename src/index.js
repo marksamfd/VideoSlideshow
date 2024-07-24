@@ -7,6 +7,8 @@ import {createPresentationView, createShowCreatorView, createPresenterView} from
 import WorkingFile from './workingFile'
 import log from 'electron-log/main';
 
+let VidFilestream;
+
 
 if (app.isPackaged) {
     log.initialize({spyRendererConsole: true});
@@ -27,13 +29,105 @@ if (require('electron-squirrel-startup')) {
     app.quit();
 }
 
+protocol.registerSchemesAsPrivileged([
+    {
+        scheme: "media",
+        privileges: {
+            // secure: true,
+            bypassCSP: true,
+            stream: true,
+        },
+    },
+])
 
 app.disableHardwareAcceleration()
+
+function parseRangeRequests(text, size) {
+    const token = text.split("=");
+    if (token.length !== 2 || token[0] !== "bytes") {
+        return [];
+    }
+
+    return token[1]
+        .split(",")
+        .map((v) => parseRange(v, size))
+        .filter(([start, end]) => !isNaN(start) && !isNaN(end) && start <= end);
+}
+
+const NAN_ARRAY = [NaN, NaN];
+
+function parseRange(text, size) {
+    const token = text.split("-");
+    if (token.length !== 2) {
+        return NAN_ARRAY;
+    }
+
+    const startText = token[0].trim();
+    const endText = token[1].trim();
+
+    if (startText === "") {
+        if (endText === "") {
+            return NAN_ARRAY;
+        } else {
+            let start = size - Number(endText);
+            if (start < 0) {
+                start = 0;
+            }
+
+            return [start, size - 1];
+        }
+    } else {
+        if (endText === "") {
+            return [Number(startText), size - 1];
+        } else {
+            let end = Number(endText);
+            if (end >= size) {
+                end = size - 1;
+            }
+
+            return [Number(startText), end];
+        }
+    }
+}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+    protocol.handle("media", (request) => {
+        // https://github.com/electron/electron/issues/38749#issuecomment-1681531939
+        const fp = path.join(currentProject.basePath, decodeURIComponent(request.url.slice('media://'.length)))
+        const stats = fs.statSync(fp);
+
+        // console.log(fp, stats)
+        const headers = new Headers();
+        headers.set("Accept-Ranges", "bytes");
+        headers.set("Content-Type", "video/mp4");
+
+        let status = 200;
+        const rangeText = request.headers.get("range");
+
+        if (rangeText) {
+            const ranges = parseRangeRequests(rangeText, stats.size);
+
+            const [start, end] = ranges[0];
+            // console.log(rangeText, stats.size, start, end);
+            headers.set("Content-Length", `${end - start + 1}`);
+            headers.set("Content-Range", `bytes ${start}-${end}/${stats.size}`);
+            status = 206;
+            VidFilestream = fs.createReadStream(fp, {start, end});
+        } else {
+            headers.set("Content-Length", `${stats.size}`);
+            VidFilestream = fs.createReadStream(fp);
+
+        }
+
+        return new Response(VidFilestream, {
+            headers,
+            status,
+        });
+    })
+
     showCreatorView = createShowCreatorView()
     showCreatorView.on('close', (e) => {
         if (currentProject.isOpened) {
@@ -47,7 +141,10 @@ app.on('ready', () => {
             if (choice === 1) {
                 e.preventDefault()
             } else {
-
+                if (currentProject.isOpened) {
+                    VidFilestream?.destroy()
+                    currentProject.closeProject()
+                }
             }
         }
     })
@@ -57,8 +154,7 @@ app.on('ready', () => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-    /*if (currentProject.isOpened)
-        currentProject.closeProject()*/
+
     if (process.platform !== 'darwin') {
         app.quit();
     }
@@ -93,9 +189,11 @@ ipcMain.handle("file-opened", async (e, data) => {
     let mainWindow = BrowserWindow.getFocusedWindow().getParentWindow();
     BrowserWindow.getFocusedWindow().destroy()
 
-    /*if (currentProject.isOpened) {
+    if (currentProject.isOpened) {
+        VidFilestream?.destroy()
+        mainWindow.webContents.send("slideshow:destroy")
         currentProject.closeProject()
-    }*/
+    }
 
     currentProject = new WorkingFile(data)
 
@@ -104,14 +202,19 @@ ipcMain.handle("file-opened", async (e, data) => {
     } else {
         currentProject.openProject()
     }
-    console.log(currentProject.toObject())
-    mainWindow.setTitle(`ChoirSlide • ${currentProject.projectName}`)
+    mainWindow.setTitle(`ChoirSlide - ${currentProject.projectName}`)
     mainWindow.webContents.send("file-params", currentProject.toObject());
 })
 
 ipcMain.handle("file-save", (e, content) => {
+    dialog.showMessageBox(BrowserWindow.fromId(e.frameId), {
+        title: "File Save",
+        message: "File Is Saving",
+        type: "info",
+    })
+
     currentProject.saveProject(content).then(() => {
-        dialog.showMessageBoxSync({
+        dialog.showMessageBox(BrowserWindow.fromId(e.frameId), {
             title: "File Save",
             message: "File Saved Successfully",
             type: "info"
@@ -207,6 +310,7 @@ ipcMain.handle("slideshow:start", (e, content) => {
                 presentationView.webContents.send("main:presentation", {type: "init", data})
             })
             showCreatorView.destroy()
+            presenterView.focus()
         } else {
             dialog.showMessageBoxSync(showCreatorView, {
                 type: 'error',
