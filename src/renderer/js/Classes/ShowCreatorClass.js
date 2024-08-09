@@ -40,6 +40,7 @@ class ShowCreator extends Konva.Stage {
     #anim;
     #filePicker;
     #controller;
+    #unrenderedSlides = [];
 
     #slidesRadioSelector() {
         return document.querySelectorAll(`#${this.#sideBarSlidesContainer.id} input`)
@@ -72,7 +73,7 @@ class ShowCreator extends Konva.Stage {
 
         let slideThumbPreview = document.createElement("img");
         slideThumbPreview.className = "slideThumb";
-        if (slide.videoFileName === undefined) {
+        if (slide.videoFileName === undefined && slide.text === "") {
             slide.createVideoCoverImage().then(img => {
                 slideThumbPreview.src = `${img}`;
             })
@@ -99,11 +100,12 @@ class ShowCreator extends Konva.Stage {
         return [...this.#slidesRadioSelector()].findIndex(el => el.checked)
     }
 
-    #changeSlideText(e) {
+    #onChangeSlideText(e) {
 
         // change slide text values and sidebar
-        this.#slides[this.#currentSlide].text = e.target.value;
-        this.#sideBarSlidesContainer.children[this.#currentSlide].querySelector("span").innerText = e.target.value
+        let currentText = e.target.value.trim()
+        this.#slides[this.#currentSlide].text = currentText;
+        this.#sideBarSlidesContainer.children[this.#currentSlide].querySelector("span").innerText = currentText
     }
 
     #onSlideClick(e) {
@@ -206,7 +208,7 @@ class ShowCreator extends Konva.Stage {
 
 
         this.#basePath = props.basePath
-        this.#slides = props.slides
+        this.#unrenderedSlides = props.slides
 
         console.log(this.#slides)
 
@@ -227,7 +229,7 @@ class ShowCreator extends Konva.Stage {
             this.addNewSlide()
         }, {signal: this.#controller.signal})
         this.#sideBarSlidesContainer.addEventListener("change", this.#onSlideClick.bind(this), {signal: this.#controller.signal})
-        this.#slideTextInput.addEventListener("input", this.#changeSlideText.bind(this), {signal: this.#controller.signal})
+        this.#slideTextInput.addEventListener("input", this.#onChangeSlideText.bind(this), {signal: this.#controller.signal})
 
         this.#anim = new Konva.Animation(function () {
             // do nothing, animation just need to update the layer
@@ -260,8 +262,9 @@ class ShowCreator extends Konva.Stage {
         this.slideNumber = 0
 
         // mapping slides must be at end
-        this.#slides.forEach(slide => this.addNewSlide(slide))
+        this.#unrenderedSlides.forEach(slide => this.addNewSlide(slide))
 
+        console.log(this.#slides)
         if (this.#slides.length === 0) {
             this.addNewSlide()
         }
@@ -284,9 +287,10 @@ class ShowCreator extends Konva.Stage {
 
         let scrollBehaviour = {behavior: "smooth", block: "start"}
         this.#sideBarSlidesContainer.children[this.#currentSlide].scrollIntoView(scrollBehaviour)
+        this.#slides.splice(this.#currentSlide + 1, 0, newSlide)
 
-        if (newSlide.videoFileName === undefined) {
-            this.#slides.splice(this.#currentSlide + 1, 0, newSlide)
+
+        if (!newSlide.videoFileName) {
             this.#slideTextInput.value = ""
             this.#createCanvasVideoPicker()
         } else {
@@ -311,6 +315,7 @@ class ShowCreator extends Konva.Stage {
             if (this.#currentSlide > -1) {
                 this.#slidesRadioSelector()[this.#currentSlide].checked = true
             }
+            this.#setCanvasToVideo(this.#slides[this.#currentSlide])
 
             //TODO: Delete video and Thumbnail from folder
         }

@@ -9,7 +9,7 @@ window.file.onFileParams(function (fileParams) {
     let presentation = JSON.parse(fileParams["content"])
     let slides = presentation.map(e => new Slide(e))
     let slidePreviewCanv = document.getElementById("currentSlideThumbCanvas");
-    console.log(slidePreviewCanv)
+
     // comm.toPresentation({type: "init", data: JSON.stringify(fileParams)})
     present = new ShowCreator({
         container: "currentSlideThumbCanvas",

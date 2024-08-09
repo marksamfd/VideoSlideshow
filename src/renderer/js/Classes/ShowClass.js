@@ -72,7 +72,7 @@ class Show extends ShowPresentationBase {
     changeSlide(number = 1) {
         let {currentTextSlide, currentSlide, isNewSlide} = super.changeSlide(number)
         if (isNewSlide) {
-            if (this.slides[currentSlide] !== undefined) {
+            if (this.slides[currentSlide].videoFileName !== undefined) {
                 this._backgroundObjs[currentSlide].play()
             }
             if (currentSlide !== this._slides.length - 1) {
