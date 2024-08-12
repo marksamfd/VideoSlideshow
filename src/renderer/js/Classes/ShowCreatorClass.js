@@ -42,6 +42,7 @@ class ShowCreator extends Konva.Stage {
     #controller;
     #unrenderedSlides = [];
 
+
     #slidesRadioSelector() {
         return document.querySelectorAll(`#${this.#sideBarSlidesContainer.id} input`)
     };
@@ -73,7 +74,7 @@ class ShowCreator extends Konva.Stage {
 
         let slideThumbPreview = document.createElement("img");
         slideThumbPreview.className = "slideThumb";
-        if (slide.videoFileName === undefined && slide.text === "") {
+        if (slide.videoFileName === undefined) {
             slide.createVideoCoverImage().then(img => {
                 slideThumbPreview.src = `${img}`;
             })
@@ -287,7 +288,7 @@ class ShowCreator extends Konva.Stage {
 
         let scrollBehaviour = {behavior: "smooth", block: "start"}
         this.#sideBarSlidesContainer.children[this.#currentSlide].scrollIntoView(scrollBehaviour)
-        this.#slides.splice(this.#currentSlide + 1, 0, newSlide)
+        this.#slides.splice(this.#currentSlide, 0, newSlide)
 
 
         if (!newSlide.videoFileName) {
@@ -297,6 +298,7 @@ class ShowCreator extends Konva.Stage {
             this.#setCanvasToVideo(this.#slides[this.#currentSlide])
         }
 
+        console.log(this.#currentSlide,this.#slides)
     }
 
 
