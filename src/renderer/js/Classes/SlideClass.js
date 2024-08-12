@@ -102,7 +102,7 @@ class Slide {
                 subtitledText.push(textSplit.slice(i, i + sepBy).join(" "))
             }
 
-        } else if (mode === "delimiter") {
+        } else {
             subtitledText = this._text.split(sepBy)
         }
         console.log(subtitledText)

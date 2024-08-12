@@ -121,6 +121,7 @@ class ShowPresenterView extends ShowPresentationBase {
             this.#sideBarSlidesContainer.children[currentSlide - number].classList.remove("active");
         } else {
             this.#lyricsContainer.children[currentTextSlide].classList.add("active-text-slide");
+            this.#lyricsContainer.children[currentTextSlide].scrollIntoView(scrollBehaviour)
             if (this.#lyricsContainer.children.length > 1) {
                 this.#lyricsContainer.children[currentTextSlide - number].classList.remove("active-text-slide");
             }

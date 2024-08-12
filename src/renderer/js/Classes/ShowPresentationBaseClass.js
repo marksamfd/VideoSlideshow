@@ -4,7 +4,7 @@ class ShowPresentationBase extends Konva.Stage {
     #w;
     #h;
     #textToHeightRatio = 0.125
-    #textToSpacingRatio = .15
+    #textToSpacingRatio = .10
     _basePath;
     #simpleText;
     #background;
@@ -14,7 +14,7 @@ class ShowPresentationBase extends Konva.Stage {
     _slides;
     #textLayer;
     #textBG;
-    #padding = 30;
+    #padding = 15;
     _backgroundObjs;
     _mode;
     _sepBy;
@@ -90,7 +90,7 @@ class ShowPresentationBase extends Konva.Stage {
         this.#simpleText = new Konva.Text({
             x: 0,
             y: this.height() * this.#textToSpacingRatio,
-            text: `${this.#textSlides[this.#currentTextSlide]}\u200f`,
+            text: `${this.#textSlides[this.#currentTextSlide]}\u202e`,
             /*
              \u200f The right-to-left mark (RLM) is a non-printing character used in the computerized typesetting of bi-directional
              text containing a mix of left-to-right scripts (such as Latin and Cyrillic) and right-to-left scripts
@@ -106,7 +106,8 @@ class ShowPresentationBase extends Konva.Stage {
             width: this.width(),
             align: "center",
             cornerRadius: 20,
-            fontStyle: "bold"
+            fontStyle: "bold",
+            lineHeight:1.25
         });
 
         this.#textBG = new Konva.Rect({
@@ -122,6 +123,7 @@ class ShowPresentationBase extends Konva.Stage {
 
         this.baseLayer.add(this.#background);
 
+        this.#textLayer.getCanvas()._canvas.setAttribute("dir","rtl")
         this.#textLayer.add(this.#textBG)
         this.#textLayer.add(this.#simpleText)
 
@@ -140,7 +142,7 @@ class ShowPresentationBase extends Konva.Stage {
         this.#currentTextSlide += number
         let isNewSlide = false
         if (this.#currentTextSlide < this.#textSlides.length && this.#currentTextSlide >= 0) {
-            this.#simpleText.text(`${this.#textSlides[this.#currentTextSlide]}\u200f`)
+            this.#simpleText.text(`${this.#textSlides[this.#currentTextSlide]}`)
         } else if (this.#currentTextSlide === this.#textSlides.length && this.#currentSlide !== this._slides.length - 1) {
             this.#currentTextSlide = 0
             this.#currentSlide++
@@ -148,7 +150,7 @@ class ShowPresentationBase extends Konva.Stage {
                 this._mode,
                 this._sepBy
             )
-            this.#simpleText.text(`${this.#textSlides[this.#currentTextSlide]}\u200f`)
+            this.#simpleText.text(`${this.#textSlides[this.#currentTextSlide]}\u202e`)
             isNewSlide = true
 
             if (this.#currentSlide === this._backgroundObjs.length - 2) {
@@ -163,7 +165,7 @@ class ShowPresentationBase extends Konva.Stage {
                 this._sepBy
             )
             this.#currentTextSlide = this.#textSlides.length + this.#currentTextSlide
-            this.#simpleText.text(`${this.#textSlides[this.#currentTextSlide]}\u200f`)
+            this.#simpleText.text(`${this.#textSlides[this.#currentTextSlide]}`)
             isNewSlide = true
             this.#background.setAttr("image", this._backgroundObjs[this.#currentSlide])
         } else if (this.#currentTextSlide < 0 && this.#currentSlide === 0) {
