@@ -4,17 +4,17 @@ class ShowPresentationBase extends Konva.Stage {
     #w;
     #h;
     #textToHeightRatio = 0.125
-    #textToSpacingRatio = .10
+    #textToSpacingRatio = .65
     _basePath;
     #simpleText;
     #background;
     #textSlides;
     #currentSlide
     #currentTextSlide;
-    _slides;
+    _slides
     #textLayer;
     #textBG;
-    #padding = 15;
+    #padding = 20;
     _backgroundObjs;
     _mode;
     _sepBy;
