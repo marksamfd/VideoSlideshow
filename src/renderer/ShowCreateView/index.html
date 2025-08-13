@@ -1,85 +1,410 @@
 <!DOCTYPE html>
 <html lang="en" class="h-100" data-bs-theme="dark">
-
-<head>
-    <meta charset="UTF-8"/>
+  <head>
+    <meta charset="UTF-8" />
     <title>ChoirSlides</title>
-</head>
+    <style>
+      .slide-thumbnail {
+        border: 2px solid transparent;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+      .slide-thumbnail:hover {
+        border-color: var(--bs-primary);
+        /* transform: scale(1.05); */
+      }
+      .slide-thumbnail.active {
+        border-color: var(--bs-success);
+        box-shadow: 0 0 10px rgba(25, 135, 84, 0.5);
+      }
+      .video-canvas {
+        background: #000;
+        border-radius: 8px;
+        min-height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+      }
+      .toolbar-section {
+        background: var(--bs-dark);
+        border-radius: 8px;
+        padding: 0.5rem;
+        margin: 0.25rem 0;
+      }
+      #textSlidesContent {
+        resize: none;
+        font-size: 1.1rem;
+        line-height: 1.5;
+      }
+      .slide-counter {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+      }
 
-<body class="m-0">
-<div class="container-fluid">
-    <div class="row">
-        <div class="col flex-grow-0 pt-1 align-items-center ps-0 justify-content-between d-flex flex-column"
-             id="slidePreview">
-            <div class="row w-100 h-50 justify-content-between pb-2" id="currentSlideThumbContainer">
-                <div id="videoToolBar" class="d-flex justify-content-center align-content-center">
-                  <!--  <div class="p-2 align-content-center">
-                        <div class="btn-group-vertical" role="group" aria-label="Vertical button group">
-                            <button class="btn btn-primary" id="replaceVideo"><i class="material-symbols-outlined">find_replace</i>
-                            </button>
-                        </div>
-                    </div>-->
+      /* Slide item styles */
+      .slide-item {
+        background: var(--bs-dark);
+        border: 1px solid var(--bs-secondary);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .slide-item:hover {
+        border-color: var(--bs-primary);
+        /* transform: translateX(5px); */
+      }
+
+      /* .slide-item.active {
+        border-color: var(--bs-success);
+        background: rgba(25, 135, 84, 0.1);
+      } */
+      .slide-item:has(input[type="radio"]:checked) {
+        border-color: var(--bs-success);
+        background: rgba(25, 135, 84, 0.1);
+      }
+
+      .slide-preview {
+        height: 10rem;
+        background-repeat: round !important;
+        background: #111;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        color: #666;
+        border-bottom: 1px solid var(--bs-secondary);
+      }
+
+      .slide-content {
+        padding: 8px;
+        max-height: 80px;
+        overflow: hidden;
+      }
+
+      .slide-text-preview {
+        font-size: 0.75rem;
+        line-height: 1.2;
+        color: var(--bs-light);
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .slide-number {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        background: rgba(13, 110, 253, 0.8);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: bold;
+      }
+
+      .slide-duration {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+      }
+    </style>
+  </head>
+
+  <body class="m-0 bg-dark text-light">
+    <div class="container-fluid h-100">
+      <div class="row h-100">
+        <!-- Main Content Area -->
+        <div class="col-8 d-flex flex-column h-100" id="slidePreview">
+          <!-- Video Preview Area -->
+          <div class="row flex-grow-1 mb-3">
+            <div class="col">
+              <div class="card bg-dark border-secondary h-100">
+                <div
+                  class="card-header d-flex justify-content-between align-items-center"
+                >
+                  <h6 class="mb-0 d-flex align-items-center">
+                    <span class="material-symbols-outlined me-2 mb-0"
+                      >videocam</span
+                    >
+                    Video Preview
+                  </h6>
+                  <div class="toolbar-section" id="videoToolbar">
+                    <button
+                      class="btn btn-sm btn-outline-primary me-1"
+                      id="replaceVideoBtn"
+                      title="Replace Video"
+                    >
+                      <span class="material-symbols-outlined"
+                        >find_replace</span
+                      >
+                    </button>
+                    <button
+                      class="btn btn-sm btn-outline-secondary me-1"
+                      id="muteVideoBtn"
+                      title="Mute Video"
+                    >
+                      <span class="material-symbols-outlined">
+                        volume_off
+                      </span>
+                    </button>
+                    <!-- <button
+                      class="btn btn-sm btn-outline-info"
+                      id="repeatVideoBtn"
+                      title="Repeat Video"
+                    >
+                      <span class="material-symbols-outlined">repeat_on</span>
+                    </button> -->
+                  </div>
                 </div>
-                <div id="currentSlideThumbCanvas" class="currentSlideThumb "></div>
+                <div class="card-body">
+                  <!-- <div
+                    id="videoToolBar"
+                    class="d-flex justify-content-center align-content-center"
+                  ></div> -->
+                  <div
+                    class="ratio-16x9 h-100 w-100 d-flex justify-content-center"
+                    id="currentSlideThumbCanvas"
+                  ></div>
 
-                <div style="width: fit-content; visibility: collapse">dd</div>
-
+                  <!-- <div style="width: fit-content; visibility: collapse">dd</div> -->
+                </div>
+              </div>
             </div>
-            <div class="row w-100 h-50 mt-1 mb-1" id="textSlidesEditor">
-                <div class="col">
-                    <!-- <div class="row">
-                         <ul>
-                             <li class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-                                 <div class="btn-group">
-                                     <input type="radio" class="btn-check" name="textDirection" id="ltrRadioBtn"
-                                            autocomplete="off"
-                                            >
-                                     <label class="btn btn-outline-secondary" title="Left-to-Right text"
-                                            for="ltrRadioBtn">
-                                         <span class="material-symbols-outlined">
-                                             format_textdirection_l_to_r
-                                         </span>
-                                     </label>
+          </div>
 
-                                     <input type="radio" class="btn-check" name="textDirection" id="rtlRadioBtn"
-                                            autocomplete="off" checked>
-                                     <label class="btn btn-outline-secondary" title="Right-to-Left text"
-                                            for="rtlRadioBtn">
-                                          <span class="material-symbols-outlined">
-                                             format_textdirection_r_to_l
-                                         </span>
-                                     </label>
-                                 </div>
+          <!-- Text Editor Area -->
+          <div class="row" style="height: 40%">
+            <div class="col">
+              <div class="card bg-dark border-secondary h-100">
+                <div class="card-header">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <h6 class="mb-0 d-flex align-items-center">
+                      <span class="material-symbols-outlined me-2"
+                        >text_fields</span
+                      >
+                      Slide Text Editor
+                    </h6>
+                    <div class="toolbar-section d-flex justify-content-center">
+                      <!-- <div class="btn-group btn-group-sm" role="group">
+                        <input
+                          type="radio"
+                          class="btn-check"
+                          name="textDirection"
+                          id="ltrRadioBtn"
+                          autocomplete="off"
+                        />
+                        <label
+                          class="btn btn-outline-secondary"
+                          title="Left-to-Right text"
+                          for="ltrRadioBtn"
+                        >
+                          <span class="material-symbols-outlined"
+                            >format_textdirection_l_to_r</span
+                          >
+                        </label>
+                        <input
+                          type="radio"
+                          class="btn-check"
+                          name="textDirection"
+                          id="rtlRadioBtn"
+                          autocomplete="off"
+                          checked
+                        />
+                        <label
+                          class="btn btn-outline-secondary"
+                          title="Right-to-Left text"
+                          for="rtlRadioBtn"
+                        >
+                          <span class="material-symbols-outlined"
+                            >format_textdirection_r_to_l</span
+                          >
+                        </label>
+                      </div> -->
+                      <!-- <div class="btn-group btn-group-sm ms-2" role="group">
+                        <button
+                          class="btn btn-outline-secondary"
+                          id="boldText"
+                          title="Bold"
+                        >
+                          <span class="material-symbols-outlined"
+                            >format_bold</span
+                          >
+                        </button>
+                        <button
+                          class="btn btn-outline-secondary"
+                          id="italicText"
+                          title="Italic"
+                        >
+                          <span class="material-symbols-outlined"
+                            >format_italic</span
+                          >
+                        </button>
+                        <button
+                          class="btn btn-outline-secondary"
+                          id="underlineText"
+                          title="Underline"
+                        >
+                          <span class="material-symbols-outlined"
+                            >format_underlined</span
+                          >
+                        </button>
+                      </div> -->
+                      <div class="btn-group btn-group-sm ms-2" role="group">
+                        <!-- <button
+                          class="btn btn-outline-secondary"
+                          id="fontSize"
+                          title="Font Size"
+                        >
+                          <span class="material-symbols-outlined"
+                            >format_size</span
+                          >
+                        </button> -->
+                        <input
+                          type="checkbox"
+                          class="btn-check"
+                          id="backgroundEnabledBtn"
+                          autocomplete="off"
+                          checked
+                        />
 
-                             </li>
-                         </ul>
-                </div>-->
-                    <div class="row">
-                        <div class="col h-100">
-                            <textarea class="h-100 form-control bg-transparent border-1"
-                                      id="textSlidesContent" dir="rtl" placeholder="Please Enter Slide Text"></textarea>
-                        </div>
+                        <label
+                          class="btn d-flex align-items-center"
+                          for="backgroundEnabledBtn"
+                        >
+                          <span class="material-symbols-outlined">palette</span>
+                        </label>
+
+                        <!--  <button
+                          class="btn btn-outline-secondary"
+                          id="textColor"
+                          title="Text Color"
+                        ></button> -->
+                      </div>
+
+                      <select
+                        class="form-select ms-2"
+                        aria-label="Default select example"
+                        id="fontSelector"
+                        style="font-size: 16pt"
+                      ></select>
                     </div>
+                  </div>
                 </div>
-
-
+                <div class="card-body p-2" id="slideTextEditor">
+                  <textarea
+                    class="form-control bg-dark text-light border-secondary h-100"
+                    dir="rtl"
+                    placeholder="Enter your slide text here..."
+                  ></textarea>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
-        <div class="col flex-shrink-0 d-flex flex-column align-items-center overflow-y-hidden" id="sideBar">
-            <div class="d-grid w-100">
-                <button class="btn btn-primary mb-2" id="slideAdd">
+
+        <!-- Sidebar -->
+        <div
+          class="col h-100 d-flex flex-column overflow-y-hidden"
+          id="sideBar"
+        >
+          <div class="card bg-dark border-secondary h-100">
+            <div class="card-header">
+              <h6 class="mb-0 d-flex align-items-center">
+                <span class="material-symbols-outlined me-2">view_list</span>
+                Slides Manager
+              </h6>
+              <div class="card-body p-2 d-flex flex-column">
+                <div class="d-grid gap-2 mb-3">
+                  <button class="btn btn-primary" id="slideAdd">
+                    <span class="material-symbols-outlined me-2">add</span>
                     Add New Slide
-                </button>
+                  </button>
+                  <div class="btn-group" role="group">
+                    <!-- <button class="btn btn-outline-secondary btn-sm" id="slideUp" title="Move Up">
+                                    <span class="material-symbols-outlined">arrow_upward</span>
+                                </button>
+                                <button class="btn btn-outline-secondary btn-sm" id="slideDown" title="Move Down">
+                                    <span class="material-symbols-outlined">arrow_downward</span>
+                                </button> -->
+                    <button
+                      class="btn btn-outline-danger btn-sm"
+                      id="slideDelete"
+                      title="Delete Slide"
+                    >
+                      <span class="material-symbols-outlined">delete</span>
+                    </button>
+                    <!-- <button class="btn btn-outline-info btn-sm" id="slideDuplicate" title="Duplicate Slide">
+                                    <span class="material-symbols-outlined">content_copy</span>
+                                </button> -->
+                  </div>
+                </div>
+              </div>
             </div>
-            <ol class="list-group list-group-numbered p-2 w-100 overflow-y-auto"
-                id="sidebarSlidesContainer">
+            <div class="flex-grow-1 overflow-auto">
+              <div class="list-group" id="sidebarSlidesContainer">
+                <!-- Slides will be dynamically added here -->
+                <div
+                  class="list-group-item list-group-item-action bg-dark border-secondary text-center text-muted py-4"
+                >
+                  <span
+                    class="material-symbols-outlined"
+                    style="font-size: 2rem"
+                    >add_circle</span
+                  >
+                  <p class="mb-0 mt-2">
+                    No slides yet. Click "Add New Slide" to get started.
+                  </p>
+                </div>
+                <!-- <label class="slide-item">
+                  <input type="radio" class="visually-hidden" />
+                  <div
+                    class="slide-preview ratio-16x9 w-100"
+                    style="height: 10rem"
+                  >
+                    <span class="material-symbols-outlined">hide_image</span>
+                    <span class="slide-number">1</span>
+                  </div>
+                  <div class="slide-content">
+                    <div class="slide-text-preview">
+                      ${slide.text || '<em>Empty slide</em>'}
+                    </div>
+                  </div>
+                </label> -->
+              </div>
+            </div>
 
-
-            </ol>
+            <div class="mt-2 p-2 bg-secondary bg-opacity-25 rounded">
+              <small class="text-muted">
+                <span
+                  class="material-symbols-outlined me-1"
+                  style="font-size: 1rem"
+                  >info</span
+                >
+                Total slides: <span id="slideCount">0</span>
+              </small>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
-
-</body>
-
+  </body>
 </html>
