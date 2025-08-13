@@ -1,4 +1,4 @@
-import Slide from "../../js/Classes/SlideClass";
+import Slide from "../../js/Classes/Slide";
 import ShowPresenterView from "../../js/Classes/ShowPresenterViewClass";
 import hotkeys from "hotkeys-js";
 

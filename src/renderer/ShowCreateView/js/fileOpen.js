@@ -1,55 +1,61 @@
-import Slide from "../../js/Classes/SlideClass";
-import ShowCreator from "../../js/Classes/ShowCreatorClass";
+import Slide from "../../js/Classes/Slide";
+import ShowCreator from "../../js/Classes/ShowCreator";
 import hotkeys from "hotkeys-js";
 
-let present
+/**
+ * @type {ShowCreator}
+ */
+let present;
 
 window.file.onFileParams(function (fileParams) {
-    console.log(fileParams);
-    let presentation = JSON.parse(fileParams["content"])
-    let slides = presentation.map(e => new Slide(e))
-    let slidePreviewCanv = document.getElementById("currentSlideThumbCanvas");
+  console.log(fileParams);
+  let presentation = JSON.parse(fileParams["content"]);
+  let slides = presentation.map((e) => new Slide(e));
+  let slidePreviewCanv = document.getElementById("currentSlideThumbCanvas");
 
-    // comm.toPresentation({type: "init", data: JSON.stringify(fileParams)})
-    present = new ShowCreator({
-        container: "currentSlideThumbCanvas",
-        sidebarSlidesContainer: document.getElementById("sidebarSlidesContainer"),
-        lyricsContainer: document.getElementById("textSlidesList"),
-        slideTextEditor: document.getElementById("textSlidesEditor"),
-        width: slidePreviewCanv.clientWidth,
-        height: slidePreviewCanv.clientHeight,
-        slides,
-        basePath: fileParams.basePath,
-        mode: fileParams.mode,
-        sepBy: fileParams.sepBy
-    })
+  present = new ShowCreator({
+    slides: [...slides],
+    sidebarSlidesContainer: document.getElementById("sidebarSlidesContainer"),
+    container: "currentSlideThumbCanvas",
+    width: slidePreviewCanv.clientWidth,
+    height: slidePreviewCanv.clientHeight,
+    splitStrategy: fileParams.mode,
+    splitDelimiter: fileParams.sepBy,
+    addSlideBtn: document.querySelector(`#slideAdd`),
+    removeSlideBtn: document.querySelector(`#slideDelete`),
+    textEditorField: document.querySelector("textarea"),
+    fontSelector: document.querySelector("#fontSelector"),
+    backgroundEnabledBtn: document.querySelector("#backgroundEnabledBtn"),
+    videoToolbar: document.querySelector("#videoToolbar"),
+  });
 
-    // window.onbeforeunload = (e) => {
-    //     e.preventDefault()
-    //     file.saveAndQuit(present.saveShow())
-    //
-    // }
-
-
-})
-hotkeys('delete,ctrl+s', function (event, handler) {
-    switch (handler.key) {
-        case 'delete':
-            present?.removeSlide()
-            break;
-        case 'ctrl+s':
-            file.save(present.saveShow())
+  window.file.onSaveBeforeQuit(async () => {
+    console.log("Saving data before quitting...");
+    if (await file.saveAndQuit(present.stringifyShow())) {
+      window.file.saveDone();
     }
-})
+  });
+});
+hotkeys("delete,ctrl+s", function (event, handler) {
+  switch (handler.key) {
+    case "delete":
+      present?.removeSlide();
+      break;
+    case "ctrl+s":
+      file.save(present.stringifyShow());
+      console.log(present.stringifyShow());
+  }
+});
 
 window.comm.onSlideshowInitialized(() => {
-    comm.startSlideshow(present.saveShow())
-})
+  comm.startSlideshow(present.stringifyShow());
+});
 
-window.comm.onSlideshowDestroy(() => {
+/* window.comm.onSlideshowDestroy(() => {
+  present?.destroyCreator();
+});
+window.onbeforeunload = () => {
+    console.log("Destroying show")
     present?.destroyCreator()
-})
-// window.onbeforeunload = () => {
-//     console.log("Destroying show")
-//     present?.destroyCreator()
-// }
+}
+ */

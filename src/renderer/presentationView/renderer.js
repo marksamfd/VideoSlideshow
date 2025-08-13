@@ -1,5 +1,5 @@
 import Show from "../js/Classes/ShowClass";
-import Slide from "../js/Classes/SlideClass";
+import Slide from "../js/Classes/Slide";
 import hotkeys from 'hotkeys-js';
 import "./index.scss";
 
