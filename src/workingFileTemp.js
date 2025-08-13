@@ -69,7 +69,7 @@ class WorkingFile {
     }
 
     get #workingTempDir() {
-        return "temp-" + this.#projectRandom
+        return "videos"
     }
 
     /**
@@ -124,13 +124,13 @@ class WorkingFile {
     }
 
     openProject() {
-        let zip = new AdmZip(this.#filePath)
+        /*let zip = new AdmZip(this.#filePath)
         zip.extractAllTo(this.#openedFileDirectory)
         fs.renameSync(path.join(this.#openedFileDirectory, "videos"), this.basePath)
         fs.renameSync(path.join(this.#openedFileDirectory, "slides.json"), this.#baseFilePath)
         fswin.setAttributesSync(this.basePath, {IS_HIDDEN: true});
-        fswin.setAttributesSync(this.#baseFilePath, {IS_HIDDEN: true});
-        this.#lastSavedData = fs.readFileSync(path.join(this.#openedFileDirectory, this.#projectRandom + ".json"), {encoding: "utf8"})
+        fswin.setAttributesSync(this.#baseFilePath, {IS_HIDDEN: true});*/
+        this.#lastSavedData = fs.readFileSync(this.#filePath, {encoding: "utf8"})
         this.#isOpened = true
         console.log(`Opening ${this.#projectRandom}`)
     }
@@ -161,6 +161,8 @@ class WorkingFile {
     }
 
     closeProject() {
+        this.#isOpened = false
+        return;
         if (this.#isOpened) {
             console.log(`Closing ${this.#projectRandom}`)
             fsp.rm(this.#baseFilePath).then(() => {

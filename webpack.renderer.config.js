@@ -1,24 +1,22 @@
-const rules = require('./webpack.rules');
+const rules = require("./webpack.rules");
 
 rules.push({
   test: /\.scss$/,
   use: [
-    { loader: 'style-loader' },
-    { loader: 'css-loader' },
+    { loader: "style-loader" },
+    { loader: "css-loader" },
     {
-      loader: 'sass-loader'
+      loader: "sass-loader",
     },
     {
-      loader: 'postcss-loader',
+      loader: "postcss-loader",
       options: {
         postcssOptions: {
           plugins: function () {
-            return [
-              require('autoprefixer')
-            ];
-          }
-        }
-      }
+            return [require("autoprefixer")];
+          },
+        },
+      },
     },
   ],
 });
@@ -29,7 +27,10 @@ module.exports = {
     rules,
   },
   output: {
-    publicPath: './../',
-    assetModuleFilename:'[name][ext]'
+    publicPath: "./../",
+    assetModuleFilename: "[name][ext]",
+  },
+  resolve: {
+    extensions: [".ts", ".js"],
   },
 };

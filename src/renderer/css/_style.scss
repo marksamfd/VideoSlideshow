@@ -1,14 +1,14 @@
 @font-face {
-  font-family: 'Material Symbols Outlined';
+  font-family: "Material Symbols Outlined";
   font-style: normal;
-  src: url(../asset/resource/MaterialSymbolsRounded.woff2) format('woff');
+  src: url(../asset/resource/MaterialSymbolsRounded.woff2) format("woff");
 }
 
 .material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
+  font-family: "Material Symbols Outlined";
   font-weight: normal;
   font-style: normal;
-  font-size: 1.5em;  /* Preferred icon size */
+  font-size: 1.5em; /* Preferred icon size */
   display: inline-block;
   line-height: 1;
   text-transform: none;
@@ -19,7 +19,7 @@
 }
 
 body {
-  margin: .5% .1%;
+  margin: 0.5% 0.1%;
   height: -webkit-fill-available;
   user-select: none;
 }
@@ -31,11 +31,11 @@ img {
 #slidePreview {
   flex-basis: 75%;
   background: rgb(43, 45, 48);
-  padding-right: .2%;
+  padding-right: 0.2%;
   height: 100vh;
 
   #currentSlideThumbContainer {
-    height: 50%;
+    // height: 50%;
 
     #videoToolBar {
       width: fit-content;
@@ -43,10 +43,9 @@ img {
     }
 
     .currentSlideThumb {
-      width: auto;
-      height: 100%;
-      aspect-ratio: 16/9;
-      //object-fit: contain;
+      object-fit: contain;
+      height: 75%;
+      aspect-ratio: 16 / 9;
       border-radius: $slideThumbCornerRadius;
     }
   }
@@ -72,13 +71,13 @@ img {
   width: 100%;
 }
 
-div{
-  #textSlidesList{
+div {
+  #textSlidesList {
     height: 22rem;
   }
 }
 #textSlidesList > li:hover:not(.active-text-slide) {
-  color: rgba(255, 255, 255, 0.50);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .active-text-slide {

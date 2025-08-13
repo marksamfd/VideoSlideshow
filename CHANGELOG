@@ -1,0 +1,65 @@
+# Changelog
+
+## [3.0.0] - 2025-08-13
+
+### Major Changes
+
+#### Added
+- **TypeScript Integration**:
+  - Converted some core classes (Slide, WorkingFile) to TypeScript for better type safety
+  - Added TypeScript configuration for future project-wide adoption
+- **Enhanced Text Customization**:
+  - Font selection from system fonts (fixes #40)
+  - Text positioning controls
+  - Toggleable text background
+- **Video Controls**:
+  - Mute/unmute functionality for videos
+  - Improved video handling with black video fallback
+- **Project Management**:
+  - New TAR-based project format replacing ZIP (fixes 2GB size limit) 
+  - Direct archive reading capability (fixes #32)
+
+#### Changed
+- **UI Improvements**:
+  - Redesigned slide creator interface
+  - Better slide thumbnail management
+  - Improved sidebar navigation
+- **Architectural Updates**:
+  - Refactored monolithic SlideCreator into modular components following SOLID principles
+  - Implemented new MediaResponder class for better media handling
+- **Performance**:
+  - Optimized video streaming and resource loading
+  - Reduced memory usage for large projects
+
+#### Fixed
+- **Critical Issues**:
+  - Resolved 2GB project size limitation
+  - Fixed archive access problems
+- **Stability**:
+  - Improved error handling during project save/load
+  - Better resource cleanup when closing projects
+- **UX**:
+  - Smoother transitions between slides
+  - More reliable file operations
+
+### Technical Details
+
+#### New Features
+- Added font selector with system font detection
+- Implemented text positioning with drag-and-drop
+- Created new video toolbar with mute control
+- Added project save confirmation before quit
+
+#### Code Improvements
+- TypeScript migration for core components
+- Modular architecture with separate classes for:
+  - Canvas rendering
+  - Sidebar management
+  - Text editing
+  - Video controls
+- Improved error handling and logging
+
+#### Dependency Updates
+- Updated Electron to latest stable version
+- Replaced JSZip with TAR for archive handling
+- Added new dev dependencies for TypeScript support
