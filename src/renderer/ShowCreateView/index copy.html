@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ChoirSlides</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Material Icons -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+      rel="stylesheet"
+    />
+
+    <!-- Custom CSS -->
+    <style>
+      .slide-thumbnail {
+        border: 2px solid transparent;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+      .slide-thumbnail:hover {
+        border-color: var(--bs-primary);
+        transform: scale(1.05);
+      }
+      .slide-thumbnail.active {
+        border-color: var(--bs-success);
+        box-shadow: 0 0 10px rgba(25, 135, 84, 0.5);
+      }
+      .video-canvas {
+        background: #000;
+        border-radius: 8px;
+        min-height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+      }
+      .toolbar-section {
+        background: var(--bs-dark);
+        border-radius: 8px;
+        padding: 0.5rem;
+        margin: 0.25rem 0;
+      }
+      #textSlidesContent {
+        resize: none;
+        font-size: 1.1rem;
+        line-height: 1.5;
+      }
+      .slide-counter {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+      }
+
+      /* Slide item styles */
+      .slide-item {
+        background: var(--bs-dark);
+        border: 1px solid var(--bs-secondary);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .slide-item:hover {
+        border-color: var(--bs-primary);
+        transform: translateX(5px);
+      }
+
+      .slide-item.active {
+        border-color: var(--bs-success);
+        background: rgba(25, 135, 84, 0.1);
+      }
+
+      .slide-preview {
+        height: 60px;
+        background: #111;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        color: #666;
+        border-bottom: 1px solid var(--bs-secondary);
+      }
+
+      .slide-content {
+        padding: 8px;
+        max-height: 80px;
+        overflow: hidden;
+      }
+
+      .slide-text-preview {
+        font-size: 0.75rem;
+        line-height: 1.2;
+        color: var(--bs-light);
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .slide-number {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        background: rgba(13, 110, 253, 0.8);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: bold;
+      }
+
+      .slide-duration {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+      }
+    </style>
+  </head>
+
+  <body class="m-0 bg-dark text-light">
+    <!-- Top Menu Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+      <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1">
+          <span class="material-symbols-outlined me-2">slideshow</span>
+          ChoirSlides Creator
+        </span>
+        <div class="navbar-nav ms-auto">
+          <button class="btn btn-outline-light me-2" id="saveProject">
+            <span class="material-symbols-outlined me-1">save</span>
+            Save
+          </button>
+          <button class="btn btn-outline-light me-2" id="previewShow">
+            <span class="material-symbols-outlined me-1">play_arrow</span>
+            Preview
+          </button>
+          <button class="btn btn-success" id="exportProject">
+            <span class="material-symbols-outlined me-1">download</span>
+            Export
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid h-100 py-2">
+      <div class="row h-100">
+        <!-- Main Content Area -->
+        <div class="col-8 d-flex flex-column h-100" id="slidePreview">
+          <!-- Video Preview Area -->
+          <div class="row flex-grow-1 mb-3">
+            <div class="col">
+              <div class="card bg-dark border-secondary h-100">
+                <div
+                  class="card-header d-flex justify-content-between align-items-center"
+                >
+                  <h6 class="mb-0">
+                    <span class="material-symbols-outlined me-2">videocam</span>
+                    Video Preview
+                  </h6>
+                  <div class="toolbar-section">
+                    <button
+                      class="btn btn-sm btn-outline-primary me-1"
+                      id="replaceVideo"
+                      title="Replace Video"
+                    >
+                      <span class="material-symbols-outlined"
+                        >find_replace</span
+                      >
+                    </button>
+                    <button
+                      class="btn btn-sm btn-outline-secondary me-1"
+                      id="adjustVideo"
+                      title="Adjust Video"
+                    >
+                      <span class="material-symbols-outlined">tune</span>
+                    </button>
+                    <button
+                      class="btn btn-sm btn-outline-info"
+                      id="videoInfo"
+                      title="Video Info"
+                    >
+                      <span class="material-symbols-outlined">info</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body p-2">
+                  <div
+                    id="currentSlideThumbCanvas"
+                    class="video-canvas w-100 h-100"
+                  >
+                    <div class="text-center">
+                      <span
+                        class="material-symbols-outlined"
+                        style="font-size: 4rem"
+                        >movie</span
+                      >
+                      <p class="mt-2">No video loaded</p>
+                      <button class="btn btn-primary" id="loadVideo">
+                        <span class="material-symbols-outlined me-2"
+                          >upload</span
+                        >
+                        Load Video
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Text Editor Area -->
+          <div class="row" style="height: 40%">
+            <div class="col">
+              <div class="card bg-dark border-secondary h-100">
+                <div class="card-header">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <h6 class="mb-0">
+                      <span class="material-symbols-outlined me-2"
+                        >text_fields</span
+                      >
+                      Slide Text Editor
+                    </h6>
+                    <div class="toolbar-section">
+                      <div class="btn-group btn-group-sm" role="group">
+                        <input
+                          type="radio"
+                          class="btn-check"
+                          name="textDirection"
+                          id="ltrRadioBtn"
+                          autocomplete="off"
+                        />
+                        <label
+                          class="btn btn-outline-secondary"
+                          title="Left-to-Right text"
+                          for="ltrRadioBtn"
+                        >
+                          <span class="material-symbols-outlined"
+                            >format_textdirection_l_to_r</span
+                          >
+                        </label>
+                        <input
+                          type="radio"
+                          class="btn-check"
+                          name="textDirection"
+                          id="rtlRadioBtn"
+                          autocomplete="off"
+                          checked
+                        />
+                        <label
+                          class="btn btn-outline-secondary"
+                          title="Right-to-Left text"
+                          for="rtlRadioBtn"
+                        >
+                          <span class="material-symbols-outlined"
+                            >format_textdirection_r_to_l</span
+                          >
+                        </label>
+                      </div>
+                      <div class="btn-group btn-group-sm ms-2" role="group">
+                        <button
+                          class="btn btn-outline-secondary"
+                          id="boldText"
+                          title="Bold"
+                        >
+                          <span class="material-symbols-outlined"
+                            >format_bold</span
+                          >
+                        </button>
+                        <button
+                          class="btn btn-outline-secondary"
+                          id="italicText"
+                          title="Italic"
+                        >
+                          <span class="material-symbols-outlined"
+                            >format_italic</span
+                          >
+                        </button>
+                        <button
+                          class="btn btn-outline-secondary"
+                          id="underlineText"
+                          title="Underline"
+                        >
+                          <span class="material-symbols-outlined"
+                            >format_underlined</span
+                          >
+                        </button>
+                      </div>
+                      <div class="btn-group btn-group-sm ms-2" role="group">
+                        <button
+                          class="btn btn-outline-secondary"
+                          id="fontSize"
+                          title="Font Size"
+                        >
+                          <span class="material-symbols-outlined"
+                            >format_size</span
+                          >
+                        </button>
+                        <button
+                          class="btn btn-outline-secondary"
+                          id="textColor"
+                          title="Text Color"
+                        >
+                          <span class="material-symbols-outlined">palette</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body p-2">
+                  <textarea
+                    class="form-control bg-dark text-light border-secondary h-100"
+                    id="textSlidesContent"
+                    dir="rtl"
+                    placeholder="Enter your slide text here..."
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col d-flex flex-column h-100" id="sideBar">
+          <div class="card bg-dark border-secondary h-100">
+            <div class="card-header">
+              <h6 class="mb-0">
+                <span class="material-symbols-outlined me-2">view_list</span>
+                Slides Manager
+              </h6>
+            </div>
+            <div class="card-body p-2 d-flex flex-column">
+              <div class="d-grid gap-2 mb-3">
+                <button class="btn btn-primary" id="slideAdd">
+                  <span class="material-symbols-outlined me-2">add</span>
+                  Add New Slide
+                </button>
+                <div class="btn-group" role="group">
+                  <button
+                    class="btn btn-outline-secondary btn-sm"
+                    id="slideUp"
+                    title="Move Up"
+                  >
+                    <span class="material-symbols-outlined">arrow_upward</span>
+                  </button>
+                  <button
+                    class="btn btn-outline-secondary btn-sm"
+                    id="slideDown"
+                    title="Move Down"
+                  >
+                    <span class="material-symbols-outlined"
+                      >arrow_downward</span
+                    >
+                  </button>
+                  <button
+                    class="btn btn-outline-danger btn-sm"
+                    id="slideDelete"
+                    title="Delete Slide"
+                  >
+                    <span class="material-symbols-outlined">delete</span>
+                  </button>
+                  <button
+                    class="btn btn-outline-info btn-sm"
+                    id="slideDuplicate"
+                    title="Duplicate Slide"
+                  >
+                    <span class="material-symbols-outlined">content_copy</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="flex-grow-1 overflow-auto">
+                <div class="list-group" id="sidebarSlidesContainer">
+                  <!-- Slides will be dynamically added here -->
+                  <div
+                    class="list-group-item list-group-item-action bg-dark border-secondary text-center text-muted py-4"
+                  >
+                    <span
+                      class="material-symbols-outlined"
+                      style="font-size: 2rem"
+                      >add_circle</span
+                    >
+                    <p class="mb-0 mt-2">
+                      No slides yet. Click "Add New Slide" to get started.
+                    </p>
+                  </div>
+                </div>
+                <div class="slide-preview">
+                  <span class="material-symbols-outlined">text_snippet</span>
+                  <span class="slide-number">${index + 1}</span>
+                  <span class="slide-duration">${slide.duration}s</span>
+                </div>
+                <div class="slide-content">
+                  <div class="slide-text-preview">
+                    ${slide.text || '<em>Empty slide</em>'}
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-2 p-2 bg-secondary bg-opacity-25 rounded">
+                <small class="text-muted">
+                  <span
+                    class="material-symbols-outlined me-1"
+                    style="font-size: 1rem"
+                    >info</span
+                  >
+                  Total slides: <span id="slideCount">0</span>
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JS would go here -->
+    <script>
+      // Slide management system
+      class SlideManager {
+        constructor() {
+          this.slides = [];
+          this.currentSlideIndex = -1;
+          this.slideCounter = 0;
+          this.init();
+        }
+
+        init() {
+          // Initialize event listeners
+          document
+            .getElementById("slideAdd")
+            .addEventListener("click", () => this.addSlide());
+          document
+            .getElementById("slideUp")
+            .addEventListener("click", () => this.moveSlideUp());
+          document
+            .getElementById("slideDown")
+            .addEventListener("click", () => this.moveSlideDown());
+          document
+            .getElementById("slideDelete")
+            .addEventListener("click", () => this.deleteSlide());
+          document
+            .getElementById("slideDuplicate")
+            .addEventListener("click", () => this.duplicateSlide());
+
+          // Listen for text changes
+          document
+            .getElementById("textSlidesContent")
+            .addEventListener("input", (e) => {
+              this.updateCurrentSlideText(e.target.value);
+            });
+        }
+
+        addSlide(text = "", duration = 5) {
+          const slide = {
+            id: ++this.slideCounter,
+            text: text,
+            duration: duration,
+            timestamp: Date.now(),
+          };
+
+          this.slides.push(slide);
+          this.renderSlides();
+          this.selectSlide(this.slides.length - 1);
+          this.updateSlideCount();
+
+          // Clear placeholder if this is the first slide
+          if (this.slides.length === 1) {
+            document.querySelector(".list-group-item.text-center")?.remove();
+          }
+        }
+
+        selectSlide(index) {
+          if (index < 0 || index >= this.slides.length) return;
+
+          this.currentSlideIndex = index;
+          const slide = this.slides[index];
+
+          // Update text editor
+          document.getElementById("textSlidesContent").value = slide.text;
+
+          // Update UI
+          this.updateSlideSelection();
+        }
+
+        updateCurrentSlideText(text) {
+          if (
+            this.currentSlideIndex >= 0 &&
+            this.currentSlideIndex < this.slides.length
+          ) {
+            this.slides[this.currentSlideIndex].text = text;
+            this.renderSlides();
+          }
+        }
+
+        moveSlideUp() {
+          if (this.currentSlideIndex > 0) {
+            [
+              this.slides[this.currentSlideIndex],
+              this.slides[this.currentSlideIndex - 1],
+            ] = [
+              this.slides[this.currentSlideIndex - 1],
+              this.slides[this.currentSlideIndex],
+            ];
+            this.currentSlideIndex--;
+            this.renderSlides();
+            this.updateSlideSelection();
+          }
+        }
+
+        moveSlideDown() {
+          if (
+            this.currentSlideIndex < this.slides.length - 1 &&
+            this.currentSlideIndex >= 0
+          ) {
+            [
+              this.slides[this.currentSlideIndex],
+              this.slides[this.currentSlideIndex + 1],
+            ] = [
+              this.slides[this.currentSlideIndex + 1],
+              this.slides[this.currentSlideIndex],
+            ];
+            this.currentSlideIndex++;
+            this.renderSlides();
+            this.updateSlideSelection();
+          }
+        }
+
+        deleteSlide() {
+          if (
+            this.currentSlideIndex >= 0 &&
+            this.currentSlideIndex < this.slides.length
+          ) {
+            this.slides.splice(this.currentSlideIndex, 1);
+
+            if (this.currentSlideIndex >= this.slides.length) {
+              this.currentSlideIndex = this.slides.length - 1;
+            }
+
+            this.renderSlides();
+            this.updateSlideCount();
+
+            if (this.slides.length === 0) {
+              document.getElementById("textSlidesContent").value = "";
+              this.showEmptyState();
+            } else {
+              this.selectSlide(this.currentSlideIndex);
+            }
+          }
+        }
+
+        duplicateSlide() {
+          if (
+            this.currentSlideIndex >= 0 &&
+            this.currentSlideIndex < this.slides.length
+          ) {
+            const currentSlide = this.slides[this.currentSlideIndex];
+            const duplicatedSlide = {
+              id: ++this.slideCounter,
+              text: currentSlide.text,
+              duration: currentSlide.duration,
+              timestamp: Date.now(),
+            };
+
+            this.slides.splice(this.currentSlideIndex + 1, 0, duplicatedSlide);
+            this.renderSlides();
+            this.selectSlide(this.currentSlideIndex + 1);
+            this.updateSlideCount();
+          }
+        }
+
+        renderSlides() {
+          const container = document.getElementById("sidebarSlidesContainer");
+          container.innerHTML = "";
+
+          this.slides.forEach((slide, index) => {
+            const slideElement = this.createSlideElement(slide, index);
+            container.appendChild(slideElement);
+          });
+
+          this.updateSlideSelection();
+        }
+
+        createSlideElement(slide, index) {
+          const slideDiv = document.createElement("div");
+          slideDiv.className = "slide-item";
+          slideDiv.setAttribute("data-slide-index", index);
+
+          slideDiv.innerHTML = `
+                    <div class="slide-preview">
+                        <span class="material-symbols-outlined">text_snippet</span>
+                        <span class="slide-number">${index + 1}</span>
+                        <span class="slide-duration">${slide.duration}s</span>
+                    </div>
+                    <div class="slide-content">
+                        <div class="slide-text-preview">
+                            ${slide.text || "<em>Empty slide</em>"}
+                        </div>
+                    </div>
+                `;
+
+          slideDiv.addEventListener("click", () => this.selectSlide(index));
+
+          return slideDiv;
+        }
+
+        updateSlideSelection() {
+          document.querySelectorAll(".slide-item").forEach((item, index) => {
+            item.classList.toggle("active", index === this.currentSlideIndex);
+          });
+        }
+
+        updateSlideCount() {
+          document.getElementById("slideCount").textContent =
+            this.slides.length;
+        }
+
+        showEmptyState() {
+          const container = document.getElementById("sidebarSlidesContainer");
+          container.innerHTML = `
+                    <div class="list-group-item list-group-item-action bg-dark border-secondary text-center text-muted py-4">
+                        <span class="material-symbols-outlined" style="font-size: 2rem;">add_circle</span>
+                        <p class="mb-0 mt-2">No slides yet. Click "Add New Slide" to get started.</p>
+                    </div>
+                `;
+        }
+      }
+
+      // Initialize slide manager
+      let slideManager;
+
+      // Initialize tooltips
+      const tooltipTriggerList = document.querySelectorAll(
+        '[data-bs-toggle="tooltip"]'
+      );
+      const tooltipList = [...tooltipTriggerList].map(
+        (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
+      );
+
+      // Add basic interactivity
+      document.addEventListener("DOMContentLoaded", function () {
+        // Initialize slide manager
+        slideManager = new SlideManager();
+
+        // Text direction toggle
+        document
+          .getElementById("ltrRadioBtn")
+          .addEventListener("change", function () {
+            if (this.checked) {
+              document.getElementById("textSlidesContent").dir = "ltr";
+            }
+          });
+
+        document
+          .getElementById("rtlRadioBtn")
+          .addEventListener("change", function () {
+            if (this.checked) {
+              document.getElementById("textSlidesContent").dir = "rtl";
+            }
+          });
+      });
+    </script>
+  </body>
+</html>
