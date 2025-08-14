@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.0.1] - 2025-08-14
+
+### Fixed
+- **Font Handling**:
+  - Replaced child process font detection with direct `font-list` package integration
+  - Improved font listing reliability
+
+### Technical Details
+- Removed child process fork for font detection
+- Simplified package.json by removing redundant extraResources declaration
+- Updated resource path resolution logic
+
 ## [3.0.0] - 2025-08-13
 
 ### Major Changes

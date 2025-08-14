@@ -1,0 +1,50 @@
+ protocol.handle("media", async (request) => {
+    const requestedFileParsed = path.parse(
+      decodeURIComponent(request.url.slice("media://".length))
+    );
+    // https://github.com/electron/electron/issues/38749#issuecomment-1681531939
+    const fp = `videos\\${requestedFileParsed.name}${requestedFileParsed.ext}`;
+    const headers = new Headers();
+    headers.set("Accept-Ranges", "bytes");
+    headers.set("Content-Type", mime.getType(fp));
+    let status = 200;
+
+    const rangeText = request.headers.get("range");
+    let stats = fs.statSync(videoFilePath);
+    const ranges = parseRangeRequests(rangeText, stats.size);
+    const [start, end] = ranges[0];
+    headers.set("Content-Length", `${end - start}`);
+    headers.set("Content-Range", `bytes ${start}-${end}/${stats.size}`);
+    status = 206;
+    console.log(currentProject.notInArchive);
+    if (
+      currentProject.notInArchive[
+        `${requestedFileParsed.name}${requestedFileParsed.ext}`
+      ]
+    ) {
+      if (rangeText) {
+        VidFilestream = fs.createReadStream(videoPath, { start, end });
+      } else {
+        headers.set("Content-Length", `${stats.size}`);
+        VidFilestream = fs.createReadStream(videoPath);
+      }
+      return new Response(VidFilestream, {
+        headers,
+        status,
+      });
+    }
+    return currentProject.fileStream.entryData(fp).then((buf) => {
+      if (rangeText) {
+        VidFilestream = buf.subarray(start, end);
+      } else {
+        headers.set("Content-Length", `${stats.size}`);
+        VidFilestream = buf;
+      }
+
+      return new Response(VidFilestream, {
+        headers,
+        status,
+      });
+    });
+  });
+  
