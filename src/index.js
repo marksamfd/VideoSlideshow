@@ -10,12 +10,14 @@ import {
 import MediaResponder from "./utils/MediaResponderClass";
 import WorkingFile from "./workingFile";
 
+const fontList = require("font-list");
+
 import log from "electron-log/main";
 
 import cp from "child_process";
 
 const EXTRARESOURCES_PATH = app.isPackaged
-  ? path.join(process.resourcesPath, "extraResources")
+  ? path.join(process.resourcesPath, "app.asar.unpacked", "src")
   : path.join(__dirname, "../../extraResources");
 
 const getExtraResourcesPath = (...paths) => {
@@ -152,24 +154,8 @@ ipcMain.handle("getSystemFonts", async () => {
     "fontlist/getSystemFonts.js"
   );
   console.log(systemFontsScriptPath);
-  return new Promise((resolve, reject) => {
-    const forked = cp.fork(systemFontsScriptPath);
 
-    forked.on("message", (message) => {
-      resolve(message);
-      forked.kill();
-    });
-
-    forked.on("error", (err) => {
-      reject(err);
-    });
-
-    forked.on("exit", (code) => {
-      if (code !== 0) {
-        reject(new Error(`getSystemFonts.js exited with code ${code}`));
-      }
-    });
-  });
+  return fontList.getFonts({ disableQuoting: true });
 });
 
 ipcMain.on(
