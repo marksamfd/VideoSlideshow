@@ -16,6 +16,8 @@ import log from "electron-log/main";
 
 import cp from "child_process";
 
+import * as Sentry from "@sentry/electron/main";
+
 const EXTRARESOURCES_PATH = app.isPackaged
   ? path.join(process.resourcesPath, "app.asar.unpacked", "src")
   : path.join(__dirname, "../../extraResources");
@@ -30,6 +32,10 @@ if (app.isPackaged) {
   // log.transports.console.level = false;
   Object.assign(console, log.functions);
 }
+Sentry.init({
+  dsn: "https://6af2ef87eb56857c4d16241ba118d39f@o4509875546030080.ingest.de.sentry.io/4509875549962320",
+  enabled: app.isPackaged,
+});
 
 /**
  *  The open project Now
@@ -72,7 +78,7 @@ app.on("ready", () => {
 
   showCreatorView = createShowCreatorView();
   showCreatorView.on("close", (e) => {
-    if (currentProject.isOpened && !canQuit) {
+    if (currentProject?.isOpened && !canQuit) {
       e.preventDefault(); // stop immediate close
       showCreatorView.webContents.send("save-before-quit");
     }
@@ -129,17 +135,16 @@ ipcMain.handle("file-opened", async (e, data) => {
 });
 
 ipcMain.handle("file-save", (e, content) => {
+  currentProject?.saveProject(content);
   dialog.showMessageBox(BrowserWindow.fromId(e.frameId), {
     title: "File Save",
-    message: "File Is Saving",
+    message: "File Saved",
     type: "info",
   });
-  currentProject.saveProject(content);
 });
 
 ipcMain.handle("save-quit", async (e, content) => {
-  console.log({ e, content });
-  return currentProject.closeProject(content);
+  return currentProject?.closeProject(content);
 });
 
 ipcMain.on("save-done", () => {

@@ -185,9 +185,6 @@ class WorkingFile {
     this.#writeStream = fs.createWriteStream(this.#filePath);
     this.#fileCreator.pipe(this.#writeStream);
 
-    this.#writeStream?.on("drain", () => {
-      console.log("Drained adding a file to zip");
-    });
     this.#writeStream?.on("warning", (e: any) => {
       console.log(`Warning while adding a file to zip: ${e.message}`);
     });
@@ -196,9 +193,6 @@ class WorkingFile {
     });
     this.#writeStream?.on("close", () => {
       console.log("closing zip");
-    });
-    this.#writeStream?.on("data", (data: any) => {
-      console.log("on data");
     });
     this.#writeStream?.on("entry", (data: any) => {
       console.log("on entry");
@@ -216,7 +210,6 @@ class WorkingFile {
       date: new Date(2025, 7, 8, 23, 4),
     });
 
-    console.log(this.#fileCreator);
   }
 
   async presentProject() {

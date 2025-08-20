@@ -57,28 +57,38 @@ class MediaResponder {
   }
 
   #respondFromFile(filePath) {
-    const stat = fs.statSync(filePath);
-    const totalSize = stat.size;
-    const range = this.#parseRange(totalSize);
+    try {
+      const stat = fs.statSync(filePath);
+      const totalSize = stat.size;
+      const range = this.#parseRange(totalSize);
 
-    if (range) {
-      this.headers.set("Accept-Ranges", "bytes");
-      this.headers.set("Content-Length", `${range.length}`);
-      this.headers.set("Content-Range", range.rangeHeader);
-      this.status = 206;
-      const stream = fs.createReadStream(filePath, {
-        start: range.start,
-        end: range.end,
-      });
+      if (range) {
+        this.headers.set("Accept-Ranges", "bytes");
+        this.headers.set("Content-Length", `${range.length}`);
+        this.headers.set("Content-Range", range.rangeHeader);
+        this.status = 206;
+        const stream = fs.createReadStream(filePath, {
+          start: range.start,
+          end: range.end,
+        });
+        return new Response(stream, {
+          headers: this.headers,
+          status: this.status,
+        });
+      }
+
+      this.headers.set("Content-Length", `${totalSize}`);
+      const stream = fs.createReadStream(filePath);
       return new Response(stream, {
         headers: this.headers,
         status: this.status,
       });
+    } catch (e) {
+      return new Response("Not Found", {
+        status: 404,
+        headers: { "content-type": "text/html" },
+      });
     }
-
-    this.headers.set("Content-Length", `${totalSize}`);
-    const stream = fs.createReadStream(filePath);
-    return new Response(stream, { headers: this.headers, status: this.status });
   }
 
   #respondFromBuffer(buffer) {

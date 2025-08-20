@@ -1,13 +1,41 @@
 # Changelog
 
+## [3.1.0] - 2025-08-20
+
+### Added
+
+- **Error Monitoring**:
+  - Integrated Sentry in both `main` and `renderer` processes
+  - Configured renderer to send default PII and custom tags
+
+### Fixed
+
+- **App Stability**:
+  - Guarded against undefined `currentProject` during save and close operations
+  - Updated window close handling to prevent errors when no project is open
+- **File Handling**:
+  - Improved video file picker with null-safety checks
+  - Fixed video filename parsing logic to correctly strip extensions
+  - Enhanced media responder to return `404 Not Found` for missing files
+- **UX Improvements**:
+  - Changed file save dialog message from `"File Is Saving"` → `"File Saved"`
+
+### Technical Details
+
+- Removed unnecessary debug logging (`console.log`, `drain`, `data`, `fileCreator` outputs)
+- Simplified video filename handling logic in `Slide.ts`
+- Added safer stream handling in `MediaResponderClass`
+
 ## [3.0.1] - 2025-08-14
 
 ### Fixed
+
 - **Font Handling**:
   - Replaced child process font detection with direct `font-list` package integration
   - Improved font listing reliability
 
 ### Technical Details
+
 - Removed child process fork for font detection
 - Simplified package.json by removing redundant extraResources declaration
 - Updated resource path resolution logic
@@ -17,6 +45,7 @@
 ### Major Changes
 
 #### Added
+
 - **TypeScript Integration**:
   - Converted some core classes (Slide, WorkingFile) to TypeScript for better type safety
   - Added TypeScript configuration for future project-wide adoption
@@ -28,10 +57,11 @@
   - Mute/unmute functionality for videos
   - Improved video handling with black video fallback
 - **Project Management**:
-  - New TAR-based project format replacing ZIP (fixes 2GB size limit) 
+  - New TAR-based project format replacing ZIP (fixes 2GB size limit)
   - Direct archive reading capability (fixes #32)
 
 #### Changed
+
 - **UI Improvements**:
   - Redesigned slide creator interface
   - Better slide thumbnail management
@@ -44,6 +74,7 @@
   - Reduced memory usage for large projects
 
 #### Fixed
+
 - **Critical Issues**:
   - Resolved 2GB project size limitation
   - Fixed archive access problems
@@ -57,12 +88,14 @@
 ### Technical Details
 
 #### New Features
+
 - Added font selector with system font detection
 - Implemented text positioning with drag-and-drop
 - Created new video toolbar with mute control
 - Added project save confirmation before quit
 
 #### Code Improvements
+
 - TypeScript migration for core components
 - Modular architecture with separate classes for:
   - Canvas rendering
@@ -72,6 +105,7 @@
 - Improved error handling and logging
 
 #### Dependency Updates
+
 - Updated Electron to latest stable version
 - Replaced JSZip with TAR for archive handling
 - Added new dev dependencies for TypeScript support
