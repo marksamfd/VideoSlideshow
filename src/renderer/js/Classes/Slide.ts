@@ -48,7 +48,7 @@ class Slide {
       video: { name: undefined, muted: true, format: "mp4" },
     }
   ) {
-    this._videoFileName = props?.video?.name?.replace(/\.[^/.]+$/, "");
+    this._videoFileName = props?.video?.name;
     this._videoFileFormat = props?.video?.format || "mp4";
 
     this._videoThumbnailFormat = props?.thumbnail?.format || "png";
@@ -133,7 +133,9 @@ class Slide {
     this._fontFamily = name;
   }
   setVideoFileName(filename: string) {
-    this._videoFileName = filename.replace(/\.[^/.]+$/, "");
+    const fileNameSplitted = filename.split(".");
+    fileNameSplitted.pop();
+    this._videoFileName = fileNameSplitted.join(".");
   }
 
   toJSON(): SlideJSON {

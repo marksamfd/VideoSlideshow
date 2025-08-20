@@ -80,23 +80,25 @@ class CanvasRenderer extends Konva.Stage {
 
   async #onVideoFilePicked(e) {
     let filePicker = e.target;
-    let file = filePicker.files.item(0);
-    let videoFileName = file.name;
-    let imgFileName = videoFileName.replace(/\.[^/.]+$/, "");
+    let file = filePicker?.files?.item(0);
+    if (file) {
+      let videoFileName = file.name;
+      let imgFileName = videoFileName.replace(/\.[^/.]+$/, "");
 
-    try {
-      let generatedImage = await Utils.createVideoCoverImage(file.path);
-      const add = await slideFiles.addSlideFiles({
-        imgBase64: generatedImage,
-        videoFilePath: file.path,
-        imgFileName,
-        videoFileName,
-      });
-    } catch (err) {
-      console.error(err);
+      try {
+        let generatedImage = await Utils.createVideoCoverImage(file.path);
+        const add = await slideFiles.addSlideFiles({
+          imgBase64: generatedImage,
+          videoFilePath: file.path,
+          imgFileName,
+          videoFileName,
+        });
+      } catch (err) {
+        console.error(err);
+      }
+
+      this.onVideoPicked?.(videoFileName);
     }
-
-    this.onVideoPicked?.(videoFileName);
   }
 
   /**
