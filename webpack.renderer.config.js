@@ -1,3 +1,7 @@
+const {
+  sentryWebpackPlugin
+} = require("@sentry/webpack-plugin");
+
 const rules = require("./webpack.rules");
 
 rules.push({
@@ -26,11 +30,21 @@ module.exports = {
   module: {
     rules,
   },
+
   output: {
     publicPath: "./../",
     assetModuleFilename: "[name][ext]",
   },
+
   resolve: {
     extensions: [".ts", ".js"],
   },
+
+  devtool: "source-map",
+
+  plugins: [sentryWebpackPlugin({
+    authToken: process.env.SENTRY_AUTH_TOKEN,
+    org: "mark-jw",
+    project: "choirslides"
+  })]
 };

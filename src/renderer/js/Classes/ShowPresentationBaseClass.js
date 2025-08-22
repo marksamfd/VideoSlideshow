@@ -113,8 +113,8 @@ class ShowPresentationBase extends Konva.Stage {
     });
 
     this.#textLayer = new Konva.Label({
-      x: 0,
-      y: 0,
+      x: this.slides[this.#currentSlide].textPosition.x * this.width(),
+      y: this.slides[this.#currentSlide].textPosition.y * this.height(),
       opacity: 1,
       draggable: false,
     });
@@ -195,8 +195,12 @@ class ShowPresentationBase extends Konva.Stage {
       this.#currentTextSlide = this.#textSlides.length + this.#currentTextSlide;
       this.#simpleText.text(`${this.#textSlides[this.#currentTextSlide]}`);
       this.#simpleText.fontFamily(this._slides[this.#currentSlide].fontFamily);
-      this.#textLayer.x(this._slides[this.#currentSlide].textPosition.x);
-      this.#textLayer.y(this._slides[this.#currentSlide].textPosition.y);
+      this.#textLayer.x(
+        this.width() * this._slides[this.#currentSlide].textPosition.x
+      );
+      this.#textLayer.y(
+        this.height() * this._slides[this.#currentSlide].textPosition.y
+      );
       if (this._slides[this.#currentSlide].fontBackground) {
         this.#textBackground.opacity(0.5);
         this.#textBackground.fill("black");
