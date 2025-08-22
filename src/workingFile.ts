@@ -209,7 +209,6 @@ class WorkingFile {
       name: "slides.json",
       date: new Date(2025, 7, 8, 23, 4),
     });
-
   }
 
   async presentProject() {
@@ -227,16 +226,16 @@ class WorkingFile {
         const slidesPath = path.join(this.projectTempFolder, "slides.json");
         fs.writeFileSync(slidesPath, slidesContent);
 
-        this.#writeStream.on("finish", () => {
+        this.#writeStream.on("close", () => {
           console.log(this.#fileCreator.pointer() + " total bytes");
           console.log(
             "archiver has been finalized and the output file descriptor has closed."
           );
           res(true);
         });
-        this.#writeStream.on("error", () => {
+        this.#writeStream.on("error", (err) => {
           console.error("Error writing ZIP file:");
-          rej("Error in Piping");
+          rej(`Error in Piping ${err}`);
         });
         this.#writeStream.on("end", () => {
           console.log("Data has been drained");

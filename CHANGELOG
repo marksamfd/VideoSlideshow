@@ -1,5 +1,27 @@
 # Changelog
 
+## [3.1.1] - 2025-08-22
+
+### Fixed
+
+- **Window Management**:
+  - Fixed progress bar handling during save/quit operations
+  - Added close signal tracking to prevent duplicate save attempts
+- **Presentation Layout**:
+  - Corrected presentation view aspect ratio calculation (16:9) (fixes #53)
+  - Fixed text layer positioning to use relative coordinates (fixes #53)
+- **File Handling**:
+  - Fixed video file format extraction in Slide class
+  - Improved ZIP file error handling with better error messages
+- **Menu Cleanup**:
+  - Removed slideshow menu section
+
+### Technical Details
+
+- Added source maps for improved debugging
+- Integrated Sentry webpack plugin configuration for both main and renderer processes
+- Improved code formatting and consistency across multiple files
+
 ## [3.1.0] - 2025-08-20
 
 ### Added

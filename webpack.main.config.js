@@ -1,3 +1,5 @@
+const { sentryWebpackPlugin } = require("@sentry/webpack-plugin");
+
 module.exports = {
   /**
    * This is the main entry point for your application, it's the first file
@@ -9,7 +11,18 @@ module.exports = {
   module: {
     rules: require("./webpack.rules"),
   },
+
   resolve: {
     extensions: [".ts", ".js"],
   },
+
+  devtool: "source-map",
+
+  plugins: [
+    sentryWebpackPlugin({
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      org: "mark-jw",
+      project: "choirslides",
+    }),
+  ],
 };

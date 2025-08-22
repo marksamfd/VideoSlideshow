@@ -6,6 +6,7 @@ import hotkeys from "hotkeys-js";
  * @type {ShowCreator}
  */
 let present;
+let sentCloseSignal = false;
 
 window.file.onFileParams(function (fileParams) {
   console.log(fileParams);
@@ -30,9 +31,12 @@ window.file.onFileParams(function (fileParams) {
   });
 
   window.file.onSaveBeforeQuit(async () => {
-    console.log("Saving data before quitting...");
-    if (await file.saveAndQuit(present.stringifyShow())) {
-      window.file.saveDone();
+    if (!sentCloseSignal) {
+      sentCloseSignal = true;
+      console.log("Saving data before quitting...");
+      if (await file.saveAndQuit(present.stringifyShow())) {
+        window.file.saveDone();
+      }
     }
   });
 });

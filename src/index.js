@@ -144,11 +144,13 @@ ipcMain.handle("file-save", (e, content) => {
 });
 
 ipcMain.handle("save-quit", async (e, content) => {
+  showCreatorView.setProgressBar(1.1, { mode: "indeterminate" });
   return currentProject?.closeProject(content);
 });
 
 ipcMain.on("save-done", () => {
   canQuit = true;
+  showCreatorView.setProgressBar(-1);
   if (showCreatorView) {
     showCreatorView.close();
   }

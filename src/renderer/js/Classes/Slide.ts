@@ -134,7 +134,7 @@ class Slide {
   }
   setVideoFileName(filename: string) {
     const fileNameSplitted = filename.split(".");
-    fileNameSplitted.pop();
+    this._videoFileFormat = fileNameSplitted.pop();
     this._videoFileName = fileNameSplitted.join(".");
   }
 
