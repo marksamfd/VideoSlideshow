@@ -1,7 +1,7 @@
 {
   "name": "choirslides",
   "productName": "ChoirSlides",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "description": "A software designed to create lyric slideshows. This software allows users to combine lyrics with background videos, resulting in a visually engaging slideshow that synchronizes the lyrics with the video footage.",
   "main": "./.webpack/main",
   "scripts": {
@@ -40,6 +40,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "font-list": "^1.5.1",
     "fswin": "^3.24.524",
+    "gunzip-maybe": "^1.4.2",
     "hotkeys-js": "^3.13.7",
     "interactjs": "^1.10.27",
     "konva": "^9.3.6",
@@ -63,6 +64,7 @@
     "@electron-forge/plugin-auto-unpack-natives": "^6.2.1",
     "@electron-forge/plugin-webpack": "^7.3.1",
     "@electron-forge/publisher-github": "^6.3.0",
+    "@types/gunzip-maybe": "^1.4.2",
     "@types/tar-stream": "^3.1.4",
     "@vercel/webpack-asset-relocator-loader": "^1.7.3",
     "autoprefixer": "^10.4.19",

@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.1.2] - 2025-08-23
+
+### Fixed
+
+- **File Extraction**:
+  - Fixed tar file extraction by adding proper gunzip decompression for compressed archives
+  - Added `gunzip-maybe` dependency to handle both compressed and uncompressed tar files
+
+### Technical Details
+- Improved archive handling robustness for different compression formats
+
 ## [3.1.1] - 2025-08-22
 
 ### Fixed

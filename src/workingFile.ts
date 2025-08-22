@@ -4,6 +4,7 @@ import * as fs from "fs";
 import * as archiver from "archiver";
 import * as tar from "tar-stream";
 import { buffer } from "stream/consumers";
+const gunzip = require("gunzip-maybe");
 import { Stream } from "stream";
 
 enum ProjectOpenMode {
@@ -143,7 +144,7 @@ class WorkingFile {
       extract.on("finish", resolve);
       extract.on("error", reject);
 
-      fs.createReadStream(tarFilePath).pipe(extract);
+      fs.createReadStream(tarFilePath).pipe(gunzip()).pipe(extract);
     });
   }
 
