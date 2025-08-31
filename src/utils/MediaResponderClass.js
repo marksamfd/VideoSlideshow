@@ -1,6 +1,8 @@
 import fs from "fs";
 import path, { parse as pathParse } from "path";
 import mime from "mime";
+import WorkingFile, { ProjectOpenMode } from "../workingFile";
+import { buffer } from "stream/consumers";
 
 /**
  * Generic media responder with range support (videos, images, audio, etc.)
@@ -8,6 +10,9 @@ import mime from "mime";
 class MediaResponder {
   constructor(request, currentProject) {
     this.request = request;
+    /**
+     * @type {WorkingFile}
+     */
     this.currentProject = currentProject;
     this.headers = new Headers();
     this.rangeText = request.headers.get("range");
@@ -25,19 +30,25 @@ class MediaResponder {
     const mimeType = mime.getType(ext) || "application/octet-stream";
     this.headers.set("Content-Type", mimeType);
 
-    const localFile =
-      this.currentProject.notInArchive[baseName] ||
-      path.join(this.currentProject.projectTempFolder, "videos", baseName);
-    if (typeof localFile === "string") {
-      return this.#respondFromFile(localFile);
+    console.log(this.request.url)
+    if (this.currentProject.projectMode !== ProjectOpenMode.PRESENT) {
+      const localFile =
+        this.currentProject.notInArchive[baseName] ||
+        path.join(this.currentProject.tempProjectFolder, "videos", baseName);
+      if (typeof localFile === "string") {
+        return this.#respondFromFile(localFile);
+      }
+      if (localFile instanceof Uint8Array) {
+        return this.#respondFromBuffer(localFile);
+      }
     }
 
-    if (localFile instanceof Uint8Array) {
-      return this.#respondFromBuffer(localFile);
-    }
+    console.log(filePath, baseName);
 
-    const zipEntryPath = `videos\\${baseName}`;
-    const buf = await this.currentProject.fileStream(zipEntryPath);
+    const zipEntryPath = `videos/${baseName}`;
+    const buf = await buffer(
+      await this.currentProject.fileStream(zipEntryPath)
+    );
     return this.#respondFromBuffer(buf);
   }
 
@@ -84,6 +95,7 @@ class MediaResponder {
         status: this.status,
       });
     } catch (e) {
+      console.log("Error 404 ", filePath);
       return new Response("Not Found", {
         status: 404,
         headers: { "content-type": "text/html" },

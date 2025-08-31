@@ -10,7 +10,7 @@ interface Font {
   background: FontBackground | false;
 }
 
-interface SlideJSON {
+export interface SlideJSON {
   video: {
     name?: string;
     format?: string;

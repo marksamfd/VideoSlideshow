@@ -1,5 +1,6 @@
+import type { ForgeConfig } from "@electron-forge/shared-types";
 
-module.exports = {
+const forgeConf: ForgeConfig = {
   packagerConfig: {
     asar: {
       unpackDir: "files",
@@ -14,6 +15,7 @@ module.exports = {
     },
     {
       name: "@electron-forge/maker-zip",
+      config: {},
       platforms: ["darwin"],
     },
     {
@@ -97,3 +99,5 @@ module.exports = {
     },
   ],
 };
+
+module.exports = forgeConf;

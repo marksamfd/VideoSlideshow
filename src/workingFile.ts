@@ -3,11 +3,11 @@ import * as path from "path";
 import * as fs from "fs";
 import * as archiver from "archiver";
 import * as tar from "tar-stream";
+import * as StreamZip from "node-stream-zip";
 import { buffer } from "stream/consumers";
 const gunzip = require("gunzip-maybe");
-import { Stream } from "stream";
-
-enum ProjectOpenMode {
+import * as progress from "progress-stream";
+export enum ProjectOpenMode {
   NEW,
   EDIT,
   PRESENT,
@@ -55,15 +55,16 @@ class WorkingFile {
    */
   #fileCreator: archiver.Archiver;
   #writeStream: fs.WriteStream;
+  #fileExtractor: StreamZip.StreamZipAsync;
 
   #projectMode;
+  #fileSize: number = 0;
 
   /**
    * the show file path
    * @type {string}
    */
   #filePath;
-  needsCreator: boolean;
   get notInArchive() {
     return this.#notInArchive;
   }
@@ -89,7 +90,7 @@ class WorkingFile {
     return path.parse(this.#filePath);
   }
 
-  get projectTempFolder() {
+  get tempProjectFolder() {
     const projectTempPath = path.join(this.basePath, this.projectName);
     if (!fs.existsSync(projectTempPath)) {
       fs.mkdirSync(projectTempPath, { recursive: true });
@@ -97,6 +98,13 @@ class WorkingFile {
     return projectTempPath;
   }
 
+  get videosFolder() {
+    return path.join(this.tempProjectFolder, "videos");
+  }
+
+  get projectMode() {
+    return this.#projectMode;
+  }
   /**
    * Opened file name
    * @type {string}
@@ -116,36 +124,18 @@ class WorkingFile {
     this.#fileCreator.file(videoFilePath, { name: `videos/${videoFileName}` });
     console.log("added Video Files");
 
+    console.log(
+      imgBuffer.length,
+      fs.statSync(videoFilePath).size,
+      this.#fileSize
+    );
+    this.#fileSize += imgBuffer.length + fs.statSync(videoFilePath).size;
     this.#notInArchive[videoFileName.toLowerCase()] = videoFilePath;
     this.#notInArchive[`${imgFileName}.png`.toLowerCase()] = imgBuffer;
   }
 
-  #extractProjectFile(
-    tarFilePath: string = this.#filePath,
-    outputDir: string = this.projectTempFolder
-  ) {
-    return new Promise((resolve, reject) => {
-      const extract = tar.extract();
-
-      extract.on("entry", (header, stream, next) => {
-        const outputPath = path.join(outputDir, header.name);
-
-        // Ensure directories exist
-        fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-
-        const writeStream = fs.createWriteStream(outputPath);
-        stream.pipe(writeStream);
-
-        writeStream.on("finish", next); // Wait until write completes
-        writeStream.on("error", reject);
-        stream.on("error", reject);
-      });
-
-      extract.on("finish", resolve);
-      extract.on("error", reject);
-
-      fs.createReadStream(tarFilePath).pipe(gunzip()).pipe(extract);
-    });
+  #extractProjectFile() {
+    return this.#fileExtractor.extract(null, this.tempProjectFolder);
   }
 
   constructor(data: any) {
@@ -157,12 +147,10 @@ class WorkingFile {
       this.#projectMode = ProjectOpenMode.PRESENT;
     } else if (fs.existsSync(this.#filePath)) {
       this.#projectMode = ProjectOpenMode.EDIT;
+      this.#fileExtractor = new StreamZip.async({ file: this.#filePath });
     } else {
       this.#projectMode = ProjectOpenMode.NEW;
     }
-
-    // Initialize based on mode
-    this.needsCreator = this.#projectMode !== ProjectOpenMode.PRESENT;
   }
 
   async editProject() {
@@ -171,45 +159,24 @@ class WorkingFile {
     } else {
       await this.#extractProjectFile();
       this.#lastSavedData = fs.readFileSync(
-        path.join(this.projectTempFolder, "slides.json"),
+        path.join(this.tempProjectFolder, "slides.json"),
         "utf-8"
-      );
-      console.log(
-        path.join(this.projectTempFolder, "slides.json"),
-        this.#lastSavedData
       );
     }
     this.#isEditingOpened = true;
-    this.#fileCreator = archiver("tar", {
-      gzip: false, // Set to true if you want .tar.gz
+    this.#fileCreator = archiver("zip", {
+      zlib: {
+        level: 9,
+      },
     });
     this.#writeStream = fs.createWriteStream(this.#filePath);
-    this.#fileCreator.pipe(this.#writeStream);
-
-    this.#writeStream?.on("warning", (e: any) => {
-      console.log(`Warning while adding a file to zip: ${e.message}`);
-    });
-    this.#writeStream?.on("finish", () => {
-      console.log("Finish adding a file to zip");
-    });
-    this.#writeStream?.on("close", () => {
-      console.log("closing zip");
-    });
-    this.#writeStream?.on("entry", (data: any) => {
-      console.log("on entry");
-    });
   }
 
   async saveProject(content: string) {
     console.log("Saving");
     this.#addExtractedFilesToZip();
     console.log("writing");
-    fs.writeFileSync(path.join(this.projectTempFolder, "slides.json"), content);
-    console.log("slides");
-    this.#fileCreator.append(Buffer.from(content, "utf8"), {
-      name: "slides.json",
-      date: new Date(2025, 7, 8, 23, 4),
-    });
+    fs.writeFileSync(path.join(this.tempProjectFolder, "slides.json"), content);
   }
 
   async presentProject() {
@@ -217,15 +184,19 @@ class WorkingFile {
     this.#lastSavedData = (await buffer(slidesStream)).toString("utf8");
   }
 
-  closeProject(slidesContent: string) {
+  closeProject(slidesContent: string, saveProgress: progress.ProgressStream) {
     console.log("Close Called");
     return new Promise((res, rej) => {
       console.log("Created Promise");
       if (this.#isEditingOpened) {
-        console.log("Saving");
-        this.#addExtractedFilesToZip();
-        const slidesPath = path.join(this.projectTempFolder, "slides.json");
-        fs.writeFileSync(slidesPath, slidesContent);
+        const slidesPath = path.join(this.tempProjectFolder, "slides.json");
+        this.#fileCreator.append(fs.readFileSync(slidesPath), {
+          name: "slides.json",
+        });
+
+        saveProgress.setLength(
+          this.#fileSize + Buffer.byteLength(slidesContent) * 1
+        );
 
         this.#writeStream.on("close", () => {
           console.log(this.#fileCreator.pointer() + " total bytes");
@@ -242,16 +213,17 @@ class WorkingFile {
           console.log("Data has been drained");
         });
 
-        this.#fileCreator.pipe(this.#writeStream);
-        console.log("piping");
-
-        console.log("finalizing");
+        console.log("Finalizing ZIP");
         this.#fileCreator.finalize();
+
+        console.log("Piping stream to zip");
+        this.#fileCreator.pipe(saveProgress).pipe(this.#writeStream);
       }
     });
   }
+
   #addExtractedFilesToZip() {
-    const videosPath = path.join(this.projectTempFolder, "videos");
+    const videosPath = path.join(this.tempProjectFolder, "videos");
     const filesInPath = new Set(
       fs.existsSync(videosPath) ? fs.readdirSync(videosPath) : []
     );
@@ -262,7 +234,6 @@ class WorkingFile {
     if (filesToBeAdded.length > 0) {
       for (const f of filesToBeAdded) {
         const fp = path.join(videosPath, f);
-        console.log({ fp, f });
         this.#fileCreator.append(fs.createReadStream(fp), {
           name: `videos/${f}`,
         });
@@ -281,6 +252,7 @@ class WorkingFile {
   }
 
   async fileStream(zipfilePath: string) {
+    return this.#fileExtractor.entryData(zipfilePath);
     return new Promise((resolve, reject) => {
       const extract = tar.extract();
       const tarStream = fs.createReadStream(this.#filePath);

@@ -1,4 +1,11 @@
-const { app, BrowserWindow, ipcMain, dialog, protocol } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  ipcMain,
+  dialog,
+  protocol,
+  powerSaveBlocker,
+} = require("electron");
 const path = require("path");
 const electron = require("electron");
 
@@ -9,29 +16,31 @@ import {
 } from "./createViews";
 import MediaResponder from "./utils/MediaResponderClass";
 import WorkingFile from "./workingFile";
-
 const fontList = require("font-list");
-
+import progress from "progress-stream";
 import log from "electron-log/main";
-
-import cp from "child_process";
-
 import * as Sentry from "@sentry/electron/main";
+import process from "process";
 
-const EXTRARESOURCES_PATH = app.isPackaged
-  ? path.join(process.resourcesPath, "app.asar.unpacked", "src")
-  : path.join(__dirname, "../../extraResources");
+const powerSaveBlockerId = powerSaveBlocker.start("prevent-display-sleep");
 
-const getExtraResourcesPath = (...paths) => {
-  return path.join(EXTRARESOURCES_PATH, ...paths);
-};
+// app.commandLine.appendSwitch("disable-print-preview");
+// app.commandLine.appendSwitch("disable-translate");
+// app.commandLine.appendSwitch("disable-domain-reliability");
+// app.commandLine.appendSwitch("disable-sync");
+// app.commandLine.appendSwitch("disable-speech-api");
+// app.commandLine.appendSwitch("disable-features", "InterestFeedContent,Translate");
+// app.commandLine.appendSwitch("disable-webrtc");
+// app.commandLine.appendSwitch("disable-autofill");
+// app.commandLine.appendSwitch("disable-client-side-phishing-detection");
 
-if (app.isPackaged) {
+/* if (app.isPackaged) {
   log.initialize({ spyRendererConsole: true });
-  log.transports.file.format = "[{h}:{i}:{s}.{ms}] [{processType}] {text}";
+  log.transports.file.format =
+    "[{d}/{m}/{y} -{h}:{i}:{s}.{ms}] [{processType}] {text}";
   // log.transports.console.level = false;
   Object.assign(console, log.functions);
-}
+} */
 Sentry.init({
   dsn: "https://6af2ef87eb56857c4d16241ba118d39f@o4509875546030080.ingest.de.sentry.io/4509875549962320",
   enabled: app.isPackaged,
@@ -64,6 +73,15 @@ protocol.registerSchemesAsPrivileged([
 
 app.disableHardwareAcceleration();
 let canQuit = false;
+let saveProgress = progress({});
+import progressDialog from "electron-progressbar";
+var progressBar;
+
+saveProgress.on("progress", (data) => {
+  let currentPercent = data.percentage / 100;
+  progressBar.value = currentPercent;
+  showCreatorView.setProgressBar(currentPercent);
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -80,6 +98,7 @@ app.on("ready", () => {
   showCreatorView.on("close", (e) => {
     if (currentProject?.isOpened && !canQuit) {
       e.preventDefault(); // stop immediate close
+      powerSaveBlocker.stop(powerSaveBlockerId);
       showCreatorView.webContents.send("save-before-quit");
     }
   });
@@ -144,8 +163,22 @@ ipcMain.handle("file-save", (e, content) => {
 });
 
 ipcMain.handle("save-quit", async (e, content) => {
-  showCreatorView.setProgressBar(1.1, { mode: "indeterminate" });
-  return currentProject?.closeProject(content);
+  // showCreatorView.setProgressBar(1.1, { mode: "indeterminate" });
+  progressBar = new progressDialog({
+    indeterminate: false,
+    title: "File is Saving",
+    text: "",
+    detail: "Saving is in progress",
+    maxValue: 1,
+    browserWindow: {
+      parent: showCreatorView,
+    },
+  });
+
+  progressBar.on("progress", function (value) {
+    progressBar.detail = `Saving ${Math.floor(value * 100)}%`;
+  });
+  return currentProject?.closeProject(content, saveProgress);
 });
 
 ipcMain.on("save-done", () => {
@@ -157,11 +190,6 @@ ipcMain.on("save-done", () => {
 });
 
 ipcMain.handle("getSystemFonts", async () => {
-  const systemFontsScriptPath = getExtraResourcesPath(
-    "fontlist/getSystemFonts.js"
-  );
-  console.log(systemFontsScriptPath);
-
   return fontList.getFonts({ disableQuoting: true });
 });
 
