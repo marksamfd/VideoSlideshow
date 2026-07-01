@@ -1,28 +1,26 @@
 class VideoToolbar {
-  #muteButton;
-  #replaceVideoButton;
-  constructor(props) {
-    this.container = props.container;
-    this.onMuteBtnClicked = props.onMuteButton;
-    this.onReplaceBtnClicked = props.onReplaceBtn;
-    this.#muteButton = this.container.querySelector("#muteVideoBtn");
-    this.#replaceVideoButton = this.container.querySelector("#replaceVideoBtn");
+    #muteButton;
+    #replaceVideoButton;
 
-    console.log(`${this.constructor.name} initialized `);
-  }
+    constructor(props) {
+        this.container = props.container;
+        this.onMuteBtnClicked = props.onMuteButton;
+        this.onReplaceBtnClicked = props.onReplaceBtn;
+        this.#muteButton = this.container.querySelector("#muteVideoBtn");
+        this.#replaceVideoButton = this.container.querySelector("#replaceVideoBtn");
 
-  _attachEventListeners() {
-    this.#muteButton.addEventListener(
-      "click",
-      this.onMuteBtnClicked.bind(this)
-    );
-  }
+        console.log(`${this.constructor.name} initialized `);
+    }
 
-  changeMuteButtonIcon(muted) {
-    console.log(this.#muteButton);
-    this.#muteButton.querySelector(".material-symbols-outlined").innerText =
-      muted ? "volume_off" : "volume_up";
-  }
+    _attachEventListeners() {
+        this.#muteButton.addEventListener("click", this.onMuteBtnClicked.bind(this));
+        this.#replaceVideoButton.addEventListener("click", this.onReplaceBtnClicked.bind(this));
+    }
+
+    changeMuteButtonIcon(muted) {
+        console.log(this.#muteButton);
+        this.#muteButton.querySelector(".material-symbols-outlined").innerText = muted ? "volume_off" : "volume_up";
+    }
 }
 
 export default VideoToolbar;

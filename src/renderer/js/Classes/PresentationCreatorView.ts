@@ -28,6 +28,7 @@ class PresentationCreatorView extends BaseViewport {
     sidebar: SidebarRenderer;
     videoToolbar: VideoToolbar;
     textEditor: TextEditorArea;
+    declare canvas: CreatorCanvasRenderer
 
     #addSlideBtn;
     #removeSlideBtn;
@@ -57,6 +58,8 @@ class PresentationCreatorView extends BaseViewport {
         this.videoToolbar = new VideoToolbar({
             container: props.videoToolbar,
             onMuteButton: () => this.onMuteButtonClicked(),
+            onReplaceBtn: () => this.onReplaceButtonClicked()
+
         });
         this.textEditor = new TextEditorArea({
             textAreaElement: props.textAreaElement,
@@ -68,7 +71,7 @@ class PresentationCreatorView extends BaseViewport {
         });
         this.lyricRenderer = new LyricRenderer({
             lyricsContainer: props.lyricsContainer,
-            // onLyricClickCallback: this.onLyricClicked.bind(this),
+            onLyricClickCallback: this.onLyricClicked.bind(this),
         });
 
         this.#addSlideBtn = props.addSlideBtn;
@@ -85,6 +88,10 @@ class PresentationCreatorView extends BaseViewport {
 
     onSlideClicked(slideNumber: number | string) {
         this.slides.setCurrent(Number(slideNumber));
+    }
+
+    onLyricClicked(lyricIdx: number) {
+        this.canvas.rendertext(this.lyrics.lyricChunks[lyricIdx])
     }
 
     createCanvasRenderer(props: CreatorCanvasRendererConfig) {
@@ -220,6 +227,10 @@ class PresentationCreatorView extends BaseViewport {
                 this.onSlideChange();
             }
         });
+    }
+
+    private onReplaceButtonClicked() {
+        this.canvas.pickVideoFile()
     }
 }
 
