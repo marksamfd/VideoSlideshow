@@ -1,5 +1,8 @@
 import Konva from "konva";
 
+/***
+ * @deprecated
+ */
 class ShowPresentationBase extends Konva.Stage {
   #w;
   #h;

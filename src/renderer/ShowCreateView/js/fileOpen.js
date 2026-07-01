@@ -1,58 +1,59 @@
 import Slide from "../../js/Classes/Slide";
-import ShowCreator from "../../js/Classes/ShowCreator";
+import PresentationCreatorView from "../../js/Classes/PresentationCreatorView";
 import hotkeys from "hotkeys-js";
 
 /**
- * @type {ShowCreator}
+ * @type {PresentationCreatorView}
  */
-let present;
+let creator;
 let sentCloseSignal = false;
 
 window.file.onFileParams(function (fileParams) {
-  console.log(fileParams);
-  let presentation = JSON.parse(fileParams["content"]);
-  let slides = presentation.map((e) => new Slide(e));
-  let slidePreviewCanv = document.getElementById("currentSlideThumbCanvas");
+    console.log(fileParams);
+    let presentation = JSON.parse(fileParams["content"]);
+    let slides = presentation.map((e) => new Slide(e));
+    let slidePreviewCanv = document.getElementById("currentSlideThumbCanvas");
 
-  present = new ShowCreator({
-    slides: [...slides],
-    sidebarSlidesContainer: document.getElementById("sidebarSlidesContainer"),
-    container: "currentSlideThumbCanvas",
-    width: slidePreviewCanv.clientWidth,
-    height: slidePreviewCanv.clientHeight,
-    splitStrategy: fileParams.mode,
-    splitDelimiter: fileParams.sepBy,
-    addSlideBtn: document.querySelector(`#slideAdd`),
-    removeSlideBtn: document.querySelector(`#slideDelete`),
-    textEditorField: document.querySelector("textarea"),
-    fontSelector: document.querySelector("#fontSelector"),
-    backgroundEnabledBtn: document.querySelector("#backgroundEnabledBtn"),
-    videoToolbar: document.querySelector("#videoToolbar"),
-  });
+    creator = new PresentationCreatorView({
+        slides: [...slides],
+        sidebarSlidesContainer: document.getElementById("sidebarSlidesContainer"),
+        container: "currentSlideThumbCanvas",
+        width: slidePreviewCanv.clientWidth,
+        height: slidePreviewCanv.clientHeight,
+        splitStrategy: fileParams.mode,
+        splitDelimiter: fileParams.sepBy,
+        addSlideBtn: document.querySelector(`#slideAdd`),
+        removeSlideBtn: document.querySelector(`#slideDelete`),
+        textAreaElement: document.querySelector("textarea"),
+        fontSelectorElement: document.querySelector("#fontSelector"),
+        backgroundBtnElement: document.querySelector("#backgroundEnabledBtn"),
+        videoToolbar: document.querySelector("#videoToolbar"),
+        lyricsContainer: document.querySelector("#lyricsList"),
+    });
 
-  window.file.onSaveBeforeQuit(async () => {
-    if (!sentCloseSignal) {
-      sentCloseSignal = true;
-      console.log("Saving data before quitting...");
-      if (await file.saveAndQuit(present.stringifyShow())) {
-        window.file.saveDone();
-      }
-    }
-  });
+    window.file.onSaveBeforeQuit(async () => {
+        if (!sentCloseSignal) {
+            sentCloseSignal = true;
+            console.log("Saving data before quitting...");
+            if (await file.saveAndQuit(creator.stringifyShow())) {
+                window.file.saveDone();
+            }
+        }
+    });
 });
 hotkeys("delete,ctrl+s", function (event, handler) {
-  switch (handler.key) {
-    case "delete":
-      present?.removeSlide();
-      break;
-    case "ctrl+s":
-      file.save(present.stringifyShow());
-      console.log(present.stringifyShow());
-  }
+    switch (handler.key) {
+        case "delete":
+            creator?.removeSlide();
+            break;
+        case "ctrl+s":
+            file.save(creator.stringifyShow());
+            console.log(creator.stringifyShow());
+    }
 });
 
 window.comm.onSlideshowInitialized(() => {
-  comm.startSlideshow(present.stringifyShow());
+    comm.startSlideshow(creator.stringifyShow());
 });
 
 /* window.comm.onSlideshowDestroy(() => {

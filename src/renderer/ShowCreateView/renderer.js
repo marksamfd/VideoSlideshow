@@ -14,4 +14,4 @@ Sentry.init({
   integrations: [],
 });
 
-Sentry.setTag("type", "showCreator");
+Sentry.setTag("type", "Show Creator");

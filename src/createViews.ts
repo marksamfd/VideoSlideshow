@@ -1,10 +1,21 @@
 import { app, BrowserWindow, Menu } from "electron";
-
-const createPresentationView = (parent, x = 0, y = 0) => {
+// Add the following import or definition for PRESENTATION_VIEW_WEBPACK_ENTRY
+declare const PRESENTATION_VIEW_PRELOAD_WEBPACK_ENTRY: string;
+declare const PRESENTATION_VIEW_WEBPACK_ENTRY: string;
+declare const SHOW_CREATOR_VIEW_PRELOAD_WEBPACK_ENTRY: string;
+declare const SHOW_CREATOR_VIEW_WEBPACK_ENTRY: string;
+declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+declare const SAVE_FILE_DIALOG_WEBPACK_ENTRY: string;
+declare const OPEN_FILE_DIALOG_WEBPACK_ENTRY: string;
+declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+/**
+ *
+ * @param {*} parent
+ * @returns {Electron.CrossProcessExports.BrowserWindow}
+ */
+const createPresentationView = (parent: BrowserWindow) => {
   // Create the browser window.
   let presentationView = new BrowserWindow({
-    x,
-    y,
     width: 800,
     height: 600,
     parent,
@@ -122,6 +133,7 @@ const createPresenterView = () => {
     },
   ];
 
+  // @ts-ignore
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
   // and load the index.html of the app.
@@ -244,6 +256,7 @@ const createShowCreatorView = () => {
         } */
   ];
 
+  //@ts-ignore
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
   // and load the index.html of the app.
@@ -257,7 +270,7 @@ const createShowCreatorView = () => {
   return showCreatorView;
 };
 
-const createOpenFileDialog = (parent) => {
+const createOpenFileDialog = (parent: BrowserWindow) => {
   // Create the browser window.
   let openFileDialog = new BrowserWindow({
     width: 600,
@@ -276,7 +289,7 @@ const createOpenFileDialog = (parent) => {
   return openFileDialog;
 };
 
-const createSaveFileDialog = (parent) => {
+const createSaveFileDialog = (parent: BrowserWindow) => {
   // Create the browser window.
   let openFileDialog = new BrowserWindow({
     width: 600,

@@ -1,0 +1,646 @@
+<svg version="1.1" baseProfile="full" width="5120.5" height="1171.0" viewBox="0 0 5120.5 1171" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events">
+<desc >#.interface: fill=lightblue
+#.enumeration: fill=lightgreen
+#.type: fill=lightgray
+
+[BaseViewport|+slides: SlideManager;+lyrics: LyricManager;+sidebar: SidebarRenderer;+lyricRenderer?: LyricRenderer;+canvas: any;+loadLyricsFromPreviousSlide: boolean|\#abstract createCanvasRenderer(): any;\#initializeViewport(): void;+#attachBaseEventListeners(): void;+onSlideChange(): void;+onLyricChange(): void;+onLyricsSlideFinished(): void;+onLyricsSlidePrevious(): void;+#renderInitialSlides(): void;+onSlideClicked(): void;+onLyricClicked(): void;+next(): void;+previous(): void]
+[&lt;interface&gt;BaseViewportProps|+slides: Slide\[\];+sidebarSlidesContainer: HTMLElement;+lyricsContainer?: HTMLUListElement;+splitStrategy?: string;+splitDelimiter?: string \| number;+mode?: string;+sepBy?: string \| number;+container: string;+width?: number;+height: number|]
+[LyricManager|+static STRAT_DELIMETER: string;+static STRAT_WORDS: string;+onFinished?: () =&gt; void;+onPrevious?: () =&gt; void;+splitStrategy: string;+splitDelimiter: string \| number;+currentSlide: Slide;+lyricChunks: string\[\];+currentIndex: number;+onLyricChanged?: () =&gt; void|+loadSlide(): void;+splitIntoChunks(): any\[\];+getCurrentLyric(): string;+setCurrent(): void;+getCurrentLyricIdx(): number;+getAllLyrics(): string\[\];+next(): void;+previous(): void;+reset(): void]
+[&lt;interface&gt;LyricManagerProps|+onFinishedLyricCallback?: () =&gt; void;+onPreviousLyricCallback?: () =&gt; void;+splitStrategy: string;+splitDelimiter: string \| number;+onLyricChangeCallback?: () =&gt; void|]
+[LyricRenderer|+container: HTMLUListElement;+onLyricClick: (lyricIdx: number) =&gt; void|+_attachEventListeners(): void;+createLyricsPreview(): HTMLLIElement\[\];+renderLyricsPreview(): void;+heighlightLyric(): void]
+[&lt;interface&gt;LyricRendererConfig|+container: HTMLUListElement;+onLyricClickCallback?: (lyricIdx: number) =&gt; void|]
+[PresentationCreatorView|+\#addSlideBtn: any;+\#removeSlideBtn: any|+createCanvasRenderer(): CreatorCanvasRenderer;+#attachEventListeners(): void;+onSlideChange(): void;+onMuteButtonClicked(): void;+addNewSlide(): void;+removeSlide(): void;+onTextDrag(): void;+onTextEdited(): void;+onVideoPicked(): void;+onFontSelected(): void;+onBackgroundBtn(): void;+stringifyShow(): string]
+[BaseViewport]&lt;:-[PresentationCreatorView]
+[PresentationView|-slides: SlideManager;-lyrics: LyricManager;-canvas: PresentationCanvasRenderer;-loadLyricsFromPreviousSlide: boolean|+onSlideChange(): void;+onLyricChange(): void;+onLyricsSlideFinished(): void;+onLyricsSlidePrevious(): void;+next(): void;+previous(): void]
+[&lt;interface&gt;PresentationViewConfig|+container: string \| HTMLDivElement;+height: number;+slides: Slide\[\];+splitStrategy: string;+splitDelimiter: string \| number|]
+[PresenterView||+createCanvasRenderer(): PresenterCanvasRenderer]
+[BaseViewport]&lt;:-[PresenterView]
+[Slide|-_text: string;-_textX: number;-_textY: number;-_loop: boolean;-_muted: boolean;-_fontFamily: string;-_fontBold: boolean;-_fontTextToHeightRatio: number;-_fontBackground: false \| SlideFontBackground;-_videoThumbnailFormat: string;-_videoFileName: string;-_videoFileFormat: string|+setTextPosition(): void;+toggleMuted(): Boolean;+toggleBackground(): false \| SlideFontBackground;+setText(): void;+setFontName(): void;+setVideoFileName(): void;+toJSON(): SlideJSON;+splitText(): any\[\]]
+[&lt;interface&gt;SlideFontBackground|+color: string;+opacity: number|]
+[&lt;interface&gt;SlideFont|+family?: string;+bold?: boolean;+textToHeightRatio?: number;+background: false \| SlideFontBackground|]
+[&lt;interface&gt;SlideJSON|+video: { name?: string; format?: string; muted?: boolean; };+text?: { x: number; y: number; font: SlideFont; value: string; };+thumbnail?: { format: string; }|]
+[CanvasRenderer|\#currentSlide: Slide;\#baseLayer: any;\#textLayer: Label;\#background: any;+\#textBackground: any;\#backgroundDOMObj: CanvasImageSource;\#controller: any;+\#textToHeightRatio: number;+\#simpleText: any;+\#padding: any|\#abstract setCanvasToVideo(): void;\#abstract createBackgroundElement(): CanvasImageSource;+abstract _attachEventListeners(): void;+renderSlide(): void;+rendertext(): void;+renderTextPosition(): void;+renderTextProps(): void;+renderTextBackground(): void;+destroyCreator(): void]
+[Stage]&lt;:-[CanvasRenderer]
+[CreatorCanvasRenderer|-filePicker: any;-onVideoPicked: Function;-onTextDrag: Function;\#anim: any|+createBackgroundElement(): CanvasImageSource;-createCanvasVideoPicker(): void;-createFilePicker(): HTMLInputElement;-pickVideoFile(): void;-onImageLayerClicked(): void;+#onVideoFilePicked(): Promise&lt;void&gt;;+setCanvasToVideo(): void;+changeVideoMuteState(): void;+_attachEventListeners(): void]
+[CanvasRenderer]&lt;:-[CreatorCanvasRenderer]
+[PresentationCanvasRenderer|-cachedVideos: Map&lt;string, HTMLVideoElement&gt;;\#anim: Animation|+createBackgroundElement(): HTMLVideoElement;+setCanvasToVideo(): void;+_attachEventListeners(): void;+cacheVideo(): void]
+[CanvasRenderer]&lt;:-[PresentationCanvasRenderer]
+[PresenterCanvasRenderer||+createBackgroundElement(): HTMLImageElement;+setCanvasToVideo(): void;+_attachEventListeners(): void]
+[CanvasRenderer]&lt;:-[PresenterCanvasRenderer]</desc>
+<g stroke-width="1.0" text-align="left" font="12pt Helvetica, Arial, sans-serif" font-size="12pt" font-family="Helvetica" font-weight="normal" font-style="normal">
+<g font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" stroke-width="3.0" stroke-linejoin="round" stroke-linecap="round" stroke="#33322E">
+<g stroke="transparent" fill="transparent">
+<rect x="0.0" y="0.0" height="1171.0" width="5120.5" stroke="none"></rect>
+</g>
+<g transform="translate(8, 8)" fill="#33322E">
+<g transform="translate(20, 20)" fill="#eee8d5" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal">
+<path d="M213.6 384.8 L212.5 408 L212.5 469 L212.5 469.0 " fill="none"></path>
+<path d="M218.9 385.1 L213.6 384.8 L208.3 384.6 L214.2 371.5 Z"></path>
+<path d="M400.8 212.5 L2286 408 L2286 578 L2286.0 578.0 " fill="none"></path>
+<path d="M401.3 207.2 L400.8 212.5 L400.2 217.8 L387.5 211.1 Z"></path>
+<path d="M4402.5 223.3 L4402.5 408 L4402.5 428 L4402.5 428.0 " fill="none"></path>
+<path d="M4407.8 223.3 L4402.5 223.3 L4397.2 223.3 L4402.5 210.0 Z"></path>
+<path d="M4144.8 730.1 L3945.5 820 L3945.5 840 L3945.5 840.0 " fill="none"></path>
+<path d="M4147.0 735.0 L4144.8 730.1 L4142.7 725.3 L4157.0 724.7 Z"></path>
+<path d="M4402.5 813.3 L4402.5 820 L4402.5 897 L4402.5 897.0 " fill="none"></path>
+<path d="M4407.8 813.3 L4402.5 813.3 L4397.2 813.3 L4402.5 800.0 Z"></path>
+<path d="M4660.1 730.9 L4856.5 820 L4856.5 925 L4856.5 925.0 " fill="none"></path>
+<path d="M4662.3 726.0 L4660.1 730.9 L4657.9 735.8 L4648.0 725.4 Z"></path>
+<g data-name="BaseViewport">
+<g fill="#eee8d5" stroke="#33322E" data-name="BaseViewport">
+<rect x="57.5" y="16.5" height="355.0" width="330.0" data-name="BaseViewport"></rect>
+<path d="M57.5 48.5 L387.5 48.5" fill="none" data-name="BaseViewport"></path>
+<path d="M57.5 161.5 L387.5 161.5" fill="none" data-name="BaseViewport"></path>
+</g>
+<g transform="translate(57.5, 16.5)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="BaseViewport" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="BaseViewport" data-compartment="0">
+<a id="src\renderer\js\classes\BaseViewport.ts.BaseViewport" xlink:href="src\renderer\js\classes\BaseViewport.ts"><text x="157.0" y="14.1" stroke="none" text-anchor="middle" data-name="BaseViewport" data-compartment="0">BaseViewport</text></a>
+
+</g>
+</g>
+<g transform="translate(57.5, 48.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BaseViewport" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="BaseViewport" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="BaseViewport" data-compartment="1">+slides: SlideManager</text>
+<text x="0.0" y="30.3" stroke="none" data-name="BaseViewport" data-compartment="1">+lyrics: LyricManager</text>
+<text x="0.0" y="46.5" stroke="none" data-name="BaseViewport" data-compartment="1">+sidebar: SidebarRenderer</text>
+<text x="0.0" y="62.7" stroke="none" data-name="BaseViewport" data-compartment="1">+lyricRenderer?: LyricRenderer</text>
+<text x="0.0" y="78.9" stroke="none" data-name="BaseViewport" data-compartment="1">+canvas: any</text>
+<text x="0.0" y="95.1" stroke="none" data-name="BaseViewport" data-compartment="1">+loadLyricsFromPreviousSlide: boolean</text>
+
+</g>
+</g>
+<g transform="translate(57.5, 161.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BaseViewport" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="BaseViewport" data-compartment="2">
+<text x="0.0" y="14.1" stroke="none" data-name="BaseViewport" data-compartment="2">#abstract createCanvasRenderer(): any</text>
+<text x="0.0" y="30.3" stroke="none" data-name="BaseViewport" data-compartment="2">#initializeViewport(): void</text>
+<text x="0.0" y="46.5" stroke="none" data-name="BaseViewport" data-compartment="2">+#attachBaseEventListeners(): void</text>
+<text x="0.0" y="62.7" stroke="none" data-name="BaseViewport" data-compartment="2">+onSlideChange(): void</text>
+<text x="0.0" y="78.9" stroke="none" data-name="BaseViewport" data-compartment="2">+onLyricChange(): void</text>
+<text x="0.0" y="95.1" stroke="none" data-name="BaseViewport" data-compartment="2">+onLyricsSlideFinished(): void</text>
+<text x="0.0" y="111.3" stroke="none" data-name="BaseViewport" data-compartment="2">+onLyricsSlidePrevious(): void</text>
+<text x="0.0" y="127.5" stroke="none" data-name="BaseViewport" data-compartment="2">+#renderInitialSlides(): void</text>
+<text x="0.0" y="143.7" stroke="none" data-name="BaseViewport" data-compartment="2">+onSlideClicked(): void</text>
+<text x="0.0" y="159.9" stroke="none" data-name="BaseViewport" data-compartment="2">+onLyricClicked(): void</text>
+<text x="0.0" y="176.1" stroke="none" data-name="BaseViewport" data-compartment="2">+next(): void</text>
+<text x="0.0" y="192.3" stroke="none" data-name="BaseViewport" data-compartment="2">+previous(): void</text>
+
+</g>
+</g>
+</g>
+<g data-name="BaseViewportProps">
+<g fill="lightblue" stroke="#33322E" data-name="BaseViewportProps">
+<rect x="427.5" y="85.0" height="218.0" width="330.0" data-name="BaseViewportProps"></rect>
+<path d="M427.5 117.0 L757.5 117.0" fill="none" data-name="BaseViewportProps"></path>
+<path d="M427.5 295.0 L757.5 295.0" fill="none" data-name="BaseViewportProps"></path>
+</g>
+<g transform="translate(427.5, 85)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BaseViewportProps" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="BaseViewportProps" data-compartment="0">
+<a id="src\renderer\js\classes\BaseViewport.ts.BaseViewportProps" xlink:href="src\renderer\js\classes\BaseViewport.ts"><text x="157.0" y="14.1" stroke="none" text-anchor="middle" data-name="BaseViewportProps" data-compartment="0">BaseViewportProps</text></a>
+
+</g>
+</g>
+<g transform="translate(427.5, 117)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BaseViewportProps" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="BaseViewportProps" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="BaseViewportProps" data-compartment="1">+slides: Slide[]</text>
+<text x="0.0" y="30.3" stroke="none" data-name="BaseViewportProps" data-compartment="1">+sidebarSlidesContainer: HTMLElement</text>
+<text x="0.0" y="46.5" stroke="none" data-name="BaseViewportProps" data-compartment="1">+lyricsContainer?: HTMLUListElement</text>
+<text x="0.0" y="62.7" stroke="none" data-name="BaseViewportProps" data-compartment="1">+splitStrategy?: string</text>
+<text x="0.0" y="78.9" stroke="none" data-name="BaseViewportProps" data-compartment="1">+splitDelimiter?: string | number</text>
+<text x="0.0" y="95.1" stroke="none" data-name="BaseViewportProps" data-compartment="1">+mode?: string</text>
+<text x="0.0" y="111.3" stroke="none" data-name="BaseViewportProps" data-compartment="1">+sepBy?: string | number</text>
+<text x="0.0" y="127.5" stroke="none" data-name="BaseViewportProps" data-compartment="1">+container: string</text>
+<text x="0.0" y="143.7" stroke="none" data-name="BaseViewportProps" data-compartment="1">+width?: number</text>
+<text x="0.0" y="159.9" stroke="none" data-name="BaseViewportProps" data-compartment="1">+height: number</text>
+
+</g>
+</g>
+<g transform="translate(427.5, 295)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="BaseViewportProps" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="BaseViewportProps" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="LyricManager">
+<g fill="#eee8d5" stroke="#33322E" data-name="LyricManager">
+<rect x="797.5" y="8.0" height="372.0" width="287.0" data-name="LyricManager"></rect>
+<path d="M797.5 40.0 L1084.5 40.0" fill="none" data-name="LyricManager"></path>
+<path d="M797.5 218.0 L1084.5 218.0" fill="none" data-name="LyricManager"></path>
+</g>
+<g transform="translate(797.5, 8)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="LyricManager" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="LyricManager" data-compartment="0">
+<a id="src\renderer\js\classes\LyricManager.ts.LyricManager" xlink:href="src\renderer\js\classes\LyricManager.ts"><text x="135.5" y="14.1" stroke="none" text-anchor="middle" data-name="LyricManager" data-compartment="0">LyricManager</text></a>
+
+</g>
+</g>
+<g transform="translate(797.5, 40)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LyricManager" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="LyricManager" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="LyricManager" data-compartment="1">+static STRAT_DELIMETER: string</text>
+<text x="0.0" y="30.3" stroke="none" data-name="LyricManager" data-compartment="1">+static STRAT_WORDS: string</text>
+<text x="0.0" y="46.5" stroke="none" data-name="LyricManager" data-compartment="1">+onFinished?: () =&gt; void</text>
+<text x="0.0" y="62.7" stroke="none" data-name="LyricManager" data-compartment="1">+onPrevious?: () =&gt; void</text>
+<text x="0.0" y="78.9" stroke="none" data-name="LyricManager" data-compartment="1">+splitStrategy: string</text>
+<text x="0.0" y="95.1" stroke="none" data-name="LyricManager" data-compartment="1">+splitDelimiter: string | number</text>
+<text x="0.0" y="111.3" stroke="none" data-name="LyricManager" data-compartment="1">+currentSlide: Slide</text>
+<text x="0.0" y="127.5" stroke="none" data-name="LyricManager" data-compartment="1">+lyricChunks: string[]</text>
+<text x="0.0" y="143.7" stroke="none" data-name="LyricManager" data-compartment="1">+currentIndex: number</text>
+<text x="0.0" y="159.9" stroke="none" data-name="LyricManager" data-compartment="1">+onLyricChanged?: () =&gt; void</text>
+
+</g>
+</g>
+<g transform="translate(797.5, 218)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LyricManager" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="LyricManager" data-compartment="2">
+<text x="0.0" y="14.1" stroke="none" data-name="LyricManager" data-compartment="2">+loadSlide(): void</text>
+<text x="0.0" y="30.3" stroke="none" data-name="LyricManager" data-compartment="2">+splitIntoChunks(): any[]</text>
+<text x="0.0" y="46.5" stroke="none" data-name="LyricManager" data-compartment="2">+getCurrentLyric(): string</text>
+<text x="0.0" y="62.7" stroke="none" data-name="LyricManager" data-compartment="2">+setCurrent(): void</text>
+<text x="0.0" y="78.9" stroke="none" data-name="LyricManager" data-compartment="2">+getCurrentLyricIdx(): number</text>
+<text x="0.0" y="95.1" stroke="none" data-name="LyricManager" data-compartment="2">+getAllLyrics(): string[]</text>
+<text x="0.0" y="111.3" stroke="none" data-name="LyricManager" data-compartment="2">+next(): void</text>
+<text x="0.0" y="127.5" stroke="none" data-name="LyricManager" data-compartment="2">+previous(): void</text>
+<text x="0.0" y="143.7" stroke="none" data-name="LyricManager" data-compartment="2">+reset(): void</text>
+
+</g>
+</g>
+</g>
+<g data-name="LyricManagerProps">
+<g fill="lightblue" stroke="#33322E" data-name="LyricManagerProps">
+<rect x="1124.5" y="125.5" height="137.0" width="316.0" data-name="LyricManagerProps"></rect>
+<path d="M1124.5 157.5 L1440.5 157.5" fill="none" data-name="LyricManagerProps"></path>
+<path d="M1124.5 254.5 L1440.5 254.5" fill="none" data-name="LyricManagerProps"></path>
+</g>
+<g transform="translate(1124.5, 125.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LyricManagerProps" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="LyricManagerProps" data-compartment="0">
+<a id="src\renderer\js\classes\LyricManager.ts.LyricManagerProps" xlink:href="src\renderer\js\classes\LyricManager.ts"><text x="150.0" y="14.1" stroke="none" text-anchor="middle" data-name="LyricManagerProps" data-compartment="0">LyricManagerProps</text></a>
+
+</g>
+</g>
+<g transform="translate(1124.5, 157.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LyricManagerProps" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="LyricManagerProps" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="LyricManagerProps" data-compartment="1">+onFinishedLyricCallback?: () =&gt; void</text>
+<text x="0.0" y="30.3" stroke="none" data-name="LyricManagerProps" data-compartment="1">+onPreviousLyricCallback?: () =&gt; void</text>
+<text x="0.0" y="46.5" stroke="none" data-name="LyricManagerProps" data-compartment="1">+splitStrategy: string</text>
+<text x="0.0" y="62.7" stroke="none" data-name="LyricManagerProps" data-compartment="1">+splitDelimiter: string | number</text>
+<text x="0.0" y="78.9" stroke="none" data-name="LyricManagerProps" data-compartment="1">+onLyricChangeCallback?: () =&gt; void</text>
+
+</g>
+</g>
+<g transform="translate(1124.5, 254.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LyricManagerProps" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="LyricManagerProps" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="LyricRenderer">
+<g fill="#eee8d5" stroke="#33322E" data-name="LyricRenderer">
+<rect x="1480.5" y="113.5" height="161.0" width="342.0" data-name="LyricRenderer"></rect>
+<path d="M1480.5 145.5 L1822.5 145.5" fill="none" data-name="LyricRenderer"></path>
+<path d="M1480.5 193.5 L1822.5 193.5" fill="none" data-name="LyricRenderer"></path>
+</g>
+<g transform="translate(1480.5, 113.5)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="LyricRenderer" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="LyricRenderer" data-compartment="0">
+<a id="src\renderer\js\classes\LyricRenderer.ts.LyricRenderer" xlink:href="src\renderer\js\classes\LyricRenderer.ts"><text x="163.0" y="14.1" stroke="none" text-anchor="middle" data-name="LyricRenderer" data-compartment="0">LyricRenderer</text></a>
+
+</g>
+</g>
+<g transform="translate(1480.5, 145.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LyricRenderer" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="LyricRenderer" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="LyricRenderer" data-compartment="1">+container: HTMLUListElement</text>
+<text x="0.0" y="30.3" stroke="none" data-name="LyricRenderer" data-compartment="1">+onLyricClick: (lyricIdx: number) =&gt; void</text>
+
+</g>
+</g>
+<g transform="translate(1480.5, 193.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LyricRenderer" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="LyricRenderer" data-compartment="2">
+<text x="0.0" y="14.1" stroke="none" data-name="LyricRenderer" data-compartment="2">+_attachEventListeners(): void</text>
+<text x="0.0" y="30.3" stroke="none" data-name="LyricRenderer" data-compartment="2">+createLyricsPreview(): HTMLLIElement[]</text>
+<text x="0.0" y="46.5" stroke="none" data-name="LyricRenderer" data-compartment="2">+renderLyricsPreview(): void</text>
+<text x="0.0" y="62.7" stroke="none" data-name="LyricRenderer" data-compartment="2">+heighlightLyric(): void</text>
+
+</g>
+</g>
+</g>
+<g data-name="LyricRendererConfig">
+<g fill="lightblue" stroke="#33322E" data-name="LyricRendererConfig">
+<rect x="1862.5" y="150.0" height="88.0" width="411.0" data-name="LyricRendererConfig"></rect>
+<path d="M1862.5 182.0 L2273.5 182.0" fill="none" data-name="LyricRendererConfig"></path>
+<path d="M1862.5 230.0 L2273.5 230.0" fill="none" data-name="LyricRendererConfig"></path>
+</g>
+<g transform="translate(1862.5, 150)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LyricRendererConfig" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="LyricRendererConfig" data-compartment="0">
+<a id="src\renderer\js\classes\LyricRenderer.ts.LyricRendererConfig" xlink:href="src\renderer\js\classes\LyricRenderer.ts"><text x="197.5" y="14.1" stroke="none" text-anchor="middle" data-name="LyricRendererConfig" data-compartment="0">LyricRendererConfig</text></a>
+
+</g>
+</g>
+<g transform="translate(1862.5, 182)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LyricRendererConfig" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="LyricRendererConfig" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="LyricRendererConfig" data-compartment="1">+container: HTMLUListElement</text>
+<text x="0.0" y="30.3" stroke="none" data-name="LyricRendererConfig" data-compartment="1">+onLyricClickCallback?: (lyricIdx: number) =&gt; void</text>
+
+</g>
+</g>
+<g transform="translate(1862.5, 230)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="LyricRendererConfig" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="LyricRendererConfig" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="PresentationCreatorView">
+<g fill="#eee8d5" stroke="#33322E" data-name="PresentationCreatorView">
+<rect x="0.0" y="469.0" height="290.0" width="425.0" data-name="PresentationCreatorView"></rect>
+<path d="M0.0 501.0 L425.0 501.0" fill="none" data-name="PresentationCreatorView"></path>
+<path d="M0.0 549.0 L425.0 549.0" fill="none" data-name="PresentationCreatorView"></path>
+</g>
+<g transform="translate(0, 469)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="PresentationCreatorView" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="PresentationCreatorView" data-compartment="0">
+<a id="src\renderer\js\classes\PresentationCreatorView.ts.PresentationCreatorView" xlink:href="src\renderer\js\classes\PresentationCreatorView.ts"><text x="204.5" y="14.1" stroke="none" text-anchor="middle" data-name="PresentationCreatorView" data-compartment="0">PresentationCreatorView</text></a>
+
+</g>
+</g>
+<g transform="translate(0, 501)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="PresentationCreatorView" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="PresentationCreatorView" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="PresentationCreatorView" data-compartment="1">+#addSlideBtn: any</text>
+<text x="0.0" y="30.3" stroke="none" data-name="PresentationCreatorView" data-compartment="1">+#removeSlideBtn: any</text>
+
+</g>
+</g>
+<g transform="translate(0, 549)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="PresentationCreatorView" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="PresentationCreatorView" data-compartment="2">
+<text x="0.0" y="14.1" stroke="none" data-name="PresentationCreatorView" data-compartment="2">+createCanvasRenderer(): CreatorCanvasRenderer</text>
+<text x="0.0" y="30.3" stroke="none" data-name="PresentationCreatorView" data-compartment="2">+#attachEventListeners(): void</text>
+<text x="0.0" y="46.5" stroke="none" data-name="PresentationCreatorView" data-compartment="2">+onSlideChange(): void</text>
+<text x="0.0" y="62.7" stroke="none" data-name="PresentationCreatorView" data-compartment="2">+onMuteButtonClicked(): void</text>
+<text x="0.0" y="78.9" stroke="none" data-name="PresentationCreatorView" data-compartment="2">+addNewSlide(): void</text>
+<text x="0.0" y="95.1" stroke="none" data-name="PresentationCreatorView" data-compartment="2">+removeSlide(): void</text>
+<text x="0.0" y="111.3" stroke="none" data-name="PresentationCreatorView" data-compartment="2">+onTextDrag(): void</text>
+<text x="0.0" y="127.5" stroke="none" data-name="PresentationCreatorView" data-compartment="2">+onTextEdited(): void</text>
+<text x="0.0" y="143.7" stroke="none" data-name="PresentationCreatorView" data-compartment="2">+onVideoPicked(): void</text>
+<text x="0.0" y="159.9" stroke="none" data-name="PresentationCreatorView" data-compartment="2">+onFontSelected(): void</text>
+<text x="0.0" y="176.1" stroke="none" data-name="PresentationCreatorView" data-compartment="2">+onBackgroundBtn(): void</text>
+<text x="0.0" y="192.3" stroke="none" data-name="PresentationCreatorView" data-compartment="2">+stringifyShow(): string</text>
+
+</g>
+</g>
+</g>
+<g data-name="PresentationView">
+<g fill="#eee8d5" stroke="#33322E" data-name="PresentationView">
+<rect x="2313.5" y="81.0" height="226.0" width="325.0" data-name="PresentationView"></rect>
+<path d="M2313.5 113.0 L2638.5 113.0" fill="none" data-name="PresentationView"></path>
+<path d="M2313.5 194.0 L2638.5 194.0" fill="none" data-name="PresentationView"></path>
+</g>
+<g transform="translate(2313.5, 81)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="PresentationView" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="PresentationView" data-compartment="0">
+<a id="src\renderer\js\classes\PresentationView.ts.PresentationView" xlink:href="src\renderer\js\classes\PresentationView.ts"><text x="154.5" y="14.1" stroke="none" text-anchor="middle" data-name="PresentationView" data-compartment="0">PresentationView</text></a>
+
+</g>
+</g>
+<g transform="translate(2313.5, 113)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="PresentationView" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="PresentationView" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="PresentationView" data-compartment="1">-slides: SlideManager</text>
+<text x="0.0" y="30.3" stroke="none" data-name="PresentationView" data-compartment="1">-lyrics: LyricManager</text>
+<text x="0.0" y="46.5" stroke="none" data-name="PresentationView" data-compartment="1">-canvas: PresentationCanvasRenderer</text>
+<text x="0.0" y="62.7" stroke="none" data-name="PresentationView" data-compartment="1">-loadLyricsFromPreviousSlide: boolean</text>
+
+</g>
+</g>
+<g transform="translate(2313.5, 194)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="PresentationView" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="PresentationView" data-compartment="2">
+<text x="0.0" y="14.1" stroke="none" data-name="PresentationView" data-compartment="2">+onSlideChange(): void</text>
+<text x="0.0" y="30.3" stroke="none" data-name="PresentationView" data-compartment="2">+onLyricChange(): void</text>
+<text x="0.0" y="46.5" stroke="none" data-name="PresentationView" data-compartment="2">+onLyricsSlideFinished(): void</text>
+<text x="0.0" y="62.7" stroke="none" data-name="PresentationView" data-compartment="2">+onLyricsSlidePrevious(): void</text>
+<text x="0.0" y="78.9" stroke="none" data-name="PresentationView" data-compartment="2">+next(): void</text>
+<text x="0.0" y="95.1" stroke="none" data-name="PresentationView" data-compartment="2">+previous(): void</text>
+
+</g>
+</g>
+</g>
+<g data-name="PresentationViewConfig">
+<g fill="lightblue" stroke="#33322E" data-name="PresentationViewConfig">
+<rect x="2678.5" y="125.5" height="137.0" width="304.0" data-name="PresentationViewConfig"></rect>
+<path d="M2678.5 157.5 L2982.5 157.5" fill="none" data-name="PresentationViewConfig"></path>
+<path d="M2678.5 254.5 L2982.5 254.5" fill="none" data-name="PresentationViewConfig"></path>
+</g>
+<g transform="translate(2678.5, 125.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="PresentationViewConfig" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="PresentationViewConfig" data-compartment="0">
+<a id="src\renderer\js\classes\PresentationView.ts.PresentationViewConfig" xlink:href="src\renderer\js\classes\PresentationView.ts"><text x="144.0" y="14.1" stroke="none" text-anchor="middle" data-name="PresentationViewConfig" data-compartment="0">PresentationViewConfig</text></a>
+
+</g>
+</g>
+<g transform="translate(2678.5, 157.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="PresentationViewConfig" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="PresentationViewConfig" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="PresentationViewConfig" data-compartment="1">+container: string | HTMLDivElement</text>
+<text x="0.0" y="30.3" stroke="none" data-name="PresentationViewConfig" data-compartment="1">+height: number</text>
+<text x="0.0" y="46.5" stroke="none" data-name="PresentationViewConfig" data-compartment="1">+slides: Slide[]</text>
+<text x="0.0" y="62.7" stroke="none" data-name="PresentationViewConfig" data-compartment="1">+splitStrategy: string</text>
+<text x="0.0" y="78.9" stroke="none" data-name="PresentationViewConfig" data-compartment="1">+splitDelimiter: string | number</text>
+
+</g>
+</g>
+<g transform="translate(2678.5, 254.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="PresentationViewConfig" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="PresentationViewConfig" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="PresenterView">
+<g fill="#eee8d5" stroke="#33322E" data-name="PresenterView">
+<rect x="2064.5" y="578.0" height="72.0" width="443.0" data-name="PresenterView"></rect>
+<path d="M2064.5 610.0 L2507.5 610.0" fill="none" data-name="PresenterView"></path>
+<path d="M2064.5 618.0 L2507.5 618.0" fill="none" data-name="PresenterView"></path>
+</g>
+<g transform="translate(2064.5, 578)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="PresenterView" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="PresenterView" data-compartment="0">
+<a id="src\renderer\js\classes\PresenterView.ts.PresenterView" xlink:href="src\renderer\js\classes\PresenterView.ts"><text x="213.5" y="14.1" stroke="none" text-anchor="middle" data-name="PresenterView" data-compartment="0">PresenterView</text></a>
+
+</g>
+</g>
+<g transform="translate(2064.5, 610)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="PresenterView" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" data-name="PresenterView" data-compartment="1">
+
+</g>
+</g>
+<g transform="translate(2064.5, 618)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="PresenterView" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="PresenterView" data-compartment="2">
+<text x="0.0" y="14.1" stroke="none" data-name="PresenterView" data-compartment="2">+createCanvasRenderer(): PresenterCanvasRenderer</text>
+
+</g>
+</g>
+</g>
+<g data-name="Slide">
+<g fill="#eee8d5" stroke="#33322E" data-name="Slide">
+<rect x="3022.5" y="0.0" height="388.0" width="414.0" data-name="Slide"></rect>
+<path d="M3022.5 32.0 L3436.5 32.0" fill="none" data-name="Slide"></path>
+<path d="M3022.5 242.0 L3436.5 242.0" fill="none" data-name="Slide"></path>
+</g>
+<g transform="translate(3022.5, 0)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Slide" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Slide" data-compartment="0">
+<a id="src\renderer\js\classes\Slide.ts.Slide" xlink:href="src\renderer\js\classes\Slide.ts"><text x="199.0" y="14.1" stroke="none" text-anchor="middle" data-name="Slide" data-compartment="0">Slide</text></a>
+
+</g>
+</g>
+<g transform="translate(3022.5, 32)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Slide" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Slide" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="Slide" data-compartment="1">-_text: string</text>
+<text x="0.0" y="30.3" stroke="none" data-name="Slide" data-compartment="1">-_textX: number</text>
+<text x="0.0" y="46.5" stroke="none" data-name="Slide" data-compartment="1">-_textY: number</text>
+<text x="0.0" y="62.7" stroke="none" data-name="Slide" data-compartment="1">-_loop: boolean</text>
+<text x="0.0" y="78.9" stroke="none" data-name="Slide" data-compartment="1">-_muted: boolean</text>
+<text x="0.0" y="95.1" stroke="none" data-name="Slide" data-compartment="1">-_fontFamily: string</text>
+<text x="0.0" y="111.3" stroke="none" data-name="Slide" data-compartment="1">-_fontBold: boolean</text>
+<text x="0.0" y="127.5" stroke="none" data-name="Slide" data-compartment="1">-_fontTextToHeightRatio: number</text>
+<text x="0.0" y="143.7" stroke="none" data-name="Slide" data-compartment="1">-_fontBackground: false | SlideFontBackground</text>
+<text x="0.0" y="159.9" stroke="none" data-name="Slide" data-compartment="1">-_videoThumbnailFormat: string</text>
+<text x="0.0" y="176.1" stroke="none" data-name="Slide" data-compartment="1">-_videoFileName: string</text>
+<text x="0.0" y="192.3" stroke="none" data-name="Slide" data-compartment="1">-_videoFileFormat: string</text>
+
+</g>
+</g>
+<g transform="translate(3022.5, 242)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="Slide" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="Slide" data-compartment="2">
+<text x="0.0" y="14.1" stroke="none" data-name="Slide" data-compartment="2">+setTextPosition(): void</text>
+<text x="0.0" y="30.3" stroke="none" data-name="Slide" data-compartment="2">+toggleMuted(): Boolean</text>
+<text x="0.0" y="46.5" stroke="none" data-name="Slide" data-compartment="2">+toggleBackground(): false | SlideFontBackground</text>
+<text x="0.0" y="62.7" stroke="none" data-name="Slide" data-compartment="2">+setText(): void</text>
+<text x="0.0" y="78.9" stroke="none" data-name="Slide" data-compartment="2">+setFontName(): void</text>
+<text x="0.0" y="95.1" stroke="none" data-name="Slide" data-compartment="2">+setVideoFileName(): void</text>
+<text x="0.0" y="111.3" stroke="none" data-name="Slide" data-compartment="2">+toJSON(): SlideJSON</text>
+<text x="0.0" y="127.5" stroke="none" data-name="Slide" data-compartment="2">+splitText(): any[]</text>
+
+</g>
+</g>
+</g>
+<g data-name="SlideFontBackground">
+<g fill="lightblue" stroke="#33322E" data-name="SlideFontBackground">
+<rect x="3476.5" y="150.0" height="88.0" width="185.0" data-name="SlideFontBackground"></rect>
+<path d="M3476.5 182.0 L3661.5 182.0" fill="none" data-name="SlideFontBackground"></path>
+<path d="M3476.5 230.0 L3661.5 230.0" fill="none" data-name="SlideFontBackground"></path>
+</g>
+<g transform="translate(3476.5, 150)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="SlideFontBackground" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="SlideFontBackground" data-compartment="0">
+<a id="src\renderer\js\classes\Slide.ts.SlideFontBackground" xlink:href="src\renderer\js\classes\Slide.ts"><text x="84.5" y="14.1" stroke="none" text-anchor="middle" data-name="SlideFontBackground" data-compartment="0">SlideFontBackground</text></a>
+
+</g>
+</g>
+<g transform="translate(3476.5, 182)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="SlideFontBackground" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="SlideFontBackground" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="SlideFontBackground" data-compartment="1">+color: string</text>
+<text x="0.0" y="30.3" stroke="none" data-name="SlideFontBackground" data-compartment="1">+opacity: number</text>
+
+</g>
+</g>
+<g transform="translate(3476.5, 230)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="SlideFontBackground" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="SlideFontBackground" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="SlideFont">
+<g fill="lightblue" stroke="#33322E" data-name="SlideFont">
+<rect x="3701.5" y="133.5" height="121.0" width="352.0" data-name="SlideFont"></rect>
+<path d="M3701.5 165.5 L4053.5 165.5" fill="none" data-name="SlideFont"></path>
+<path d="M3701.5 246.5 L4053.5 246.5" fill="none" data-name="SlideFont"></path>
+</g>
+<g transform="translate(3701.5, 133.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="SlideFont" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="SlideFont" data-compartment="0">
+<a id="src\renderer\js\classes\Slide.ts.SlideFont" xlink:href="src\renderer\js\classes\Slide.ts"><text x="168.0" y="14.1" stroke="none" text-anchor="middle" data-name="SlideFont" data-compartment="0">SlideFont</text></a>
+
+</g>
+</g>
+<g transform="translate(3701.5, 165.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="SlideFont" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="SlideFont" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="SlideFont" data-compartment="1">+family?: string</text>
+<text x="0.0" y="30.3" stroke="none" data-name="SlideFont" data-compartment="1">+bold?: boolean</text>
+<text x="0.0" y="46.5" stroke="none" data-name="SlideFont" data-compartment="1">+textToHeightRatio?: number</text>
+<text x="0.0" y="62.7" stroke="none" data-name="SlideFont" data-compartment="1">+background: false | SlideFontBackground</text>
+
+</g>
+</g>
+<g transform="translate(3701.5, 246.5)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="SlideFont" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="SlideFont" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="SlideJSON">
+<g fill="lightblue" stroke="#33322E" data-name="SlideJSON">
+<rect x="4093.5" y="77.0" height="234.0" width="238.0" data-name="SlideJSON"></rect>
+<path d="M4093.5 109.0 L4331.5 109.0" fill="none" data-name="SlideJSON"></path>
+<path d="M4093.5 303.0 L4331.5 303.0" fill="none" data-name="SlideJSON"></path>
+</g>
+<g transform="translate(4093.5, 77)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="SlideJSON" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="SlideJSON" data-compartment="0">
+<a id="src\renderer\js\classes\Slide.ts.SlideJSON" xlink:href="src\renderer\js\classes\Slide.ts"><text x="111.0" y="14.1" stroke="none" text-anchor="middle" data-name="SlideJSON" data-compartment="0">SlideJSON</text></a>
+
+</g>
+</g>
+<g transform="translate(4093.5, 109)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="SlideJSON" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="SlideJSON" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="SlideJSON" data-compartment="1">+video: { name?: string</text>
+<text x="0.0" y="30.3" stroke="none" data-name="SlideJSON" data-compartment="1">format?: string</text>
+<text x="0.0" y="46.5" stroke="none" data-name="SlideJSON" data-compartment="1">muted?: boolean</text>
+<text x="0.0" y="62.7" stroke="none" data-name="SlideJSON" data-compartment="1">}</text>
+<text x="0.0" y="78.9" stroke="none" data-name="SlideJSON" data-compartment="1">+text?: { x: number</text>
+<text x="0.0" y="95.1" stroke="none" data-name="SlideJSON" data-compartment="1">y: number</text>
+<text x="0.0" y="111.3" stroke="none" data-name="SlideJSON" data-compartment="1">font: SlideFont</text>
+<text x="0.0" y="127.5" stroke="none" data-name="SlideJSON" data-compartment="1">value: string</text>
+<text x="0.0" y="143.7" stroke="none" data-name="SlideJSON" data-compartment="1">}</text>
+<text x="0.0" y="159.9" stroke="none" data-name="SlideJSON" data-compartment="1">+thumbnail?: { format: string</text>
+<text x="0.0" y="176.1" stroke="none" data-name="SlideJSON" data-compartment="1">}</text>
+
+</g>
+</g>
+<g transform="translate(4093.5, 303)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="SlideJSON" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" data-name="SlideJSON" data-compartment="2">
+
+</g>
+</g>
+</g>
+<g data-name="CanvasRenderer">
+<g fill="#eee8d5" stroke="#33322E" data-name="CanvasRenderer">
+<rect x="4157.0" y="428.0" height="372.0" width="491.0" data-name="CanvasRenderer"></rect>
+<path d="M4157.0 460.0 L4648.0 460.0" fill="none" data-name="CanvasRenderer"></path>
+<path d="M4157.0 638.0 L4648.0 638.0" fill="none" data-name="CanvasRenderer"></path>
+</g>
+<g transform="translate(4157, 428)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="CanvasRenderer" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="CanvasRenderer" data-compartment="0">
+<a id="src\renderer\js\classes\CanvasRenderer\CanvasRendererClass.ts.CanvasRenderer" xlink:href="src\renderer\js\classes\CanvasRenderer\CanvasRendererClass.ts"><text x="237.5" y="14.1" stroke="none" text-anchor="middle" data-name="CanvasRenderer" data-compartment="0">CanvasRenderer</text></a>
+
+</g>
+</g>
+<g transform="translate(4157, 460)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="CanvasRenderer" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="CanvasRenderer" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="CanvasRenderer" data-compartment="1">#currentSlide: Slide</text>
+<text x="0.0" y="30.3" stroke="none" data-name="CanvasRenderer" data-compartment="1">#baseLayer: any</text>
+<text x="0.0" y="46.5" stroke="none" data-name="CanvasRenderer" data-compartment="1">#textLayer: Label</text>
+<text x="0.0" y="62.7" stroke="none" data-name="CanvasRenderer" data-compartment="1">#background: any</text>
+<text x="0.0" y="78.9" stroke="none" data-name="CanvasRenderer" data-compartment="1">+#textBackground: any</text>
+<text x="0.0" y="95.1" stroke="none" data-name="CanvasRenderer" data-compartment="1">#backgroundDOMObj: CanvasImageSource</text>
+<text x="0.0" y="111.3" stroke="none" data-name="CanvasRenderer" data-compartment="1">#controller: any</text>
+<text x="0.0" y="127.5" stroke="none" data-name="CanvasRenderer" data-compartment="1">+#textToHeightRatio: number</text>
+<text x="0.0" y="143.7" stroke="none" data-name="CanvasRenderer" data-compartment="1">+#simpleText: any</text>
+<text x="0.0" y="159.9" stroke="none" data-name="CanvasRenderer" data-compartment="1">+#padding: any</text>
+
+</g>
+</g>
+<g transform="translate(4157, 638)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="CanvasRenderer" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="CanvasRenderer" data-compartment="2">
+<text x="0.0" y="14.1" stroke="none" data-name="CanvasRenderer" data-compartment="2">#abstract setCanvasToVideo(): void</text>
+<text x="0.0" y="30.3" stroke="none" data-name="CanvasRenderer" data-compartment="2">#abstract createBackgroundElement(): CanvasImageSource</text>
+<text x="0.0" y="46.5" stroke="none" data-name="CanvasRenderer" data-compartment="2">+abstract _attachEventListeners(): void</text>
+<text x="0.0" y="62.7" stroke="none" data-name="CanvasRenderer" data-compartment="2">+renderSlide(): void</text>
+<text x="0.0" y="78.9" stroke="none" data-name="CanvasRenderer" data-compartment="2">+rendertext(): void</text>
+<text x="0.0" y="95.1" stroke="none" data-name="CanvasRenderer" data-compartment="2">+renderTextPosition(): void</text>
+<text x="0.0" y="111.3" stroke="none" data-name="CanvasRenderer" data-compartment="2">+renderTextProps(): void</text>
+<text x="0.0" y="127.5" stroke="none" data-name="CanvasRenderer" data-compartment="2">+renderTextBackground(): void</text>
+<text x="0.0" y="143.7" stroke="none" data-name="CanvasRenderer" data-compartment="2">+destroyCreator(): void</text>
+
+</g>
+</g>
+</g>
+<g data-name="Stage">
+<g fill="#eee8d5" stroke="#33322E" data-name="Stage">
+<rect x="4371.5" y="178.0" height="32.0" width="62.0" data-name="Stage"></rect>
+</g>
+<g transform="translate(4371.5, 178)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="Stage" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="Stage" data-compartment="0">
+<text x="23.0" y="14.1" stroke="none" text-anchor="middle" data-name="Stage" data-compartment="0">Stage</text>
+
+</g>
+</g>
+</g>
+<g data-name="CreatorCanvasRenderer">
+<g fill="#eee8d5" stroke="#33322E" data-name="CreatorCanvasRenderer">
+<rect x="3734.5" y="840.0" height="275.0" width="422.0" data-name="CreatorCanvasRenderer"></rect>
+<path d="M3734.5 872.0 L4156.5 872.0" fill="none" data-name="CreatorCanvasRenderer"></path>
+<path d="M3734.5 953.0 L4156.5 953.0" fill="none" data-name="CreatorCanvasRenderer"></path>
+</g>
+<g transform="translate(3734.5, 840)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="CreatorCanvasRenderer" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="CreatorCanvasRenderer" data-compartment="0">
+<a id="src\renderer\js\classes\CanvasRenderer\CreatorCanvasRendererClass.ts.CreatorCanvasRenderer" xlink:href="src\renderer\js\classes\CanvasRenderer\CreatorCanvasRendererClass.ts"><text x="203.0" y="14.1" stroke="none" text-anchor="middle" data-name="CreatorCanvasRenderer" data-compartment="0">CreatorCanvasRenderer</text></a>
+
+</g>
+</g>
+<g transform="translate(3734.5, 872)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="CreatorCanvasRenderer" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="CreatorCanvasRenderer" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="CreatorCanvasRenderer" data-compartment="1">-filePicker: any</text>
+<text x="0.0" y="30.3" stroke="none" data-name="CreatorCanvasRenderer" data-compartment="1">-onVideoPicked: Function</text>
+<text x="0.0" y="46.5" stroke="none" data-name="CreatorCanvasRenderer" data-compartment="1">-onTextDrag: Function</text>
+<text x="0.0" y="62.7" stroke="none" data-name="CreatorCanvasRenderer" data-compartment="1">#anim: any</text>
+
+</g>
+</g>
+<g transform="translate(3734.5, 953)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="CreatorCanvasRenderer" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="CreatorCanvasRenderer" data-compartment="2">
+<text x="0.0" y="14.1" stroke="none" data-name="CreatorCanvasRenderer" data-compartment="2">+createBackgroundElement(): CanvasImageSource</text>
+<text x="0.0" y="30.3" stroke="none" data-name="CreatorCanvasRenderer" data-compartment="2">-createCanvasVideoPicker(): void</text>
+<text x="0.0" y="46.5" stroke="none" data-name="CreatorCanvasRenderer" data-compartment="2">-createFilePicker(): HTMLInputElement</text>
+<text x="0.0" y="62.7" stroke="none" data-name="CreatorCanvasRenderer" data-compartment="2">-pickVideoFile(): void</text>
+<text x="0.0" y="78.9" stroke="none" data-name="CreatorCanvasRenderer" data-compartment="2">-onImageLayerClicked(): void</text>
+<text x="0.0" y="95.1" stroke="none" data-name="CreatorCanvasRenderer" data-compartment="2">+#onVideoFilePicked(): Promise&lt;void&gt;</text>
+<text x="0.0" y="111.3" stroke="none" data-name="CreatorCanvasRenderer" data-compartment="2">+setCanvasToVideo(): void</text>
+<text x="0.0" y="127.5" stroke="none" data-name="CreatorCanvasRenderer" data-compartment="2">+changeVideoMuteState(): void</text>
+<text x="0.0" y="143.7" stroke="none" data-name="CreatorCanvasRenderer" data-compartment="2">+_attachEventListeners(): void</text>
+
+</g>
+</g>
+</g>
+<g data-name="PresentationCanvasRenderer">
+<g fill="#eee8d5" stroke="#33322E" data-name="PresentationCanvasRenderer">
+<rect x="4196.5" y="897.0" height="161.0" width="412.0" data-name="PresentationCanvasRenderer"></rect>
+<path d="M4196.5 929.0 L4608.5 929.0" fill="none" data-name="PresentationCanvasRenderer"></path>
+<path d="M4196.5 977.0 L4608.5 977.0" fill="none" data-name="PresentationCanvasRenderer"></path>
+</g>
+<g transform="translate(4196.5, 897)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="PresentationCanvasRenderer" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="PresentationCanvasRenderer" data-compartment="0">
+<a id="src\renderer\js\classes\CanvasRenderer\PresentationCanvasRendererClass.ts.PresentationCanvasRenderer" xlink:href="src\renderer\js\classes\CanvasRenderer\PresentationCanvasRendererClass.ts"><text x="198.0" y="14.1" stroke="none" text-anchor="middle" data-name="PresentationCanvasRenderer" data-compartment="0">PresentationCanvasRenderer</text></a>
+
+</g>
+</g>
+<g transform="translate(4196.5, 929)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="PresentationCanvasRenderer" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="PresentationCanvasRenderer" data-compartment="1">
+<text x="0.0" y="14.1" stroke="none" data-name="PresentationCanvasRenderer" data-compartment="1">-cachedVideos: Map&lt;string, HTMLVideoElement&gt;</text>
+<text x="0.0" y="30.3" stroke="none" data-name="PresentationCanvasRenderer" data-compartment="1">#anim: Animation</text>
+
+</g>
+</g>
+<g transform="translate(4196.5, 977)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="PresentationCanvasRenderer" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="PresentationCanvasRenderer" data-compartment="2">
+<text x="0.0" y="14.1" stroke="none" data-name="PresentationCanvasRenderer" data-compartment="2">+createBackgroundElement(): HTMLVideoElement</text>
+<text x="0.0" y="30.3" stroke="none" data-name="PresentationCanvasRenderer" data-compartment="2">+setCanvasToVideo(): void</text>
+<text x="0.0" y="46.5" stroke="none" data-name="PresentationCanvasRenderer" data-compartment="2">+_attachEventListeners(): void</text>
+<text x="0.0" y="62.7" stroke="none" data-name="PresentationCanvasRenderer" data-compartment="2">+cacheVideo(): void</text>
+
+</g>
+</g>
+</g>
+<g data-name="PresenterCanvasRenderer">
+<g fill="#eee8d5" stroke="#33322E" data-name="PresenterCanvasRenderer">
+<rect x="4648.5" y="925.0" height="105.0" width="416.0" data-name="PresenterCanvasRenderer"></rect>
+<path d="M4648.5 957.0 L5064.5 957.0" fill="none" data-name="PresenterCanvasRenderer"></path>
+<path d="M4648.5 965.0 L5064.5 965.0" fill="none" data-name="PresenterCanvasRenderer"></path>
+</g>
+<g transform="translate(4648.5, 925)" font-family="Helvetica" font-size="12pt" font-weight="bold" font-style="normal" data-name="PresenterCanvasRenderer" data-compartment="0">
+<g transform="translate(8, 8)" fill="#33322E" text-align="center" data-name="PresenterCanvasRenderer" data-compartment="0">
+<a id="src\renderer\js\classes\CanvasRenderer\PresenterCanvasRendererClass.ts.PresenterCanvasRenderer" xlink:href="src\renderer\js\classes\CanvasRenderer\PresenterCanvasRendererClass.ts"><text x="200.0" y="14.1" stroke="none" text-anchor="middle" data-name="PresenterCanvasRenderer" data-compartment="0">PresenterCanvasRenderer</text></a>
+
+</g>
+</g>
+<g transform="translate(4648.5, 957)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="PresenterCanvasRenderer" data-compartment="1">
+<g transform="translate(8, 8)" fill="#33322E" data-name="PresenterCanvasRenderer" data-compartment="1">
+
+</g>
+</g>
+<g transform="translate(4648.5, 965)" font-family="Helvetica" font-size="12pt" font-weight="normal" font-style="normal" data-name="PresenterCanvasRenderer" data-compartment="2">
+<g transform="translate(8, 8)" fill="#33322E" text-align="left" data-name="PresenterCanvasRenderer" data-compartment="2">
+<text x="0.0" y="14.1" stroke="none" data-name="PresenterCanvasRenderer" data-compartment="2">+createBackgroundElement(): HTMLImageElement</text>
+<text x="0.0" y="30.3" stroke="none" data-name="PresenterCanvasRenderer" data-compartment="2">+setCanvasToVideo(): void</text>
+<text x="0.0" y="46.5" stroke="none" data-name="PresenterCanvasRenderer" data-compartment="2">+_attachEventListeners(): void</text>
+
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</svg>

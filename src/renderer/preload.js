@@ -3,6 +3,7 @@
 
 // Preload (Isolated World)
 const { contextBridge, ipcRenderer } = require("electron");
+const { IPCEvents } = require("../IPCmsg");
 
 contextBridge.exposeInMainWorld("file", {
   open: (mode) => ipcRenderer.invoke("file-dialog-open", mode),
@@ -28,6 +29,8 @@ contextBridge.exposeInMainWorld("slideFiles", {
 
 contextBridge.exposeInMainWorld("comm", {
   toPresentation: (props) => ipcRenderer.send("to-presentation", props),
+  nextSlide: () => ipcRenderer.send(IPCEvents.MAIN_NEXT_SLIDE),
+  previousSlide: () => ipcRenderer.send(IPCEvents.MAIN_PREV_SLIDE),
   onSlideshowInitialized: (callback) =>
     ipcRenderer.on("slideshow:init", (_e) => callback()),
   startSlideshow: (content) => ipcRenderer.invoke("slideshow:start", content),

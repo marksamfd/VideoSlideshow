@@ -82,8 +82,19 @@ class SlideManager {
     return this._slides[index].toggleBackground();
   }
 
+  /**
+   *
+   * @returns {Slide|null} The current slide object, or null if there are no slides.
+   */
+
   get currentSlide() {
     return this._slides[this.#current];
+  }
+
+  // for caching
+  get nextSlide() {
+    if (this.#current + 1 >= this._slides.length) return null;
+    return this._slides[this.#current + 1];
   }
 
   get currentIndex() {
@@ -91,6 +102,9 @@ class SlideManager {
   }
 
   setCurrent(index) {
+    if (index < 0 || index >= this._slides.length) {
+      return;
+    }
     this.#current = index;
     this._onSlideChange?.();
   }

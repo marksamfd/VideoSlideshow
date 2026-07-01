@@ -7,6 +7,7 @@ import * as StreamZip from "node-stream-zip";
 import { buffer } from "stream/consumers";
 const gunzip = require("gunzip-maybe");
 import * as progress from "progress-stream";
+import Slide from "./renderer/js/Classes/Slide";
 export enum ProjectOpenMode {
   NEW,
   EDIT,
@@ -18,12 +19,18 @@ interface addVideoSlideFileInterface {
   videoFilePath: string;
   videoFileName: string;
 }
+
+interface NotInArchiveFile {
+  file: string | Buffer;
+  size: number;
+}
+
 class WorkingFile {
   /**
    * shows the files that are added to the archive bit not available in the stream reader
    * @type {Record<string,string | Buffer>}
    */
-  #notInArchive: Record<string, string | Buffer> = {};
+  #notInArchive: Record<string, NotInArchiveFile> = {};
 
   #addedToArchive: string[] = [];
 
@@ -53,13 +60,17 @@ class WorkingFile {
    * Zip Object file
    *
    */
-  #fileCreator: archiver.Archiver;
+  #fileCreator!: archiver.Archiver;
   #writeStream: fs.WriteStream;
-  #fileExtractor: StreamZip.StreamZipAsync;
+  #fileExtractor!: StreamZip.StreamZipAsync;
+  private needsRepacking = false;
 
   #projectMode;
   #fileSize: number = 0;
 
+  public isNeedRepacking() {
+    return this.needsRepacking;
+  }
   /**
    * the show file path
    * @type {string}
@@ -118,20 +129,23 @@ class WorkingFile {
    *
    */
 
-  addVideoSlideFiles(props: addVideoSlideFileInterface) {
+  addSlideFiles(props: addVideoSlideFileInterface) {
     const { imgBuffer, imgFileName, videoFilePath, videoFileName } = props;
-    this.#fileCreator.append(imgBuffer, { name: `videos/${imgFileName}.png` });
-    this.#fileCreator.file(videoFilePath, { name: `videos/${videoFileName}` });
-    console.log("added Video Files");
+    this.needsRepacking = true;
+    this.#notInArchive[videoFileName.toLowerCase()] = {
+      file: videoFilePath,
+      size: fs.statSync(videoFilePath).size,
+    };
+    this.#notInArchive[`${imgFileName}.png`.toLowerCase()] = {
+      file: imgBuffer,
+      size: imgBuffer.length,
+    };
+  }
 
-    console.log(
-      imgBuffer.length,
-      fs.statSync(videoFilePath).size,
-      this.#fileSize
-    );
-    this.#fileSize += imgBuffer.length + fs.statSync(videoFilePath).size;
-    this.#notInArchive[videoFileName.toLowerCase()] = videoFilePath;
-    this.#notInArchive[`${imgFileName}.png`.toLowerCase()] = imgBuffer;
+  removeSlideFiles(videoFileName: string, imgFileName: string) {
+    delete this.#notInArchive[videoFileName.toLowerCase()];
+    delete this.#notInArchive[`${imgFileName}.png`.toLowerCase()];
+    this.needsRepacking = true;
   }
 
   #extractProjectFile() {
@@ -145,6 +159,7 @@ class WorkingFile {
 
     if (data.present) {
       this.#projectMode = ProjectOpenMode.PRESENT;
+      this.#fileExtractor = new StreamZip.async({ file: this.#filePath });
     } else if (fs.existsSync(this.#filePath)) {
       this.#projectMode = ProjectOpenMode.EDIT;
       this.#fileExtractor = new StreamZip.async({ file: this.#filePath });
@@ -169,31 +184,32 @@ class WorkingFile {
         level: 9,
       },
     });
-    this.#writeStream = fs.createWriteStream(this.#filePath);
   }
 
   async saveProject(content: string) {
     console.log("Saving");
-    this.#addExtractedFilesToZip();
-    console.log("writing");
+    this.needsRepacking = true;
     fs.writeFileSync(path.join(this.tempProjectFolder, "slides.json"), content);
   }
 
   async presentProject() {
-    const slidesStream: any = await this.fileStream("slides.json");
-    this.#lastSavedData = (await buffer(slidesStream)).toString("utf8");
+    const slidesStream = await this.fileStream("slides.json");
+    this.#lastSavedData = slidesStream.toString("utf8");
   }
 
   closeProject(slidesContent: string, saveProgress: progress.ProgressStream) {
     console.log("Close Called");
     return new Promise((res, rej) => {
       console.log("Created Promise");
-      if (this.#isEditingOpened) {
+      if (this.#isEditingOpened && this.needsRepacking) {
+        this.#writeStream = fs.createWriteStream(this.#filePath);
+
         const slidesPath = path.join(this.tempProjectFolder, "slides.json");
+
         this.#fileCreator.append(fs.readFileSync(slidesPath), {
           name: "slides.json",
         });
-
+        this.#addFilesToZip(JSON.parse(slidesContent));
         saveProgress.setLength(
           this.#fileSize + Buffer.byteLength(slidesContent) * 1
         );
@@ -218,28 +234,49 @@ class WorkingFile {
 
         console.log("Piping stream to zip");
         this.#fileCreator.pipe(saveProgress).pipe(this.#writeStream);
+      } else {
+        res(true);
       }
     });
   }
 
-  #addExtractedFilesToZip() {
-    const videosPath = path.join(this.tempProjectFolder, "videos");
+  #addFilesToZip(slides: Slide[]) {
+    Object.entries(this.#notInArchive).forEach(([key, element]) => {
+      let fileSrc =
+        element.file instanceof String
+          ? fs.createReadStream(element.file)
+          : element.file;
+      this.#fileCreator.append(fileSrc, { name: `videos/${key}` });
+      this.#fileSize += element.size;
+    });
+
+    const videosPath = this.videosFolder;
     const filesInPath = new Set(
       fs.existsSync(videosPath) ? fs.readdirSync(videosPath) : []
     );
-    const filesInArray = new Set(this.#addedToArchive);
-    const filesToBeAdded = [...filesInPath].filter(
-      (element: string) => !filesInArray.has(element)
+    const videosInSlides = new Set(
+      slides.flatMap((slide) => slide.videoFileName + slide.videoFileFormat)
     );
-    if (filesToBeAdded.length > 0) {
-      for (const f of filesToBeAdded) {
-        const fp = path.join(videosPath, f);
-        this.#fileCreator.append(fs.createReadStream(fp), {
-          name: `videos/${f}`,
-        });
-        this.#addedToArchive.push(`${f}`);
-      }
-    }
+    const thumbnailInSlides = new Set(
+      slides.flatMap(
+        (slide) => slide.videoFileName + slide.videoThumbnailFormat
+      )
+    );
+
+    const allFilesinSlides = new Set([...videosInSlides, ...thumbnailInSlides]);
+
+    // Intersection of allFilesinSlides and filesInPath
+    const intersection = [...allFilesinSlides].filter((x) =>
+      filesInPath.has(x)
+    );
+    // Use 'intersection' as needed
+    intersection.forEach((file) => {
+      const filePath = path.join(videosPath, file);
+      this.#fileCreator.append(fs.createReadStream(filePath), {
+        name: `videos/${file}`,
+      });
+      this.#fileSize += fs.statSync(filePath).size;
+    });
   }
 
   toObject() {
@@ -253,29 +290,6 @@ class WorkingFile {
 
   async fileStream(zipfilePath: string) {
     return this.#fileExtractor.entryData(zipfilePath);
-    return new Promise((resolve, reject) => {
-      const extract = tar.extract();
-      const tarStream = fs.createReadStream(this.#filePath);
-
-      let found = false;
-
-      extract.on("entry", (header, stream, next) => {
-        if (header.name === zipfilePath) {
-          found = true;
-          resolve(stream); // Pass the file stream out
-          // Don't call `next()` here — let consumer drain the stream
-        } else {
-          stream.resume(); // Skip this entry
-          next();
-        }
-      });
-
-      extract.on("finish", () => {
-        if (!found) reject(new Error(`File not found: ${zipfilePath}`));
-      });
-
-      tarStream.pipe(extract);
-    });
   }
 }
 

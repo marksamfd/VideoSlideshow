@@ -1,0 +1,28 @@
+#.interface: fill=lightblue
+#.enumeration: fill=lightgreen
+#.type: fill=lightgray
+
+[BaseViewport|+slides: SlideManager;+lyrics: LyricManager;+sidebar: SidebarRenderer;+lyricRenderer?: LyricRenderer;+canvas: any;+loadLyricsFromPreviousSlide: boolean|\#abstract createCanvasRenderer(): any;\#initializeViewport(): void;+#attachBaseEventListeners(): void;+onSlideChange(): void;+onLyricChange(): void;+onLyricsSlideFinished(): void;+onLyricsSlidePrevious(): void;+#renderInitialSlides(): void;+onSlideClicked(): void;+onLyricClicked(): void;+next(): void;+previous(): void]
+[<interface>BaseViewportProps|+slides: Slide\[\];+sidebarSlidesContainer: HTMLElement;+lyricsContainer?: HTMLUListElement;+splitStrategy?: string;+splitDelimiter?: string \| number;+mode?: string;+sepBy?: string \| number;+container: string;+width?: number;+height: number|]
+[LyricManager|+static STRAT_DELIMETER: string;+static STRAT_WORDS: string;+onFinished?: () => void;+onPrevious?: () => void;+splitStrategy: string;+splitDelimiter: string \| number;+currentSlide: Slide;+lyricChunks: string\[\];+currentIndex: number;+onLyricChanged?: () => void|+loadSlide(): void;+splitIntoChunks(): any\[\];+getCurrentLyric(): string;+setCurrent(): void;+getCurrentLyricIdx(): number;+getAllLyrics(): string\[\];+next(): void;+previous(): void;+reset(): void]
+[<interface>LyricManagerProps|+onFinishedLyricCallback?: () => void;+onPreviousLyricCallback?: () => void;+splitStrategy: string;+splitDelimiter: string \| number;+onLyricChangeCallback?: () => void|]
+[LyricRenderer|+container: HTMLUListElement;+onLyricClick: (lyricIdx: number) => void|+_attachEventListeners(): void;+createLyricsPreview(): HTMLLIElement\[\];+renderLyricsPreview(): void;+heighlightLyric(): void]
+[<interface>LyricRendererConfig|+container: HTMLUListElement;+onLyricClickCallback?: (lyricIdx: number) => void|]
+[PresentationCreatorView|+\#addSlideBtn: any;+\#removeSlideBtn: any|+createCanvasRenderer(): CreatorCanvasRenderer;+#attachEventListeners(): void;+onSlideChange(): void;+onMuteButtonClicked(): void;+addNewSlide(): void;+removeSlide(): void;+onTextDrag(): void;+onTextEdited(): void;+onVideoPicked(): void;+onFontSelected(): void;+onBackgroundBtn(): void;+stringifyShow(): string]
+[BaseViewport]<:-[PresentationCreatorView]
+[PresentationView|-slides: SlideManager;-lyrics: LyricManager;-canvas: PresentationCanvasRenderer;-loadLyricsFromPreviousSlide: boolean|+onSlideChange(): void;+onLyricChange(): void;+onLyricsSlideFinished(): void;+onLyricsSlidePrevious(): void;+next(): void;+previous(): void]
+[<interface>PresentationViewConfig|+container: string \| HTMLDivElement;+height: number;+slides: Slide\[\];+splitStrategy: string;+splitDelimiter: string \| number|]
+[PresenterView||+createCanvasRenderer(): PresenterCanvasRenderer]
+[BaseViewport]<:-[PresenterView]
+[Slide|-_text: string;-_textX: number;-_textY: number;-_loop: boolean;-_muted: boolean;-_fontFamily: string;-_fontBold: boolean;-_fontTextToHeightRatio: number;-_fontBackground: false \| SlideFontBackground;-_videoThumbnailFormat: string;-_videoFileName: string;-_videoFileFormat: string|+setTextPosition(): void;+toggleMuted(): Boolean;+toggleBackground(): false \| SlideFontBackground;+setText(): void;+setFontName(): void;+setVideoFileName(): void;+toJSON(): SlideJSON;+splitText(): any\[\]]
+[<interface>SlideFontBackground|+color: string;+opacity: number|]
+[<interface>SlideFont|+family?: string;+bold?: boolean;+textToHeightRatio?: number;+background: false \| SlideFontBackground|]
+[<interface>SlideJSON|+video: { name?: string; format?: string; muted?: boolean; };+text?: { x: number; y: number; font: SlideFont; value: string; };+thumbnail?: { format: string; }|]
+[CanvasRenderer|\#currentSlide: Slide;\#baseLayer: any;\#textLayer: Label;\#background: any;+\#textBackground: any;\#backgroundDOMObj: CanvasImageSource;\#controller: any;+\#textToHeightRatio: number;+\#simpleText: any;+\#padding: any|\#abstract setCanvasToVideo(): void;\#abstract createBackgroundElement(): CanvasImageSource;+abstract _attachEventListeners(): void;+renderSlide(): void;+rendertext(): void;+renderTextPosition(): void;+renderTextProps(): void;+renderTextBackground(): void;+destroyCreator(): void]
+[Stage]<:-[CanvasRenderer]
+[CreatorCanvasRenderer|-filePicker: any;-onVideoPicked: Function;-onTextDrag: Function;\#anim: any|+createBackgroundElement(): CanvasImageSource;-createCanvasVideoPicker(): void;-createFilePicker(): HTMLInputElement;-pickVideoFile(): void;-onImageLayerClicked(): void;+#onVideoFilePicked(): Promise<void>;+setCanvasToVideo(): void;+changeVideoMuteState(): void;+_attachEventListeners(): void]
+[CanvasRenderer]<:-[CreatorCanvasRenderer]
+[PresentationCanvasRenderer|-cachedVideos: Map<string, HTMLVideoElement>;\#anim: Animation|+createBackgroundElement(): HTMLVideoElement;+setCanvasToVideo(): void;+_attachEventListeners(): void;+cacheVideo(): void]
+[CanvasRenderer]<:-[PresentationCanvasRenderer]
+[PresenterCanvasRenderer||+createBackgroundElement(): HTMLImageElement;+setCanvasToVideo(): void;+_attachEventListeners(): void]
+[CanvasRenderer]<:-[PresenterCanvasRenderer]

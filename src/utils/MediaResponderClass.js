@@ -1,5 +1,5 @@
 import fs from "fs";
-import path, { parse as pathParse } from "path";
+import path from "path";
 import mime from "mime";
 import WorkingFile, { ProjectOpenMode } from "../workingFile";
 import { buffer } from "stream/consumers";
@@ -20,21 +20,27 @@ class MediaResponder {
   }
 
   async handle() {
-    const filePath = decodeURIComponent(
-      this.request.url.slice("media://".length)
-    );
-    const parsed = pathParse(filePath);
-    const ext = parsed.ext;
-    const baseName = parsed.name + ext;
+    const requestURL = new URL(this.request.url);
+    const decodedPath = decodeURIComponent(requestURL.pathname || "");
+    const fromPath = decodedPath.replace(/^\/+/, "");
+    const fromHost = decodeURIComponent(requestURL.hostname || "");
+
+    // Support both media://local/file.ext and legacy media://file.ext URLs.
+    const filePath =
+      fromPath || (fromHost && fromHost !== "local" ? fromHost : "");
+    const baseName = path.posix.basename(filePath);
+    const ext = path.extname(baseName);
 
     const mimeType = mime.getType(ext) || "application/octet-stream";
     this.headers.set("Content-Type", mimeType);
 
-    console.log(this.request.url)
-    if (this.currentProject.projectMode !== ProjectOpenMode.PRESENT) {
+    if (
+      this.currentProject.projectMode !== ProjectOpenMode.PRESENT &&
+      baseName
+    ) {
       const localFile =
-        this.currentProject.notInArchive[baseName] ||
-        path.join(this.currentProject.tempProjectFolder, "videos", baseName);
+        this.currentProject.notInArchive[baseName]?.file ||
+        path.join(this.currentProject.videosFolder, baseName);
       if (typeof localFile === "string") {
         return this.#respondFromFile(localFile);
       }
@@ -43,12 +49,10 @@ class MediaResponder {
       }
     }
 
-    console.log(filePath, baseName);
-
     const zipEntryPath = `videos/${baseName}`;
-    const buf = await buffer(
-      await this.currentProject.fileStream(zipEntryPath)
-    );
+    console.log("Trying to get from zip:", zipEntryPath);
+
+    const buf = await this.currentProject.fileStream(zipEntryPath);
     return this.#respondFromBuffer(buf);
   }
 

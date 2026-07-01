@@ -6,10 +6,11 @@
     "target": "es2024",
     "jsx": "react", // If you are using React
     "allowJs": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "sourceMap": true
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx" // If you are using React
-, "src/renderer/js/Classes/SlideManager.js"  ]
+, "src/renderer/js/Classes/SlideManager.js", "src/renderer/ShowCreateView/js/fileOpen.js"  ]
 }

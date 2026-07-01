@@ -14,6 +14,8 @@ import ShowPresentationBase from "./ShowPresentationBaseClass";
 import Konva from "konva";
 
 /**
+ * 
+ * @deprecated
  * A class for creating presentation
  * @class Show
  * @extends ShowPresentationBase
@@ -27,7 +29,7 @@ class Show extends ShowPresentationBase {
   _createBackground(slide) {
     let VideoObj = document.createElement("video");
     VideoObj.src =
-      "media://" +
+      "media://local/" +
       encodeURIComponent(slide.videoFileName + "." + slide.videoFileFormat);
     // VideoObj.src = `${this._basePath}/${slide.videoFileName}.${slide.videoFileFormat}`
     VideoObj.muted = slide.isMuted;

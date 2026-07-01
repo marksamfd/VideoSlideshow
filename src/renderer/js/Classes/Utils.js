@@ -1,4 +1,4 @@
-class Utils {
+export default class Utils {
   constructor(parameters) {}
 
   /**
@@ -104,5 +104,3 @@ class Utils {
     };
   }
 }
-
-module.exports = Utils;

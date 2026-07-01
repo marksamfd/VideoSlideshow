@@ -21,6 +21,7 @@ import progress from "progress-stream";
 import log from "electron-log/main";
 import * as Sentry from "@sentry/electron/main";
 import process from "process";
+import { IPCEvents } from "./IPCmsg";
 
 const powerSaveBlockerId = powerSaveBlocker.start("prevent-display-sleep");
 
@@ -75,11 +76,11 @@ app.disableHardwareAcceleration();
 let canQuit = false;
 let saveProgress = progress({});
 import progressDialog from "electron-progressbar";
-var progressBar;
+var progressBarDialog;
 
 saveProgress.on("progress", (data) => {
   let currentPercent = data.percentage / 100;
-  progressBar.value = currentPercent;
+  progressBarDialog.value = currentPercent;
   showCreatorView.setProgressBar(currentPercent);
 });
 
@@ -163,21 +164,22 @@ ipcMain.handle("file-save", (e, content) => {
 });
 
 ipcMain.handle("save-quit", async (e, content) => {
-  // showCreatorView.setProgressBar(1.1, { mode: "indeterminate" });
-  progressBar = new progressDialog({
-    indeterminate: false,
-    title: "File is Saving",
-    text: "",
-    detail: "Saving is in progress",
-    maxValue: 1,
-    browserWindow: {
-      parent: showCreatorView,
-    },
-  });
+  if (currentProject.isNeedRepacking()) {
+    progressBarDialog = new progressDialog({
+      indeterminate: false,
+      title: "File is Saving",
+      text: "",
+      detail: "Saving is in progress",
+      maxValue: 1,
+      browserWindow: {
+        parent: showCreatorView,
+      },
+    });
 
-  progressBar.on("progress", function (value) {
-    progressBar.detail = `Saving ${Math.floor(value * 100)}%`;
-  });
+    progressBarDialog.on("progress", function (value) {
+      progressBarDialog.detail = `Saving ${Math.floor(value * 100)}%`;
+    });
+  }
   return currentProject?.closeProject(content, saveProgress);
 });
 
@@ -198,7 +200,7 @@ ipcMain.on(
   (_, { imgBase64, imgFileName, videoFilePath, videoFileName }) => {
     const base64Data = imgBase64.replace(/^data:image\/png;base64,/, "");
     let imgBuffer = Buffer.from(base64Data, "base64");
-    currentProject.addVideoSlideFiles({
+    currentProject.addSlideFiles({
       imgBuffer,
       imgFileName,
       videoFilePath,
@@ -214,33 +216,22 @@ function initPresentationView() {
   });
 
   let data = currentProject.toObject();
-  console.log(data);
+  presentationView = createPresentationView(presenterView);
+  presentationView.webContents.on("dom-ready", () => {
+    presentationView.webContents.send(IPCEvents.PRESENTATION_INIT, data);
+  });
   if (externalDisplay) {
     presenterView = createPresenterView();
     presenterView.webContents.once("dom-ready", () => {
       presenterView.webContents.send("file-params", data);
     });
 
-    presentationView = createPresentationView(
-      presenterView,
+    presentationView.setPosition(
       externalDisplay.bounds.x,
       externalDisplay.bounds.y
     );
-    presentationView.webContents.once("dom-ready", () => {
-      presentationView.webContents.send("main:presentation", {
-        type: "init",
-        data,
-      });
-    });
     showCreatorView.destroy();
     presenterView.focus();
-  } else {
-    dialog.showMessageBoxSync(showCreatorView, {
-      type: "error",
-      title: "No Second Screen Detected",
-      message:
-        "Please make sure to connect another screen and the projection mode is set to Extend",
-    });
   }
 }
 
@@ -262,4 +253,12 @@ ipcMain.handle("slideshow:start", (e, content) => {
 ipcMain.on("to-presentation", (e, msg) => {
   // console.log(msg)
   presentationView?.webContents.send("main:presentation", msg);
+});
+
+ipcMain.on(IPCEvents.MAIN_NEXT_SLIDE, () => {
+  presentationView?.webContents.send(IPCEvents.PRESENTATION_NEXT_SLIDE);
+});
+
+ipcMain.on(IPCEvents.MAIN_PREV_SLIDE, () => {
+  presentationView?.webContents.send(IPCEvents.PRESENTATION_PREV_SLIDE);
 });

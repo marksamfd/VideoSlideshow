@@ -1,6 +1,5 @@
-import type { ForgeConfig } from "@electron-forge/shared-types";
 
-const forgeConf: ForgeConfig = {
+const forgeConf = {
   packagerConfig: {
     asar: {
       unpackDir: "files",
@@ -67,7 +66,7 @@ const forgeConf: ForgeConfig = {
             },
             {
               html: "./src/renderer/presentationView/index.html",
-              js: "./src/renderer/presentationView/renderer.js",
+              js: "./src/renderer/presentationView/renderer.ts",
               name: "presentation_view",
               preload: {
                 js: "./src/renderer/preloadPresentationView.js",

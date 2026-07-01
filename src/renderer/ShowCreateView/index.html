@@ -310,11 +310,23 @@
                   </div>
                 </div>
                 <div class="card-body p-2" id="slideTextEditor">
-                  <textarea
-                    class="form-control bg-dark text-light border-secondary h-100"
-                    dir="rtl"
-                    placeholder="Enter your slide text here..."
-                  ></textarea>
+                  <div class="row h-100">
+                    <div class="col" id="textSlidesContainer">
+                      <ul id="lyricsList">
+                        <li data-textSlideNumber="0" class="active-text-slide">
+                          Press File then Open Show
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col">
+                      <textarea
+                        class="form-control bg-dark text-light border-secondary h-100"
+                        dir="rtl"
+                        style="font-size: 18pt"
+                        placeholder="Enter your slide text here..."
+                      ></textarea>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
