@@ -19,7 +19,7 @@ class SlideManager {
   #current = -1;
   _onSlideChange;
 
-  constructor(props) {
+    constructor(props) {
     console.log(props);
     this._slides = [...props.slides];
     this._onSlideChange = props.onSlideChange;

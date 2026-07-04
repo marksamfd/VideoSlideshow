@@ -1,27 +1,25 @@
 import SlideManager from "./SlideManager";
 import LyricManager from "./LyricManager";
-import LyricRenderer from "./LyricRenderer";
 import Slide from "./Slide";
 import CanvasRendererClass from "./CanvasRenderer/CanvasRendererClass";
+import Konva from "konva";
 
-export interface BaseViewportProps {
+export type BaseViewportProps = {
     slides: Slide[];
     splitStrategy?: string;
     splitDelimiter?: string | number;
     mode?: string;
     sepBy?: string | number;
-    container: string;
-    width?: number;
-    height: number;
-}
+    notifySlideChange?: (current: string) => void;
+} & Konva.StageConfig;
 
 
 abstract class BaseViewport {
     slides: SlideManager;
     lyrics: LyricManager;
-    lyricRenderer?: LyricRenderer;
     canvas: CanvasRendererClass;
     loadLyricsFromPreviousSlide: boolean;
+    notifySlideChange: (current: string) => void;
 
     constructor(props: BaseViewportProps) {
         const splitStrategy = props.splitStrategy ?? props.mode ?? "words";
@@ -42,6 +40,8 @@ abstract class BaseViewport {
 
         this.loadLyricsFromPreviousSlide = false;
         this.canvas = this.createCanvasRenderer(props);
+        this.notifySlideChange = props.notifySlideChange ?? (() => {
+        });
     }
 
     protected abstract createCanvasRenderer(props: BaseViewportProps): CanvasRendererClass;
@@ -52,7 +52,6 @@ abstract class BaseViewport {
 
     attachBaseEventListeners() {
         this.canvas._attachEventListeners();
-        this.lyricRenderer?._attachEventListeners();
     }
 
     onSlideChange() {
@@ -64,21 +63,17 @@ abstract class BaseViewport {
             this.loadLyricsFromPreviousSlide,
         );
         this.loadLyricsFromPreviousSlide = false;
-
-
-        this.canvas.renderTextPosition(this.slides.currentSlide.textPosition);
-        this.canvas.rendertext(this.lyrics.getCurrentLyric());
-        this.canvas.renderTextProps({
-            fontFamily: this.slides.currentSlide.fontFamily,
-        });
-        this.canvas.renderTextBackground(this.slides.currentSlide.fontBackground);
     }
 
     onLyricChange() {
         this.canvas.rendertext(this.lyrics.getCurrentLyric());
+        this.canvas.renderTextPosition(this.slides.currentSlide.textPosition);
+        this.canvas.renderTextBackground(this.slides.currentSlide.fontBackground);
+        this.notifySlideChange?.(`${this.slides.currentIndex}:${this.lyrics.currentIndex}`)
     }
 
     onLyricsSlideFinished() {
+        this.loadLyricsFromPreviousSlide = false
         this.slides.setCurrent(this.slides.currentIndex + 1);
     }
 
@@ -95,6 +90,15 @@ abstract class BaseViewport {
     previous() {
         this.lyrics.previous();
     }
+
+    changeSlide(current: string) {
+        const [slideIdx, lyricIdx] = current.split(":");
+        if (Number(slideIdx) !== this.slides.currentIndex)
+            this.slides.setCurrent(Number(slideIdx))
+        if (Number(lyricIdx) !== this.lyrics.currentIndex)
+            this.lyrics.setCurrent(Number(lyricIdx))
+    }
+
 }
 
 export default BaseViewport;

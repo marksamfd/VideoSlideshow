@@ -3,8 +3,8 @@ import VideoToolbar from "./VideoToolbarClass";
 import TextEditorArea, {TextEditorProps} from "./TextEditorClass";
 import BaseViewport, {BaseViewportProps} from "./BaseViewport";
 import Slide from "./Slide";
-import SidebarRenderer from "./SidebarRendererClass";
-import LyricRenderer from "./LyricRenderer";
+import SidebarRenderer, {SidebarRendererProps} from "./SidebarRendererClass";
+import LyricRenderer, {LyricRendererConfig} from "./LyricRenderer";
 
 /**
  * Manages the creation and editing of a video slideshow, including slide management,
@@ -15,9 +15,13 @@ import LyricRenderer from "./LyricRenderer";
  * as well as synchronizing UI components such as the sidebar and canvas.
  *
  */
-type PresentationCreatorProps = BaseViewportProps & TextEditorProps & {
-    sidebarSlidesContainer: HTMLElement;
-    lyricsContainer?: HTMLUListElement;
+type PresentationCreatorProps =
+    BaseViewportProps
+    & TextEditorProps
+    & CreatorCanvasRendererConfig
+    & LyricRendererConfig
+    & SidebarRendererProps
+    & {
     videoToolbar: HTMLDivElement;
     addSlideBtn: HTMLButtonElement;
     removeSlideBtn: HTMLButtonElement;
@@ -28,6 +32,7 @@ class PresentationCreatorView extends BaseViewport {
     sidebar: SidebarRenderer;
     videoToolbar: VideoToolbar;
     textEditor: TextEditorArea;
+    lyricRenderer: LyricRenderer;
     declare canvas: CreatorCanvasRenderer
 
     #addSlideBtn;
@@ -50,8 +55,6 @@ class PresentationCreatorView extends BaseViewport {
         super(props);
         this.sidebar = new SidebarRenderer({
             sidebarSlidesContainer: props.sidebarSlidesContainer,
-            //@ts-ignore
-
             onSlideClickfn: this.onSlideClicked.bind(this),
         });
 
@@ -112,6 +115,8 @@ class PresentationCreatorView extends BaseViewport {
         this.videoToolbar._attachEventListeners();
         this.textEditor._attachEventListeners();
         this.sidebar._attachEventListeners();
+        this.lyricRenderer?._attachEventListeners();
+
     }
 
     protected initializeViewport(): void {
@@ -119,7 +124,7 @@ class PresentationCreatorView extends BaseViewport {
         this.#renderInitialSlides();
     }
 
-    onSlideChange() {
+    override onSlideChange() {
         super.onSlideChange();
 
         if (!this.slides.currentSlide) return;
@@ -133,6 +138,8 @@ class PresentationCreatorView extends BaseViewport {
 
         this.videoToolbar.changeMuteButtonIcon(this.slides.currentSlide.isMuted);
         this.sidebar.setCurrentSlide(this.slides.currentIndex);
+        this.lyricRenderer?.renderLyricsPreview(this.lyrics.getAllLyrics());
+        this.lyricRenderer?.heighlightLyric(this.lyrics.getCurrentLyricIdx());
     }
 
     onMuteButtonClicked() {
@@ -151,6 +158,7 @@ class PresentationCreatorView extends BaseViewport {
     ) {
         const idx = this.slides.addSlide(slide);
         this.sidebar.addSlideElement(slide, idx, true);
+
     }
 
     removeSlide() {
