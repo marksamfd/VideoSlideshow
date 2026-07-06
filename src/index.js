@@ -1,3 +1,5 @@
+import GreenOverlay from "./OverlayUtils";
+
 const {
     app,
     BrowserWindow,
@@ -53,7 +55,7 @@ Sentry.init({
  * @type {WorkingFile}
  */
 let currentProject;
-let presentationView, presenterView, showCreatorView;
+let presentationView, presenterView, showCreatorView, overlay;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -77,6 +79,7 @@ app.disableHardwareAcceleration();
 let canQuit = false;
 let saveProgress = progress({});
 import progressDialog from "electron-progressbar";
+import workingFile from "./workingFile";
 
 var progressBarDialog;
 
@@ -222,6 +225,9 @@ function initPresentationView() {
     presentationView.webContents.on("dom-ready", () => {
         presentationView.webContents.send(IPCEvents.PRESENTATION_INIT, data);
     });
+
+    overlay = new GreenOverlay(currentProject)
+    overlay.init()
     if (externalDisplay) {
         presenterView = createPresenterView();
         presenterView.webContents.once("dom-ready", () => {
@@ -254,6 +260,7 @@ ipcMain.handle("slideshow:start", (e, content) => {
 //main:presentation
 ipcMain.on("to-presentation", (e, msg) => {
     presentationView?.webContents.send(IPCEvents.PRESENTATION_SLIDE_CHANGE, msg);
+    overlay.changeSlide(msg)
 });
 
 ipcMain.on(IPCEvents.MAIN_NEXT_SLIDE, () => {

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+Hello From VideoSlideshowOverlay
+</body>
+
+<script>
+    const eventSource = new EventSource('/slides/live');
+    console.log(eventSource)
+    // Listen for the general 'message' event or named types
+    eventSource.addEventListener('ticker-update', (event) => {
+        const parsedData = JSON.parse(event.data);
+        console.log('New data chunk:', parsedData);
+    });
+
+    eventSource.onerror = (error) => {
+        console.error('SSE connection failed:', error);
+        eventSource.close(); // Close stream manually if needed
+    };
+</script>
+</html>

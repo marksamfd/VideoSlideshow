@@ -23,7 +23,7 @@ window.comm.onInitSlideshow((data) => {
     let slides = presentation.map((e: any) => new Slide(e));
     present = new PresentationView({
         container: "presentContainer",
-        height: presentContainer.clientHeight,
+        height: presentContainer?.clientHeight,
         slides,
         splitStrategy: data.mode,
         splitDelimiter: data.sepBy,

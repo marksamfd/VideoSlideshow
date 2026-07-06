@@ -11,7 +11,7 @@ export interface SlideFont {
 }
 
 export interface SlideJSON {
-  video: {
+  video?: {
     name?: string;
     format?: string;
     muted?: boolean;
@@ -19,7 +19,7 @@ export interface SlideJSON {
   text?: {
     x: number;
     y: number;
-    font: SlideFont;
+    font?: SlideFont;
     value: string;
   };
   thumbnail?: {
@@ -57,7 +57,7 @@ class Slide {
     this._textX = props?.text?.x || 0;
     this._textY = props?.text?.y || 0;
 
-    this._muted = props.video.muted;
+    this._muted = props.video?.muted;
 
     this._fontFamily = props?.text?.font?.family || "Calibri";
     this._fontBold = props?.text?.font?.bold || true;

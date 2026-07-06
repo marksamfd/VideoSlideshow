@@ -1,7 +1,6 @@
 import PresentationCanvasRenderer from "./CanvasRenderer/PresentationCanvasRendererClass";
 import BaseViewport, {BaseViewportProps} from "./BaseViewport";
 import CanvasRenderer from "./CanvasRenderer/CanvasRendererClass";
-import slide from "./Slide";
 
 export default class PresentationView extends BaseViewport {
 
@@ -9,12 +8,6 @@ export default class PresentationView extends BaseViewport {
 
     constructor(props: BaseViewportProps) {
         super(props);
-        // TODO: Implement Canvas Renderer for presentation view
-        // TODO: Find method to cache videos before play
-        /*  -> caching in canvas renderer class
-          in a record of videoname and value is video object when slide is rendered
-          the video object is loaded*/
-
         this.loadLyricsFromPreviousSlide = false;
         this.canvas.cacheVideo(this.slides.currentSlide);
         this.canvas.renderSlide(this.slides.currentSlide);
