@@ -1,4 +1,5 @@
 import {app, BrowserWindow, Menu} from "electron";
+import {IPCEvents} from "./IPCmsg";
 // Add the following import or definition for PRESENTATION_VIEW_WEBPACK_ENTRY
 declare const PRESENTATION_VIEW_PRELOAD_WEBPACK_ENTRY: string;
 declare const PRESENTATION_VIEW_WEBPACK_ENTRY: string;
@@ -16,6 +17,8 @@ const createPresentationView = (parent: BrowserWindow): Electron.CrossProcessExp
         height: 600,
         parent,
         // fullscreen: true,
+        frame: false,
+
         alwaysOnTop: app.isPackaged,
         webPreferences: {
             preload: PRESENTATION_VIEW_PRELOAD_WEBPACK_ENTRY,
@@ -76,19 +79,19 @@ const createPresenterView = () => {
         {
             label: "File",
             submenu: [
-                /*{
-                            label: 'Open Presentation',
-                            click: () => {
-                                createOpenFileDialog(presenterView)
-                            }
-                        },
-                        {
-                            label: 'Reload Presentation',
-                            click: () => {
-                                createOpenFileDialog()
-                            }
-                        },
-                        {type: 'separator'},*/
+                {
+                    label: 'Open Presentation',
+                    click: () => {
+                        createOpenFileDialog(presenterView, true)
+                    }
+                },
+                /*/{
+                    label: 'Reload Presentation',
+                    click: () => {
+                        createOpenFileDialog()
+                    }
+                },*/
+                {type: 'separator'},
                 isMac ? {role: "close"} : {role: "quit"},
             ],
         },
@@ -265,7 +268,7 @@ const createShowCreatorView = () => {
     return showCreatorView;
 };
 
-const createOpenFileDialog = (parent: BrowserWindow) => {
+const createOpenFileDialog = (parent: BrowserWindow, isPresentation: boolean = false) => {
     // Create the browser window.
     let openFileDialog = new BrowserWindow({
         width: 600,
@@ -281,6 +284,13 @@ const createOpenFileDialog = (parent: BrowserWindow) => {
     });
     openFileDialog.setMenu(null);
     openFileDialog.loadURL(OPEN_FILE_DIALOG_WEBPACK_ENTRY);
+
+    if (isPresentation) {
+        openFileDialog.webContents.on("did-finish-load", () => {
+
+            openFileDialog.webContents.send(IPCEvents.FILE_OPEN_DIALOG_PRESENTATION)
+        })
+    }
     return openFileDialog;
 };
 
@@ -288,11 +298,12 @@ const createSaveFileDialog = (parent: BrowserWindow) => {
     // Create the browser window.
     let openFileDialog = new BrowserWindow({
         width: 600,
-        height: 215,
+        height: 300,
         parent,
         modal: true,
-        resizable: false,
+        resizable: true,
         maximizable: false,
+
         webPreferences: {
             preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
             contextIsolation: true,
@@ -300,6 +311,9 @@ const createSaveFileDialog = (parent: BrowserWindow) => {
     });
     openFileDialog.setMenu(null);
     openFileDialog.loadURL(SAVE_FILE_DIALOG_WEBPACK_ENTRY);
+    if (!app.isPackaged) {
+        openFileDialog.webContents.openDevTools();
+    }
     return openFileDialog;
 };
 

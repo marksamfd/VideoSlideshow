@@ -1,20 +1,13 @@
 import GreenOverlay from "./OverlayUtils";
 
 const {
-    app,
-    BrowserWindow,
-    ipcMain,
-    dialog,
-    protocol,
-    powerSaveBlocker,
+    app, BrowserWindow, ipcMain, dialog, protocol, powerSaveBlocker,
 } = require("electron");
 const path = require("path");
 const electron = require("electron");
 
 import {
-    createPresentationView,
-    createShowCreatorView,
-    createPresenterView,
+    createPresentationView, createShowCreatorView, createPresenterView,
 } from "./createViews";
 import MediaResponder from "./utils/MediaResponderClass";
 import WorkingFile from "./workingFile";
@@ -28,23 +21,22 @@ import {IPCEvents} from "./IPCmsg";
 
 const powerSaveBlockerId = powerSaveBlocker.start("prevent-display-sleep");
 
-// app.commandLine.appendSwitch("disable-print-preview");
-// app.commandLine.appendSwitch("disable-translate");
-// app.commandLine.appendSwitch("disable-domain-reliability");
-// app.commandLine.appendSwitch("disable-sync");
-// app.commandLine.appendSwitch("disable-speech-api");
-// app.commandLine.appendSwitch("disable-features", "InterestFeedContent,Translate");
-// app.commandLine.appendSwitch("disable-webrtc");
-// app.commandLine.appendSwitch("disable-autofill");
-// app.commandLine.appendSwitch("disable-client-side-phishing-detection");
+app.commandLine.appendSwitch("disable-print-preview");
+app.commandLine.appendSwitch("disable-translate");
+app.commandLine.appendSwitch("disable-domain-reliability");
+app.commandLine.appendSwitch("disable-sync");
+app.commandLine.appendSwitch("disable-speech-api");
+app.commandLine.appendSwitch("disable-features", "InterestFeedContent,Translate");
+app.commandLine.appendSwitch("disable-webrtc");
+app.commandLine.appendSwitch("disable-autofill");
+app.commandLine.appendSwitch("disable-client-side-phishing-detection");
 
-/* if (app.isPackaged) {
-  log.initialize({ spyRendererConsole: true });
-  log.transports.file.format =
-    "[{d}/{m}/{y} -{h}:{i}:{s}.{ms}] [{processType}] {text}";
-  // log.transports.console.level = false;
-  Object.assign(console, log.functions);
-} */
+if (app.isPackaged) {
+    log.initialize({spyRendererConsole: true});
+    log.transports.file.format = "[{d}/{m}/{y} -{h}:{i}:{s}.{ms}] [{level}]: [{processType}] {text}";
+    // log.transports.console.level = false;
+    Object.assign(console, log.functions);
+}
 Sentry.init({
     dsn: "https://6af2ef87eb56857c4d16241ba118d39f@o4509875546030080.ingest.de.sentry.io/4509875549962320",
     enabled: app.isPackaged,
@@ -62,32 +54,19 @@ if (require("electron-squirrel-startup")) {
     app.quit();
 }
 
-protocol.registerSchemesAsPrivileged([
-    {
-        scheme: "media",
-        privileges: {
-            secure: true,
-            bypassCSP: true,
-            stream: true,
-            supportFetchAPI: true,
-            standard: true,
-        },
+protocol.registerSchemesAsPrivileged([{
+    scheme: "media", privileges: {
+        secure: true, bypassCSP: true, stream: true, supportFetchAPI: true, standard: true,
     },
-]);
+},]);
 
 app.disableHardwareAcceleration();
 let canQuit = false;
-let saveProgress = progress({});
 import progressDialog from "electron-progressbar";
 import workingFile from "./workingFile";
 
 var progressBarDialog;
 
-saveProgress.on("progress", (data) => {
-    let currentPercent = data.percentage / 100;
-    progressBarDialog.value = currentPercent;
-    showCreatorView.setProgressBar(currentPercent);
-});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -108,7 +87,34 @@ app.on("ready", () => {
             showCreatorView.webContents.send("save-before-quit");
         }
     });
+    if (!app.isPackaged) {
+        sendOnReload(showCreatorView)
+    }
+
 });
+
+function sendOnReload(window) {
+    if (window.webContents.listeners("did-finish-load").length === 0)
+        window.webContents.on("did-finish-load", () => {
+            if (workingFile) {
+                window.webContents.send("file-params", currentProject.toObject());
+            }
+        })
+}
+
+//TODO: Handle file open event AND add to whenReady event
+function parseWindowsArgs() {
+    if (process.platform === 'win32' && process.argv.length >= 2) {
+        // The target file path is typically the last item in argv array
+        const filePath = process.argv[process.argv.length - 1];
+
+        // Quick sanitization check to ensure it looks like your extension
+        if (filePath.endsWith('.xyz')) {
+            // fileToOpen = filePath;
+        }
+    }
+}
+
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -127,18 +133,17 @@ app.on("activate", () => {
     }
 });
 
-ipcMain.handle("file-dialog-open", (e, mode) => {
+
+ipcMain.handle(IPCEvents.FILE_OPEN_DIALOG, (e, mode) => {
     let filePath;
     let fileFilters = [{name: "ChoirSlide Files", extensions: ["chs", "json"]}];
     if (mode === "o") {
         filePath = dialog.showOpenDialogSync(BrowserWindow.getFocusedWindow(), {
-            properties: ["openFile"],
-            filters: fileFilters,
+            properties: ["openFile"], filters: fileFilters,
         });
     } else if (mode === "s") {
-        filePath = dialog.showSaveDialogSync(BrowserWindow.getFocusedWindow(), {
-            properties: ["openFile"],
-            filters: fileFilters,
+        filePath = dialog.showOpenDialogSync(BrowserWindow.getFocusedWindow(), {
+            properties: ["openDirectory"], showsTagField: true, filters: fileFilters,
         });
     }
     return filePath ? filePath : "";
@@ -147,10 +152,17 @@ ipcMain.handle("file-dialog-open", (e, mode) => {
 ipcMain.handle("file-opened", async (e, data) => {
     let mainWindow = BrowserWindow.getFocusedWindow().getParentWindow();
     BrowserWindow.getFocusedWindow().destroy();
-    currentProject = new WorkingFile({...data});
-    if (!data.present) {
-        await currentProject.editProject();
 
+    if (currentProject) {
+        await currentProject.closeProject()
+    }
+    currentProject = new WorkingFile({...data});
+    if (data.projectName) {
+        currentProject.newProject(data.projectName)
+    } else {
+        currentProject.editProject();
+    }
+    if (!data.present) {
         mainWindow.setTitle(`ChoirSlide - ${currentProject.projectName}`);
         mainWindow.webContents.send("file-params", currentProject.toObject());
         return;
@@ -162,30 +174,27 @@ ipcMain.handle("file-opened", async (e, data) => {
 ipcMain.handle("file-save", (e, content) => {
     currentProject?.saveProject(content);
     dialog.showMessageBox(BrowserWindow.fromId(e.frameId), {
-        title: "File Save",
-        message: "File Saved",
-        type: "info",
+        title: "File Save", message: "File Saved", type: "info",
     });
 });
 
 ipcMain.handle("save-quit", async (e, content) => {
     if (currentProject.isNeedRepacking()) {
         progressBarDialog = new progressDialog({
-            indeterminate: false,
-            title: "File is Saving",
-            text: "",
-            detail: "Saving is in progress",
-            maxValue: 1,
-            browserWindow: {
+            title: "File is Saving", text: "", detail: "Saving is in progress", browserWindow: {
                 parent: showCreatorView,
             },
         });
 
-        progressBarDialog.on("progress", function (value) {
-            progressBarDialog.detail = `Saving ${Math.floor(value * 100)}%`;
-        });
     }
-    return currentProject?.closeProject(content, saveProgress);
+    try {
+        await currentProject?.closeProject(content)
+        showCreatorView.setProgressBar(1.2);
+        return true
+    } catch (e) {
+        console.error(e);
+        return false;
+    }
 });
 
 ipcMain.on("save-done", () => {
@@ -200,19 +209,13 @@ ipcMain.handle("getSystemFonts", async () => {
     return fontList.getFonts({disableQuoting: true});
 });
 
-ipcMain.on(
-    "addSlideFiles",
-    (_, {imgBase64, imgFileName, videoFilePath, videoFileName}) => {
-        const base64Data = imgBase64.replace(/^data:image\/png;base64,/, "");
-        let imgBuffer = Buffer.from(base64Data, "base64");
-        currentProject.addSlideFiles({
-            imgBuffer,
-            imgFileName,
-            videoFilePath,
-            videoFileName,
-        });
-    }
-);
+ipcMain.on("addSlideFiles", (_, {imgBase64, imgFileName, videoFilePath, videoFileName}) => {
+    const base64Data = imgBase64.replace(/^data:image\/png;base64,/, "");
+    let imgBuffer = Buffer.from(base64Data, "base64");
+    currentProject.addSlideFiles({
+        imgBuffer, imgFileName, videoFilePath, videoFileName,
+    });
+});
 
 function initPresentationView() {
     let displays = electron.screen.getAllDisplays();
@@ -221,34 +224,44 @@ function initPresentationView() {
     });
     console.log({externalDisplay})
     let data = currentProject.toObject();
-    presentationView = createPresentationView(presenterView);
-    presentationView.webContents.on("dom-ready", () => {
-        presentationView.webContents.send(IPCEvents.PRESENTATION_INIT, data);
-    });
-
-    overlay = new GreenOverlay(currentProject)
-    overlay.init()
-    if (externalDisplay) {
-        presenterView = createPresenterView();
-        presenterView.webContents.once("dom-ready", () => {
-            presenterView.webContents.send("file-params", data);
+    if (!presentationView) {
+        presentationView = createPresentationView(presenterView);
+        presentationView.webContents.on("dom-ready", () => {
+            presentationView.webContents.send(IPCEvents.PRESENTATION_INIT, data);
         });
-        console.log(externalDisplay.bounds)
-        presentationView.setBounds(externalDisplay.bounds);
-        presentationView.setFullScreen(true);
-        presentationView.setParentWindow(presenterView);
+        if (!app.isPackaged) {
+            sendOnReload(presentationView)
+        }
+        if (externalDisplay) {
+            presenterView = createPresenterView();
+            presenterView.webContents.once("dom-ready", () => {
+                presenterView.webContents.send("file-params", data);
+            });
+            console.log(externalDisplay.bounds)
+            presentationView.setBounds(externalDisplay.bounds);
+            presentationView.setFullScreen(true);
+            presentationView.setParentWindow(presenterView);
 
-        showCreatorView.destroy();
-        presenterView.focus();
+            showCreatorView.destroy();
+            presenterView.focus();
+            if (!app.isPackaged) {
+                sendOnReload(presenterView)
+            }
+        }
+        return
     }
+    presenterView.webContents.send("file-params", data);
+    presentationView.webContents.send(IPCEvents.PRESENTATION_INIT, data);
+    if (overlay) overlay.init(currentProject.toObject())
+
 }
 
+// TODO: start presentation from CreatorView
 ipcMain.handle("slideshow:start", (e, content) => {
     let choice = dialog.showMessageBoxSync(showCreatorView, {
         type: "question",
         title: "Save your Work",
-        message:
-            "Please make sure that you have saved the show before starting \nAre you sure you want to continue ?",
+        message: "Please make sure that you have saved the show before starting \nAre you sure you want to continue ?",
         buttons: ["Yes", "No"],
     });
     if (choice === 0) {
@@ -256,17 +269,17 @@ ipcMain.handle("slideshow:start", (e, content) => {
     }
 });
 
-//presenter:main
-//main:presentation
 ipcMain.on("to-presentation", (e, msg) => {
     presentationView?.webContents.send(IPCEvents.PRESENTATION_SLIDE_CHANGE, msg);
-    overlay.changeSlide(msg)
+    overlay?.changeSlide(msg)
 });
 
-ipcMain.on(IPCEvents.MAIN_NEXT_SLIDE, () => {
-    presentationView?.webContents.send(IPCEvents.PRESENTATION_NEXT_SLIDE);
-});
 
-ipcMain.on(IPCEvents.MAIN_PREV_SLIDE, () => {
-    presentationView?.webContents.send(IPCEvents.PRESENTATION_PREV_SLIDE);
-});
+function overlayStarted(message) {
+    presenterView.webContents.send(IPCEvents.OVERLAY_STARTED, message);
+}
+
+ipcMain.on(IPCEvents.OVERLAY_START, (e) => {
+    if (!overlay) overlay = new GreenOverlay(currentProject, overlayStarted);
+})
+

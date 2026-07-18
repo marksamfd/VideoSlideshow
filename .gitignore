@@ -95,3 +95,6 @@ out/
 .env.sentry-build-plugin
 
 *.chs
+.vscode/mcp.json
+build-assets
+dist/

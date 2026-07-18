@@ -23,6 +23,7 @@ module.exports = {
       authToken: process.env.SENTRY_AUTH_TOKEN,
       org: "mark-jw",
       project: "choirslides",
+
     }),
   ],
 };

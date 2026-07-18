@@ -1,7 +1,5 @@
 import Slide, {SlideFont, SlideFontBackground} from "../Slide";
 import Konva from "konva";
-// TODO: https://chatgpt.com/share/6889bfdd-c3b0-8002-bf5b-9b05270064f0
-import Utils from "../Utils";
 import {StageConfig} from "konva/lib/Stage";
 import {TextConfig} from "konva/lib/shapes/Text";
 

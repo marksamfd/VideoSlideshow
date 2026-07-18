@@ -4,9 +4,13 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
+    "webpack": true,
+    "configFile": "webpack.config.js",
+
     "assets": [
       {
-        "include": "client/**/*",
+        "include": "/public/**/*",
+        "outDir": "dist/",
         "watchAssets": true
       }
     ],

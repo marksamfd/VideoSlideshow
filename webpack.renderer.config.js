@@ -11,6 +11,14 @@ rules.push({
         {loader: "css-loader"},
         {
             loader: "sass-loader",
+            options: {
+                // Force sass-loader to use the modern API instead of the legacy one
+                sassOptions: {
+                    api: "modern",
+                    quietDeps: true, // This hides warnings inside node_modules
+                    silenceDeprecations: ['legacy-js-api', 'import'],
+                }
+            }
         },
         {
             loader: "postcss-loader",
@@ -39,10 +47,14 @@ module.exports = {
     resolve: {
         extensions: [".ts", ".js"],
     },
+    node: {
+        __dirname: "mock",
+        __filename: "mock",
+    },
 
     mode: 'development',
     // target: 'electron-renderer', // Assures Webpack knows it is for Electron
-    devtool: 'eval-source-map',  // Best option for fast development builds
+    devtool: 'source-map',  // Best option for fast development builds
     plugins: [sentryWebpackPlugin({
         authToken: process.env.SENTRY_AUTH_TOKEN,
         org: "mark-jw",

@@ -9,6 +9,7 @@ $list-group-border-radius: 5px;
 
   overflow-y: scroll;
   height: 100vh;
+  padding: 0;
 
   ol {
     counter-reset: item;
@@ -29,7 +30,7 @@ $list-group-border-radius: 5px;
 
         .slideThumb {
           width: 100%;
-          border-radius: $slideThumbCornerRadius;
+          //border-radius: $slideThumbCornerRadius;
         }
 
         .slideText {

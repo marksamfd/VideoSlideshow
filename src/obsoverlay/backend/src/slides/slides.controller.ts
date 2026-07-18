@@ -18,9 +18,7 @@ export class SlidesController {
     @Post('init')
     @UsePipes(new ValidationPipe({transform: true}))
     async initSlides(@Body() body: CreateSlideDto) {
-        console.log(body);
         this.slidesService.initSlideShow(body);
-        console.log(body)
         return {status: 'Slide show initialized successfully'};
     }
 

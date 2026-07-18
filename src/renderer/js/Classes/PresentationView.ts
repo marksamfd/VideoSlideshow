@@ -9,16 +9,16 @@ export default class PresentationView extends BaseViewport {
     constructor(props: BaseViewportProps) {
         super(props);
         this.loadLyricsFromPreviousSlide = false;
-        this.canvas.cacheVideo(this.slides.currentSlide);
+        // this.canvas.cacheVideo(this.slides.currentSlide);
         this.canvas.renderSlide(this.slides.currentSlide);
         this.lyrics.loadSlide(this.slides.currentSlide, this.loadLyricsFromPreviousSlide);
-        this.canvas.cacheVideo(this.slides.nextSlide);
+        // this.canvas.cacheVideo(this.slides.nextSlide);
         this.onLyricChange();
     }
 
     onSlideChange() {
         super.onSlideChange();
-        this.canvas.cacheVideo(this.slides.nextSlide);
+        // this.canvas.cacheVideo(this.slides.nextSlide);
     }
 
     protected createCanvasRenderer(props: BaseViewportProps): CanvasRenderer {

@@ -1,192 +1,437 @@
 <!DOCTYPE html>
 <html lang="en" class="h-100" data-bs-theme="dark">
-  <head>
-    <meta charset="UTF-8" />
+<head>
+    <meta charset="UTF-8"/>
     <title>ChoirSlides - Presenter</title>
     <style>
-      .slide-thumbnail {
-        border: 2px solid transparent;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        cursor: pointer;
-      }
-      .slide-thumbnail:hover {
-        border-color: var(--bs-primary);
-      }
-      .slide-thumbnail.active {
-        border-color: var(--bs-success);
-        box-shadow: 0 0 10px rgba(25, 135, 84, 0.5);
-      }
-      .video-canvas {
-        background: #000;
-        border-radius: 8px;
-        min-height: 300px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #666;
-      }
-      /* Slide item styles */
-      .slide-item {
-        background: var(--bs-dark);
-        border: 1px solid var(--bs-secondary);
-        border-radius: 8px;
-        margin-bottom: 8px;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-      }
+        :root {
+            --pv-bg: #07090d;
+            --pv-surface: #11151a;
+            --pv-surface-alt: #171d25;
+            --pv-border: #2a3442;
+            --pv-border-soft: #1f2733;
+            --pv-text: #e6ebf2;
+            --pv-muted: #99a7ba;
+            --pv-primary: #0d6efd;
+            --pv-success: #77da9f;
+        }
 
-      .slide-item:hover {
-        border-color: var(--bs-primary);
-      }
+        body {
+            background: black !important;
+            color: var(--pv-text);
+            font-family: "Segoe UI", "Inter", sans-serif;
+        }
 
-      .slide-item:has(input[type="radio"]:checked) {
-        border-color: var(--bs-success);
-        background: rgba(25, 135, 84, 0.1);
-      }
+        .pv-shell {
+            min-height: 100%;
+            /*padding: 10px 10px 44px;*/
+        }
 
-      .slide-preview {
-        height: 10rem;
-        background-repeat: round !important;
-        background: #111;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
-        color: #666;
-        border-bottom: 1px solid var(--bs-secondary);
-      }
+        .pv-card {
+            background: linear-gradient(180deg, rgba(24, 31, 40, 0.95) 0%, rgba(16, 21, 28, 0.95) 100%);
+            border: 1px solid var(--pv-border);
+            border-radius: 10px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 10px 26px rgba(0, 0, 0, 0.26);
+        }
 
-      .slide-content {
-        padding: 8px;
-        max-height: 80px;
-        overflow: hidden;
-      }
+        .pv-card .card-header {
+            background: rgba(10, 14, 20, 0.45);
+            border-bottom: 1px solid var(--pv-border-soft);
+        }
 
-      .slide-text-preview {
-        font-size: 0.75rem;
-        line-height: 1.2;
-        color: var(--bs-light);
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
+        .pv-panel-title {
+            letter-spacing: 0.03em;
+            font-size: 0.86rem;
+            text-transform: uppercase;
+            color: var(--pv-text);
+        }
 
-      .slide-number {
-        position: absolute;
-        top: 5px;
-        left: 5px;
-        background: rgba(13, 110, 253, 0.8);
-        color: white;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-size: 0.7rem;
-        font-weight: bold;
-      }
+        .preview-wrap {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 240px;
+            border: 1px solid rgba(84, 101, 123, 0.55);
+            border-radius: 10px;
+            background: #040506;
+            overflow: hidden;
+        }
+
+        .preview-wrap::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+            background-size: 18px 18px;
+            opacity: 0.25;
+            pointer-events: none;
+        }
+
+        #currentSlideThumbCanvas {
+            position: relative;
+            z-index: 1;
+        }
+
+        .lyrics-panel {
+            background: linear-gradient(180deg, rgba(21, 27, 35, 0.9) 0%, rgba(14, 19, 26, 0.95) 100%);
+        }
+
+        #textSlidesContainer {
+            font-size: 1.1rem;
+        }
+
+        #lyricsList {
+            list-style: none;
+            margin: 0;
+            padding: 0.4rem 0.6rem;
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        #lyricsList > li {
+            padding: 0.55rem 0.65rem;
+            border-radius: 6px;
+            line-height: 1.35;
+            color: var(--pv-muted);
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        #lyricsList > li:hover:not(.active-text-slide) {
+            color: #d7e0ec;
+            border-color: rgba(82, 102, 127, 0.55);
+            background: rgba(14, 21, 31, 0.6);
+        }
+
+        .active-text-slide {
+            color: #f8fcff;
+            border-color: rgba(119, 218, 159, 0.8);
+            background: rgba(119, 218, 159, 0.19);
+            box-shadow: 0 0 0 1px rgba(119, 218, 159, 0.2) inset;
+        }
+
+        .slide-thumbnail {
+            border: 2px solid transparent;
+            /*border-radius: 8px;*s*/
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .slide-thumbnail:hover {
+            border-color: var(--bs-primary);
+        }
+
+        .slide-thumbnail.active {
+            border-color: var(--bs-success);
+            box-shadow: 0 0 10px rgba(25, 135, 84, 0.5);
+        }
+
+        .video-canvas {
+            background: #000;
+            border-radius: 8px;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        /* Slide item styles */
+        .slide-item {
+            /*background: linear-gradient(180deg, rgba(17, 24, 33, 0.95) 0%, rgba(13, 19, 27, 0.95) 100%);*/
+            /**/
+            /*border-radius: 8px;*/
+            margin: .5rem;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide-item:hover {
+            border-color: var(--pv-success);
+        }
+
+        .slide-item:has(input[type="radio"]:checked) > .slide-preview {
+            border: 1px solid var(--pv-success);
+            /*box-shadow: 0 0 14px rgba(119, 218, 159, 0.22);*/
+            /*background: linear-gradient(180deg, rgba(26, 42, 40, 0.9) 0%, rgba(12, 22, 27, 0.95) 100%);*/
+        }
+
+        .slide-preview {
+            height: 9rem;
+            background-repeat: round !important;
+            background: #0b0f14;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: #586579;
+            border-bottom: 1px solid rgba(50, 63, 80, 0.7);
+        }
+
+        .slide-content {
+            padding: 7px 8px 8px;
+            max-height: 80px;
+            overflow: hidden;
+        }
+
+        .slide-text-preview {
+            font-size: 0.68rem;
+            line-height: 1.2;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #9eb0c7;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            background: rgba(13, 110, 253, 0.92);
+            color: white;
+            padding: 2px 3px;
+            border-radius: 4px;
+            /*font-size: 0.64rem;*/
+            letter-spacing: 0.08em;
+            font-weight: bold;
+        }
+
+        .slide-item:has(input[type="radio"]:checked) .slide-number {
+            background: rgba(119, 218, 159, 0.9);
+            color: #062113;
+        }
+
+        .sidebar-caption {
+            color: #7f8ea3;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .sidebar-meta {
+            border-top: 1px solid var(--pv-border-soft);
+            background: rgba(9, 13, 18, 0.48);
+        }
+
+        .sidebar-live {
+            border-bottom: 1px solid var(--pv-border-soft);
+            background: rgba(8, 13, 18, 0.55);
+        }
+
+        .sidebar-live-title {
+            font-size: 0.84rem;
+            letter-spacing: 0.02em;
+            color: #dbe6f5;
+        }
+
+        .sidebar-live-subtitle {
+            color: #8da0b8;
+            font-size: 0.68rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .go-overlay-btn {
+            width: 100%;
+            border: 1px solid rgba(119, 218, 159, 0.58);
+            border-radius: 8px;
+            padding: 0.48rem 0.8rem;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #dffbe9;
+            background: rgba(119, 218, 159, 0.19);
+            box-shadow: 0 0 0 1px rgba(119, 218, 159, 0.18) inset;
+        }
+
+        .stop-overlay-btn {
+            background: rgb(218 119 119 / 0.19) !important;
+            box-shadow: 0 0 0 1px rgb(218 119 119 / 0.18) inset !important;
+            color: #fbdfdf !important;
+            border: 1px solid rgb(218 119 119 / 0.58) !important;
+
+        }
+
+        .go-overlay-btn:hover {
+            filter: brightness(1.08);
+        }
+
+        .go-overlay-btn:active {
+            transform: translateY(1px);
+        }
+
+        .pv-footer {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 30px;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            border-top: 1px solid var(--pv-border-soft);
+            background: linear-gradient(180deg, rgba(8, 11, 15, 0.92) 0%, rgba(6, 9, 13, 0.98) 100%);
+        }
+
+        .pv-footer-left,
+        .pv-footer-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pv-footer-text {
+            font-size: 0.68rem;
+            letter-spacing: 0.04em;
+            color: #8ea0b8;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .pv-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: rgba(119, 218, 159, 0.95);
+            box-shadow: 0 0 8px rgba(119, 218, 159, 0.6);
+        }
     </style>
-  </head>
+</head>
 
-  <body class="m-0 bg-dark text-light">
-    <div class="container-fluid h-100">
-      <div class="row h-100">
+<body class="m-0 text-light">
+<div class="container-fluid h-100 pv-shell">
+    <div class="row h-100">
         <!-- Main Content Area -->
         <div class="col-8 d-flex flex-column h-100" id="slidePreview">
-          <!-- Video Preview Area -->
-          <div class="row flex-grow-1 mb-3">
-            <div class="col">
-              <div class="card bg-dark border-secondary h-100">
-                <div class="card-header">
-                  <h6 class="mb-0 d-flex align-items-center">
-                    <span class="material-symbols-outlined me-2 mb-0"
-                      >videocam</span
+            <!-- Video Preview Area -->
+            <div class="row flex-grow-1">
+                <div class="col">
+                    <div class="card pv-card h-100">
+                        <div class="card-header">
+                            <h6 class="mb-0 d-flex align-items-center pv-panel-title">
+                    <span class="material-symbols-outlined me-2 mb-0 text-info-emphasis"
+                    >videocam</span
                     >
-                    Presenter View
-                  </h6>
-                </div>
-                <div class="card-body">
-                  <div
-                    class="ratio-16x9 h-100 w-100 d-flex justify-content-center"
-                    id="currentSlideThumbCanvas"
-                  ></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Lyrics Area -->
-          <div class="row" style="height: 40%">
-            <div class="col">
-              <div class="card bg-dark border-secondary h-100">
-                <div class="card-header">
-                  <h6 class="mb-0 d-flex align-items-center">
-                    <span class="material-symbols-outlined me-2"
-                      >text_fields</span
-                    >
-                    Lyrics
-                  </h6>
-                </div>
-                <div class="card-body p-2" id="slideTextEditor">
-                  <div class="row h-100">
-                    <div class="col" id="textSlidesContainer">
-                      <ul id="lyricsList">
-                        <li data-textSlideNumber="0" class="active-text-slide">
-                          Press File then Open Show
-                        </li>
-                      </ul>
+                                Presenter View
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="preview-wrap">
+                                <div
+                                        class="ratio-16x9 h-100 w-100 d-flex justify-content-center"
+                                        id="currentSlideThumbCanvas"
+                                ></div>
+                            </div>
+                        </div>
                     </div>
-                  </div>
                 </div>
-              </div>
             </div>
-          </div>
+
+            <!-- Lyrics Area -->
+            <div class="row" style="height: 40%">
+                <div class="col">
+                    <div class="card pv-card lyrics-panel h-100">
+                        <div class="card-header">
+                            <h6 class="mb-0 d-flex align-items-center pv-panel-title">
+                    <span class="material-symbols-outlined me-2 text-primary"
+                    >text_fields</span
+                    >
+                                Lyrics
+                            </h6>
+                        </div>
+                        <div class="card-body p-2" id="slideTextEditor">
+                            <div class="row h-100">
+                                <div class="col" id="textSlidesContainer">
+                                    <ul id="lyricsList">
+                                        <li data-textSlideNumber="0" class="active-text-slide">
+                                            Press File then Open Show
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Sidebar - Slides Manager -->
         <div
-          class="col h-100 d-flex flex-column overflow-y-hidden"
-          id="sideBar"
+                class="col h-100 d-flex flex-column overflow-y-hidden"
+                id="sideBar"
         >
-          <div class="card bg-dark border-secondary h-100">
-            <div class="card-header">
-              <h6 class="mb-0 d-flex align-items-center">
-                <span class="material-symbols-outlined me-2">view_list</span>
-                Slides
-              </h6>
-            </div>
-            <div class="flex-grow-1 overflow-auto">
-              <div class="list-group" id="sidebarSlidesContainer">
-                <!-- Slides will be dynamically added here -->
-                <div
-                  class="list-group-item list-group-item-action bg-dark border-secondary text-center text-muted py-4"
-                >
-                  <span
-                    class="material-symbols-outlined"
-                    style="font-size: 2rem"
-                    >slide_show</span
-                  >
-                  <p class="mb-0 mt-2">
-                    Open a presentation to view.
-                  </p>
+            <div class="card pv-card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0 d-flex align-items-center pv-panel-title">
+                        <span class="material-symbols-outlined me-2 text-success">view_list</span>
+                        Slides
+                    </h6>
+                    <div class="sidebar-caption mt-1">Live Session</div>
                 </div>
-              </div>
-            </div>
-
-            <div class="mt-2 p-2 bg-secondary bg-opacity-25 rounded">
-              <small class="text-muted">
-                <span
-                  class="material-symbols-outlined me-1"
-                  style="font-size: 1rem"
-                  >info</span
+                <div class="sidebar-live p-2">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="material-symbols-outlined text-success" style="font-size: 1.1rem"
+                >music_note</span
                 >
-                Total slides: <span id="slideCount">0</span>
-              </small>
+                        <div>
+                            <div class="sidebar-live-title">OBS Overlay</div>
+                            <div class="sidebar-live-subtitle" id="serverAddress">Ready to stream</div>
+                        </div>
+                    </div>
+                    <button type="button" class="go-overlay-btn" id="startOverlayBtn">Start Overlay</button>
+                </div>
+                <div class="flex-grow-1 overflow-auto">
+                    <div class="list-group px-2 pt-2" id="sidebarSlidesContainer">
+                        <!-- Slides will be dynamically added here -->
+                        <div
+                                class="list-group-item list-group-item-action bg-transparent border-0 text-center text-muted py-4"
+                        >
+                  <span
+                          class="material-symbols-outlined"
+                          style="font-size: 2rem"
+                  >slide_show</span
+                  >
+                            <p class="mb-0 mt-2">
+                                Open a presentation to view.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!--                <div class="mt-2 p-2 sidebar-meta rounded-bottom">-->
+                <!--                    <small class="text-muted">-->
+                <!--                <span-->
+                <!--                        class="material-symbols-outlined me-1"-->
+                <!--                        style="font-size: 1rem"-->
+                <!--                >info</span-->
+                <!--                >-->
+                <!--                        Total slides: <span id="slideCount">0</span>-->
+                <!--                    </small>-->
+                <!--                </div>-->
+                <!--            -->
             </div>
-          </div>
         </div>
-      </div>
     </div>
-  </body>
+</div>
+
+<footer class="pv-footer">
+    <div class="pv-footer-left">
+        <span class="pv-footer-text">v4.2.0 Stable</span>
+        <span class="pv-footer-text">CPU: 12%</span>
+        <span class="pv-footer-text">RAM: 1.2GB</span>
+    </div>
+    <div class="pv-footer-right">
+        <span class="pv-dot" aria-hidden="true"></span>
+        <span class="pv-footer-text">Live Network Active</span>
+    </div>
+</footer>
+</body>
 </html>

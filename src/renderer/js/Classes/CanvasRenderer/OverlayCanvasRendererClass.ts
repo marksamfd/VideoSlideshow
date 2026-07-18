@@ -9,7 +9,7 @@ export default class OverlayCanvasRenderer extends CanvasRenderer {
         // create green image bitmap for background
         const greenImage = new Image();
         greenImage.src =
-            "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080'%3E%3Crect width='1920' height='1080' fill='green'/%3E%3C/svg%3E";
+            "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080'%3E%3Crect width='1920' height='1080' fill='transparent'/%3E%3C/svg%3E";
         greenImage.style.width = "100%";
         greenImage.style.height = "100%";
         return greenImage;

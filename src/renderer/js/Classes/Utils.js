@@ -59,7 +59,7 @@ export default class Utils {
     return { x, y };
   }
 
-  // Calculate client rect accounting for rotation
+  // Calculate public rect accounting for rotation
   static getClientRect(rotatedBox) {
     const { x, y, width, height } = rotatedBox;
     const rad = rotatedBox.rotation;

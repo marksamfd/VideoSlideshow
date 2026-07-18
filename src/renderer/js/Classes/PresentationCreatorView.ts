@@ -79,12 +79,13 @@ class PresentationCreatorView extends BaseViewport {
 
         this.#addSlideBtn = props.addSlideBtn;
         this.#removeSlideBtn = props.removeSlideBtn;
-        this.initializeViewport();
         if (this.slides.allSlides.length === 0) {
             this.addNewSlide();
         }
         this.attachEventListeners();
+
         console.log(`${this.constructor.name} initialized `);
+        this.#renderInitialSlides();
     }
 
     //@ts-ignore
@@ -117,11 +118,7 @@ class PresentationCreatorView extends BaseViewport {
         this.sidebar._attachEventListeners();
         this.lyricRenderer?._attachEventListeners();
 
-    }
 
-    protected initializeViewport(): void {
-        super.initializeViewport();
-        this.#renderInitialSlides();
     }
 
     override onSlideChange() {

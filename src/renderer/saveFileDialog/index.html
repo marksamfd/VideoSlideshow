@@ -9,12 +9,17 @@
 <body>
 <div class="container-fluid mt-2">
     <div class="row">
-        <div class="col-9 pe-1">
-            <input type="text" placeholder="File destination" readonly class="form-control-plaintext"
-                   id="fileDestContainer">
-        </div>
-        <div class="col ps-0 ">
-            <button type="button" class="btn btn-primary w-100" id="selectFileBtn">Select a file</button>
+        <div class="col pe-1 p-2">
+            <input type="text" placeholder="Project Name" class="form-control mb-2"
+                   id="projectName">
+            <div class="input-group">
+                <input type="text" placeholder="File destination" readonly class="form-control"
+                       id="fileDestContainer">
+                <button type="button" class="btn btn-primary" id="selectFileBtn">Browse</button>
+            </div>
+
+            <span class="text-white-50"
+                  style="font-size: smaller">* a Folder will be created in selected directory</span>
         </div>
     </div>
     <div class="row mt-4">

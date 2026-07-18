@@ -189,5 +189,7 @@ export default class CreatorCanvasRenderer extends CanvasRenderer {
             };
             this.onTextDrag?.(relativeTextPos);
         });
+    // console.log("Creator Canvas Renderer initialized");
+    console.trace("Creator Canvas Renderer initialized");
     }
 }

@@ -30,17 +30,31 @@ window.file.onFileParams(function (fileParams: {
     })
 
     // Attach keyboard navigation
-    hotkeys("down,up,space", function (event, handler) {
-        switch (handler.key) {
-            case "down":
-            case "space":
-                console.log(presenter?.next());
-                // window.comm.toPresentation({type: "change", data: 1});
-                break;
-            case "up":
-                console.log(presenter?.previous());
-                // window.comm.toPresentation({type: "change", data: -1});
-                break;
-        }
-    });
+
 });
+hotkeys("down,up,space", function (event, handler) {
+    switch (handler.key) {
+        case "down":
+        case "space":
+            presenter?.next();
+            break;
+        case "up":
+            presenter?.previous();
+            break;
+    }
+});
+const startOverlayBtn = document.getElementById("startOverlayBtn");
+startOverlayBtn.addEventListener("click", function (event) {
+    window.comm.startOverlay()
+    //@ts-ignore
+    startOverlayBtn.disabled = true;
+    startOverlayBtn.innerHTML = "Starting Overlay..."
+})
+
+
+window.comm.onOverlayStarted((server) => {
+    const serverAddress = document.getElementById("serverAddress");
+    serverAddress.innerHTML = server.url;
+    startOverlayBtn.classList.add("stop-overlay-btn")
+    startOverlayBtn.innerHTML = "Stop Overlay"
+})

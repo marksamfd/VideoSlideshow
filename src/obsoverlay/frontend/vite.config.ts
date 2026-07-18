@@ -5,8 +5,8 @@ import {resolve} from "path";
 export default defineConfig({
     // 1. Production Build Configuration
     build: {
-        // Outputs the bundle directly into the backend's client folder
-        outDir: resolve(__dirname, "../backend/client"),
+        // Outputs the bundle directly into the backend's public folder
+        outDir: resolve(__dirname, "../backend/src/public"),
         emptyOutDir: true, // Cleans the folder before building
     },
 
