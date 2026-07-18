@@ -98,3 +98,8 @@ out/
 .vscode/mcp.json
 build-assets
 dist/
+
+/src/obsoverlay/backend/src/public/*
+!/src/obsoverlay/backend/src/public/
+
+temp-*
