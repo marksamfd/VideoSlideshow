@@ -1,15 +1,24 @@
 {
   "name": "choirslides",
   "productName": "ChoirSlides",
-  "version": "3.1.2",
+  "version": "3.2.0",
   "description": "A software designed to create lyric slideshows. This software allows users to combine lyrics with background videos, resulting in a visually engaging slideshow that synchronizes the lyrics with the video footage.",
   "main": "./.webpack/main",
+  "workspaces": [
+    "src/obsoverlay/frontend",
+    "src/obsoverlay/backend"
+  ],
   "scripts": {
-    "start": "electron-forge start",
+    "dev:overlay/frontend": "npm run dev --workspace=src/obsoverlay/frontend",
+    "dev:overlay/backend": "npm run start:dev --workspace=src/obsoverlay/backend",
+    "build:overlay/frontend": "npm run build --workspace=src/obsoverlay/frontend",
+    "build:overlay/backend": "npm run build --workspace=src/obsoverlay/backend",
+    "start": "cross-env NODE_ENV=dev electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "echo \"No linting configured\""
+    "lint": "echo \"No linting configured\"",
+    "webpack:web": "webpack serve --config webpack.renderer.config.js"
   },
   "keywords": [
     "choir",
@@ -23,11 +32,13 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@electron-forge/plugin-base": "^7.11.2",
     "@fortawesome/fontawesome-svg-core": "^6.5.2",
     "@popperjs/core": "^2.11.8",
     "@sentry/electron": "^6.11.0",
     "@sentry/webpack-plugin": "^4.1.1",
     "@types/archiver": "^6.0.3",
+    "@types/electron-progressbar": "^2.2.0",
     "@types/yazl": "^3.3.0",
     "adm-zip": "^0.5.14",
     "archiver": "^7.0.1",
@@ -36,6 +47,7 @@
     "canvg": "^4.0.2",
     "dotenv": "^17.2.1",
     "electron-log": "^5.1.5",
+    "electron-progressbar": "^2.2.1",
     "electron-reload": "^2.0.0-alpha.1",
     "electron-squirrel-startup": "^1.0.0",
     "font-list": "^1.5.1",
@@ -65,10 +77,12 @@
     "@electron-forge/plugin-webpack": "^7.3.1",
     "@electron-forge/publisher-github": "^6.3.0",
     "@types/gunzip-maybe": "^1.4.2",
+    "@types/progress-stream": "^2.0.5",
     "@types/tar-stream": "^3.1.4",
     "@vercel/webpack-asset-relocator-loader": "^1.7.3",
     "autoprefixer": "^10.4.19",
     "copy-webpack-plugin": "^12.0.2",
+    "cross-env": "^10.1.0",
     "css-loader": "^6.11.0",
     "electron": "^31.0.2",
     "file-loader": "^6.2.0",
@@ -80,6 +94,8 @@
     "svg-inline-loader": "^0.8.2",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "webpack-cli": "^7.2.1",
+    "webpack-dev-server": "^5.2.6"
   }
 }

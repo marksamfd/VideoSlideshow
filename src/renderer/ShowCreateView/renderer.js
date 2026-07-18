@@ -2,7 +2,7 @@ import "../js/sideBarResize";
 import "./js/slideSelector";
 import "./js/fileOpen";
 
-import "bootstrap";
+// import "bootstrap";
 import "../ShowCreateView/index.scss";
 
 import * as Sentry from "@sentry/electron/renderer";
@@ -14,4 +14,4 @@ Sentry.init({
   integrations: [],
 });
 
-Sentry.setTag("type", "showCreator");
+Sentry.setTag("type", "Show Creator");

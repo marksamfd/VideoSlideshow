@@ -1,17 +1,17 @@
-interface FontBackground {
+export interface SlideFontBackground {
   color: string;
   opacity: number;
 }
 
-interface Font {
+export interface SlideFont {
   family?: string;
   bold?: boolean;
   textToHeightRatio?: number;
-  background: FontBackground | false;
+  background: SlideFontBackground | false;
 }
 
-interface SlideJSON {
-  video: {
+export interface SlideJSON {
+  video?: {
     name?: string;
     format?: string;
     muted?: boolean;
@@ -19,7 +19,7 @@ interface SlideJSON {
   text?: {
     x: number;
     y: number;
-    font: Font;
+    font?: SlideFont;
     value: string;
   };
   thumbnail?: {
@@ -37,7 +37,7 @@ class Slide {
   private _fontFamily: string;
   private _fontBold: boolean;
   private _fontTextToHeightRatio: number;
-  private _fontBackground: FontBackground | false;
+  private _fontBackground: SlideFontBackground | false;
 
   private _videoThumbnailFormat: string;
   private _videoFileName: string;
@@ -57,7 +57,7 @@ class Slide {
     this._textX = props?.text?.x || 0;
     this._textY = props?.text?.y || 0;
 
-    this._muted = props.video.muted;
+    this._muted = props.video?.muted;
 
     this._fontFamily = props?.text?.font?.family || "Calibri";
     this._fontBold = props?.text?.font?.bold || true;
@@ -114,7 +114,7 @@ class Slide {
     this._muted = !this._muted;
     return this._muted;
   }
-  toggleBackground(): FontBackground | false {
+  toggleBackground(): SlideFontBackground | false {
     if (this._fontBackground) {
       this._fontBackground = false;
       return this._fontBackground;

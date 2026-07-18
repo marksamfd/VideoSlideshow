@@ -30,7 +30,7 @@ img {
 
 #slidePreview {
   flex-basis: 75%;
-  background: rgb(43, 45, 48);
+  // background: rgb(43, 45, 48);
   padding-right: 0.2%;
   height: 100vh;
 
@@ -46,7 +46,7 @@ img {
       object-fit: contain;
       height: 75%;
       aspect-ratio: 16 / 9;
-      border-radius: $slideThumbCornerRadius;
+      //border-radius: $slideThumbCornerRadius;
     }
   }
 }
@@ -56,7 +56,7 @@ img {
 }
 
 #textSlidesContainer {
-  font-size: 26pt;
+  font-size: 18pt;
   text-align: center;
   ul {
     list-style: none;
@@ -67,16 +67,17 @@ img {
   }
 }
 
+
 .slideThumb {
   width: 100%;
 }
 
 div {
-  #textSlidesList {
+  /* #lyricsList {
     height: 22rem;
-  }
+  } */
 }
-#textSlidesList > li:hover:not(.active-text-slide) {
+#lyricsList > li:hover:not(.active-text-slide) {
   color: rgba(255, 255, 255, 0.5);
 }
 

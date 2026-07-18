@@ -1,8 +1,7 @@
 $slideThumbCornerRadius: .2rem;
-@import "../css/sidebar";
-@import "../css/style";
-@import "./textSlidesEditor";
-@import "../css/scroll";
-@import "~bootstrap/scss/bootstrap";
-$bootstrap-icons-font-dir: "~bootstrap-icons/font/fonts";
-@import "~bootstrap-icons/font/bootstrap-icons.scss";
+@use "../css/sidebar";
+@use "../css/style";
+@use "./textSlidesEditor";
+@use "../css/scroll";
+@use "~bootstrap/scss/bootstrap";
+@import "~bootstrap-icons/font/bootstrap-icons.css";

@@ -1,0 +1,11 @@
+export enum IPCEvents {
+    PRESENTATION_START = "PRESENTATION:start",
+    PRESENTATION_INIT = "PRESENTATION:init",
+    PRESENTATION_SLIDE_CHANGE = "PRESENTATION:change",
+
+    OVERLAY_START = "OVERLAY:start",
+    OVERLAY_STARTED = "OVERLAY:started",
+
+    FILE_OPEN_DIALOG = "FILE:openDialog",
+    FILE_OPEN_DIALOG_PRESENTATION = "FILE:openDialog/presentation",
+}

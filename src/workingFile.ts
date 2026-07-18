@@ -1,310 +1,222 @@
-import { tmpdir } from "os";
 import * as path from "path";
+import {join} from "path";
 import * as fs from "fs";
 import * as archiver from "archiver";
-import * as tar from "tar-stream";
-import { buffer } from "stream/consumers";
-const gunzip = require("gunzip-maybe");
-import { Stream } from "stream";
+import * as StreamZip from "node-stream-zip";
+import * as progress from "progress-stream";
+import Slide from "./renderer/js/Classes/Slide";
+import {copyFile, readFile, writeFile} from "node:fs/promises"
+import {ensureDir, ensureDirSync} from "fs-extra";
 
-enum ProjectOpenMode {
-  NEW,
-  EDIT,
-  PRESENT,
+export enum ProjectOpenMode {
+    NEW,
+    EDIT,
+    PRESENT,
 }
+
 interface addVideoSlideFileInterface {
-  imgBuffer: Buffer;
-  imgFileName: string;
-  videoFilePath: string;
-  videoFileName: string;
+    imgBuffer: Buffer;
+    imgFileName: string;
+    videoFilePath: string;
+    videoFileName: string;
 }
+
+interface NotInArchiveFile {
+    file: string | Buffer;
+    size: number;
+}
+
+export type WorkingFileType = {
+
+    filePath: string;
+    mode: "word" | "delim";
+    sepBy: string | number;
+    content: string;
+    present?: boolean;
+}
+
 class WorkingFile {
-  /**
-   * shows the files that are added to the archive bit not available in the stream reader
-   * @type {Record<string,string | Buffer>}
-   */
-  #notInArchive: Record<string, string | Buffer> = {};
+    /**
+     * shows the files that are added to the archive bit not available in the stream reader
+     * @type {Record<string,string | Buffer>}
+     */
+    private _notInArchive: Record<string, NotInArchiveFile> = {};
 
-  #addedToArchive: string[] = [];
+    #addedToArchive: string[] = [];
 
-  /**
-   * @type {string}
-   */
-  #sepMode;
+    /**
+     * @type {string}
+     */
+    #sepMode;
 
-  /**
-   * separation delimiter
-   * @type{number || string}
-   */
-  #delimiter;
+    /**
+     * separation delimiter
+     * @type{number || string}
+     */
+    #delimiter;
 
-  /**
-   * Saved data content of the file JSON slideshow
-   */
-  #lastSavedData: string;
+    /**
+     * Saved data content of the file JSON slideshow
+     */
+    #lastSavedData: string;
 
-  /**
-   * shows weather the file is opened or not
-   * @type{boolean}
-   */
-  #isEditingOpened = false;
+    /**
+     * shows weather the file is opened or not
+     * @type{boolean}
+     */
+    #isEditingOpened = false;
 
-  /**
-   * Zip Object file
-   *
-   */
-  #fileCreator: archiver.Archiver;
-  #writeStream: fs.WriteStream;
+    /**
+     * Zip Object file
+     *
+     */
+    #fileCreator!: archiver.Archiver;
+    #writeStream: fs.WriteStream;
+    #fileExtractor!: StreamZip.StreamZipAsync;
+    private needsRepacking = false;
 
-  #projectMode;
+    #projectMode;
+    #fileSize: number = 0;
 
-  /**
-   * the show file path
-   * @type {string}
-   */
-  #filePath;
-  needsCreator: boolean;
-  get notInArchive() {
-    return this.#notInArchive;
-  }
-
-  get isOpened() {
-    return this.#isEditingOpened;
-  }
-
-  get projectPath() {
-    return this.#filePath;
-  }
-
-  get basePath() {
-    const tmpAppPath = path.join(tmpdir(), "choirSlides");
-    return tmpAppPath;
-  }
-
-  /**
-   * File path parsed
-   * @type {ParsedPath}
-   */
-  get #projectFilePathParsed() {
-    return path.parse(this.#filePath);
-  }
-
-  get projectTempFolder() {
-    const projectTempPath = path.join(this.basePath, this.projectName);
-    if (!fs.existsSync(projectTempPath)) {
-      fs.mkdirSync(projectTempPath, { recursive: true });
-    }
-    return projectTempPath;
-  }
-
-  /**
-   * Opened file name
-   * @type {string}
-   */
-  get projectName() {
-    return this.#projectFilePathParsed.name;
-  }
-
-  /**
-   * Adds image and video files to the archive and tracks the video file path.
-   *
-   */
-
-  addVideoSlideFiles(props: addVideoSlideFileInterface) {
-    const { imgBuffer, imgFileName, videoFilePath, videoFileName } = props;
-    this.#fileCreator.append(imgBuffer, { name: `videos/${imgFileName}.png` });
-    this.#fileCreator.file(videoFilePath, { name: `videos/${videoFileName}` });
-    console.log("added Video Files");
-
-    this.#notInArchive[videoFileName.toLowerCase()] = videoFilePath;
-    this.#notInArchive[`${imgFileName}.png`.toLowerCase()] = imgBuffer;
-  }
-
-  #extractProjectFile(
-    tarFilePath: string = this.#filePath,
-    outputDir: string = this.projectTempFolder
-  ) {
-    return new Promise((resolve, reject) => {
-      const extract = tar.extract();
-
-      extract.on("entry", (header, stream, next) => {
-        const outputPath = path.join(outputDir, header.name);
-
-        // Ensure directories exist
-        fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-
-        const writeStream = fs.createWriteStream(outputPath);
-        stream.pipe(writeStream);
-
-        writeStream.on("finish", next); // Wait until write completes
-        writeStream.on("error", reject);
-        stream.on("error", reject);
-      });
-
-      extract.on("finish", resolve);
-      extract.on("error", reject);
-
-      fs.createReadStream(tarFilePath).pipe(gunzip()).pipe(extract);
-    });
-  }
-
-  constructor(data: any) {
-    this.#filePath = data.filePath || "";
-    this.#sepMode = data.mode;
-    this.#delimiter = data.sepBy;
-
-    if (data.present) {
-      this.#projectMode = ProjectOpenMode.PRESENT;
-    } else if (fs.existsSync(this.#filePath)) {
-      this.#projectMode = ProjectOpenMode.EDIT;
-    } else {
-      this.#projectMode = ProjectOpenMode.NEW;
+    public isNeedRepacking() {
+        return this.needsRepacking;
     }
 
-    // Initialize based on mode
-    this.needsCreator = this.#projectMode !== ProjectOpenMode.PRESENT;
-  }
+    /**
+     * the show file path
+     * @type {string}
+     */
+    #filePath;
 
-  async editProject() {
-    if (this.#projectMode === ProjectOpenMode.NEW) {
-      this.#lastSavedData = "[]";
-    } else {
-      await this.#extractProjectFile();
-      this.#lastSavedData = fs.readFileSync(
-        path.join(this.projectTempFolder, "slides.json"),
-        "utf-8"
-      );
-      console.log(
-        path.join(this.projectTempFolder, "slides.json"),
-        this.#lastSavedData
-      );
+    get notInArchive() {
+        return this._notInArchive;
     }
-    this.#isEditingOpened = true;
-    this.#fileCreator = archiver("tar", {
-      gzip: false, // Set to true if you want .tar.gz
-    });
-    this.#writeStream = fs.createWriteStream(this.#filePath);
-    this.#fileCreator.pipe(this.#writeStream);
 
-    this.#writeStream?.on("warning", (e: any) => {
-      console.log(`Warning while adding a file to zip: ${e.message}`);
-    });
-    this.#writeStream?.on("finish", () => {
-      console.log("Finish adding a file to zip");
-    });
-    this.#writeStream?.on("close", () => {
-      console.log("closing zip");
-    });
-    this.#writeStream?.on("entry", (data: any) => {
-      console.log("on entry");
-    });
-  }
-
-  async saveProject(content: string) {
-    console.log("Saving");
-    this.#addExtractedFilesToZip();
-    console.log("writing");
-    fs.writeFileSync(path.join(this.projectTempFolder, "slides.json"), content);
-    console.log("slides");
-    this.#fileCreator.append(Buffer.from(content, "utf8"), {
-      name: "slides.json",
-      date: new Date(2025, 7, 8, 23, 4),
-    });
-  }
-
-  async presentProject() {
-    const slidesStream: any = await this.fileStream("slides.json");
-    this.#lastSavedData = (await buffer(slidesStream)).toString("utf8");
-  }
-
-  closeProject(slidesContent: string) {
-    console.log("Close Called");
-    return new Promise((res, rej) => {
-      console.log("Created Promise");
-      if (this.#isEditingOpened) {
-        console.log("Saving");
-        this.#addExtractedFilesToZip();
-        const slidesPath = path.join(this.projectTempFolder, "slides.json");
-        fs.writeFileSync(slidesPath, slidesContent);
-
-        this.#writeStream.on("close", () => {
-          console.log(this.#fileCreator.pointer() + " total bytes");
-          console.log(
-            "archiver has been finalized and the output file descriptor has closed."
-          );
-          res(true);
-        });
-        this.#writeStream.on("error", (err) => {
-          console.error("Error writing ZIP file:");
-          rej(`Error in Piping ${err}`);
-        });
-        this.#writeStream.on("end", () => {
-          console.log("Data has been drained");
-        });
-
-        this.#fileCreator.pipe(this.#writeStream);
-        console.log("piping");
-
-        console.log("finalizing");
-        this.#fileCreator.finalize();
-      }
-    });
-  }
-  #addExtractedFilesToZip() {
-    const videosPath = path.join(this.projectTempFolder, "videos");
-    const filesInPath = new Set(
-      fs.existsSync(videosPath) ? fs.readdirSync(videosPath) : []
-    );
-    const filesInArray = new Set(this.#addedToArchive);
-    const filesToBeAdded = [...filesInPath].filter(
-      (element: string) => !filesInArray.has(element)
-    );
-    if (filesToBeAdded.length > 0) {
-      for (const f of filesToBeAdded) {
-        const fp = path.join(videosPath, f);
-        console.log({ fp, f });
-        this.#fileCreator.append(fs.createReadStream(fp), {
-          name: `videos/${f}`,
-        });
-        this.#addedToArchive.push(`${f}`);
-      }
+    get isOpened() {
+        return this.#isEditingOpened;
     }
-  }
 
-  toObject() {
-    return {
-      filePath: this.#filePath,
-      sepBy: this.#delimiter,
-      mode: this.#sepMode,
-      content: this.#lastSavedData,
-    };
-  }
+    get projectPath() {
+        return this.#filePath;
+    }
 
-  async fileStream(zipfilePath: string) {
-    return new Promise((resolve, reject) => {
-      const extract = tar.extract();
-      const tarStream = fs.createReadStream(this.#filePath);
 
-      let found = false;
+    private get projectFilePathParsed() {
+        return path.parse(this.#filePath);
+    }
 
-      extract.on("entry", (header, stream, next) => {
-        if (header.name === zipfilePath) {
-          found = true;
-          resolve(stream); // Pass the file stream out
-          // Don't call `next()` here — let consumer drain the stream
+
+    get videosFolder() {
+        return path.join(this.projectFilePathParsed.dir, "videos");
+    }
+
+    get projectMode() {
+        return this.#projectMode;
+    }
+
+    /**
+     * Opened file name
+     * @type {string}
+     */
+    get projectName() {
+        return this.projectFilePathParsed.name;
+    }
+
+    /**
+     * Adds image and video files to the archive and tracks the video file path.
+     *
+     */
+
+    addSlideFiles(props: addVideoSlideFileInterface) {
+        const {imgBuffer, imgFileName, videoFilePath, videoFileName} = props;
+        this._notInArchive[videoFileName] = {
+            file: videoFilePath,
+            size: fs.statSync(videoFilePath).size,
+        };
+        this._notInArchive[`${imgFileName}.png`] = {
+            file: imgBuffer,
+            size: imgBuffer.length,
+        };
+    }
+
+    removeSlideFiles(videoFileName: string, imgFileName: string) {
+        delete this._notInArchive[videoFileName];
+        delete this._notInArchive[`${imgFileName}.png`];
+        this.needsRepacking = true;
+    }
+
+    constructor(data: WorkingFileType) {
+        this.#filePath = data.filePath || "";
+        this.#sepMode = data.mode;
+        this.#delimiter = data.sepBy;
+        //TODO: File extenstion association
+        //TODO: handle not saved, execute closeProject on opening another file using needsRepacking tag. Handle not saved in file
+
+        if (data.present) {
+            this.#projectMode = ProjectOpenMode.PRESENT;
+            // this.#fileExtractor = new StreamZip.async({file: this.#filePath});
+        } else if (fs.existsSync(this.#filePath)) {
+            this.#projectMode = ProjectOpenMode.EDIT;
+            // this.#fileExtractor = new StreamZip.async({file: this.#filePath});
         } else {
-          stream.resume(); // Skip this entry
-          next();
+            this.#projectMode = ProjectOpenMode.NEW;
         }
-      });
+    }
 
-      extract.on("finish", () => {
-        if (!found) reject(new Error(`File not found: ${zipfilePath}`));
-      });
+    newProject(projectName: string) {
 
-      tarStream.pipe(extract);
-    });
-  }
+        ensureDirSync(join(this.#filePath, projectName))
+        ensureDirSync(join(this.#filePath, projectName, "videos"))
+        this.#filePath = path.join(this.#filePath, projectName, `${projectName}.chs`)
+        this.#lastSavedData = "[]";
+        this.#isEditingOpened = true;
+    }
+
+    editProject() {
+        this.#lastSavedData = fs.readFileSync(
+            this.#filePath,
+            "utf-8"
+        );
+        this.#isEditingOpened = true;
+    }
+
+    saveProject(content: string) {
+        console.log("Saving");
+        this.needsRepacking = true;
+        fs.writeFileSync(path.join(this.projectPath), content);
+    }
+
+
+    closeProject(slidesContent: string = "") {
+
+        let copyPromises = Object.keys(this._notInArchive).filter(file => typeof this._notInArchive[file].file === "string").map(file =>
+            copyFile(this._notInArchive[file].file, `${this.videosFolder}/${file}`)
+        )
+        let writePromises = Object.keys(this._notInArchive).filter(file => typeof this._notInArchive[file].file !== "string").map(file =>
+            writeFile(`${this.videosFolder}/${file}`, this._notInArchive[file].file)
+        )
+        if (slidesContent !== "") {
+            writePromises.push(writeFile(this.#filePath, slidesContent, {encoding: "utf8"}));
+        }
+        return Promise.all([...copyPromises, ...writePromises]);
+    }
+
+    async presentProject() {
+        this.#lastSavedData = await readFile(this.#filePath, {encoding: "utf8"});
+    }
+
+    toObject() {
+        return {
+            filePath: this.#filePath,
+            sepBy: this.#delimiter,
+            mode: this.#sepMode,
+            content: this.#lastSavedData,
+        };
+    }
+
+    async fileStream(zipfilePath: string) {
+        return readFile(path.join(this.projectFilePathParsed.dir, zipfilePath));
+    }
 }
 
 export default WorkingFile;
