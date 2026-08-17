@@ -59,6 +59,7 @@ export default class TextEditorArea {
             const fontName = e.target.value;
             //@ts-ignore
             e.target.style = `font-family: ${fontName}; font-size: 16pt;`;
+            this.setTextAreaFont(fontName);
             this.onFontSelected?.(fontName);
         });
         this.backgroundBtn?.addEventListener("input", (e) => {
@@ -71,6 +72,10 @@ export default class TextEditorArea {
 
     setTextArea(text: string) {
         this.textArea.value = text;
+    }
+
+    private setTextAreaFont(font: string) {
+        this.textArea.style.setProperty(`font-family`, font);
     }
 
     renderBackgroundBtn(state: boolean) {

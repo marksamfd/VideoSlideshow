@@ -1,4 +1,4 @@
-import Slide, {SlideJSON} from "../../js/Classes/Slide";
+import Slide, {SlideType} from "../../js/Classes/Slide";
 import PresenterView from "../../js/Classes/PresenterView";
 import hotkeys from "hotkeys-js";
 
@@ -11,7 +11,7 @@ window.file.onFileParams(function (fileParams: {
 }) {
     console.log("Presenter View - File Params:", fileParams);
     let presentation = JSON.parse(fileParams["content"]);
-    let slides = presentation.map((e: SlideJSON | undefined) => new Slide(e));
+    let slides = presentation.map((e: SlideType | undefined) => new Slide(e));
 
     let slidePreviewCanv = document.getElementById("currentSlideThumbCanvas");
     presenter = new PresenterView({

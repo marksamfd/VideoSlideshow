@@ -10,7 +10,7 @@ export interface SlideFont {
   background: SlideFontBackground | false;
 }
 
-export interface SlideJSON {
+export interface SlideType {
   video?: {
     name?: string;
     format?: string;
@@ -44,7 +44,7 @@ class Slide {
   private _videoFileFormat: string;
 
   constructor(
-    props: SlideJSON = {
+    props: SlideType = {
       video: { name: undefined, muted: true, format: "mp4" },
     }
   ) {
@@ -110,7 +110,7 @@ class Slide {
     return this._muted;
   }
 
-  toggleMuted(): Boolean {
+  toggleMuted(): boolean {
     this._muted = !this._muted;
     return this._muted;
   }
@@ -138,7 +138,7 @@ class Slide {
     this._videoFileName = fileNameSplitted.join(".");
   }
 
-  toJSON(): SlideJSON {
+  toJSON(): SlideType {
     return {
       video: {
         name: this._videoFileName,

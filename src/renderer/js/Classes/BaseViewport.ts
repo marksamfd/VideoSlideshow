@@ -69,6 +69,7 @@ abstract class BaseViewport {
         this.canvas.rendertext(this.lyrics.getCurrentLyric());
         this.canvas.renderTextPosition(this.slides.currentSlide.textPosition);
         this.canvas.renderTextBackground(this.slides.currentSlide.fontBackground);
+        this.canvas.renderTextProps({fontFamily: this.slides.currentSlide.fontFamily});
         this.notifySlideChange?.(`${this.slides.currentIndex}:${this.lyrics.currentIndex}`)
     }
 

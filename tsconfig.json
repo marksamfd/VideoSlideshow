@@ -14,7 +14,7 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     // If you are using React,
-    "src/renderer/js/Classes/SlideManager.js",
+    "src/renderer/js/Classes/SlideManager",
     "src/renderer/ShowCreateView/js/fileOpen.js"
   ],
   "exclude": [
