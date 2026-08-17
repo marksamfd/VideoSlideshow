@@ -75,12 +75,12 @@ abstract class CanvasRenderer extends Konva.Stage {
             width: this.width() * 0.5,
             text: "",
             /*
-                       \u200f The right-to-left mark (RLM) is a non-printing character used in the computerized typesetting of bi-directional
-                       text containing a mix of left-to-right scripts (such as Latin and Cyrillic) and right-to-left scripts
-                       (such as Arabic, Syriac, and Hebrew).
-                       https://en.wikipedia.org/wiki/Right-to-left_mark
-                       https://github.com/konvajs/konva/issues/552
-                      */
+                             \u200f The right-to-left mark (RLM) is a non-printing character used in the computerized typesetting of bi-directional
+                             text containing a mix of left-to-right scripts (such as Latin and Cyrillic) and right-to-left scripts
+                             (such as Arabic, Syriac, and Hebrew).
+                             https://en.wikipedia.org/wiki/Right-to-left_mark
+                             https://github.com/konvajs/konva/issues/552
+                            */
             fontFamily: "Calibri",
             fill: "white",
             id: "text",
@@ -120,6 +120,12 @@ abstract class CanvasRenderer extends Konva.Stage {
 
     rendertext(text: string) {
         this.simpleText.text(text);
+        if (text.length > 0) {
+            this.#textBackground.visible(true);
+            return;
+        }
+        this.#textBackground.visible(false);
+        // TODO: migrate to render text background, Create a public render text function to be called 
     }
 
     renderTextPosition(position: { x: number; y: number }) {

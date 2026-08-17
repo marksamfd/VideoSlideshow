@@ -151,7 +151,8 @@ ipcMain.handle(IPCEvents.FILE_OPEN_DIALOG, (e, mode) => {
 
 ipcMain.handle("file-opened", async (e, data) => {
     let mainWindow = BrowserWindow.getFocusedWindow().getParentWindow();
-    BrowserWindow.getFocusedWindow().destroy();
+    let dialogWindow = BrowserWindow.getFocusedWindow();
+
 
     if (currentProject) {
         await currentProject.closeProject()
@@ -165,10 +166,13 @@ ipcMain.handle("file-opened", async (e, data) => {
     if (!data.present) {
         mainWindow.setTitle(`ChoirSlide - ${currentProject.projectName}`);
         mainWindow.webContents.send("file-params", currentProject.toObject());
+        dialogWindow.destroy();
         return;
     }
     await currentProject.presentProject();
-    initPresentationView();
+    if (initPresentationView())
+        dialogWindow.destroy();
+
 });
 
 ipcMain.handle("file-save", (e, content) => {
@@ -224,7 +228,7 @@ function initPresentationView() {
     });
     console.log({externalDisplay})
     let data = currentProject.toObject();
-    if (!presentationView) {
+    if (externalDisplay) {
         presentationView = createPresentationView(presenterView);
         presentationView.webContents.on("dom-ready", () => {
             presentationView.webContents.send(IPCEvents.PRESENTATION_INIT, data);
@@ -232,27 +236,33 @@ function initPresentationView() {
         if (!app.isPackaged) {
             sendOnReload(presentationView)
         }
-        if (externalDisplay) {
-            presenterView = createPresenterView();
-            presenterView.webContents.once("dom-ready", () => {
-                presenterView.webContents.send("file-params", data);
-            });
-            console.log(externalDisplay.bounds)
-            presentationView.setBounds(externalDisplay.bounds);
-            presentationView.setFullScreen(true);
-            presentationView.setParentWindow(presenterView);
+        presenterView = createPresenterView();
+        presenterView.webContents.once("dom-ready", () => {
+            presenterView.webContents.send("file-params", data);
+        });
+        console.log(externalDisplay.bounds)
+        presentationView.setBounds(externalDisplay.bounds);
+        presentationView.setFullScreen(true);
+        presentationView.setParentWindow(presenterView);
 
-            showCreatorView.destroy();
-            presenterView.focus();
-            if (!app.isPackaged) {
-                sendOnReload(presenterView)
-            }
+        showCreatorView.destroy();
+        presenterView.focus();
+        if (!app.isPackaged) {
+            sendOnReload(presenterView)
         }
-        return
+        presenterView.webContents.send("file-params", data);
+        presentationView.webContents.send(IPCEvents.PRESENTATION_INIT, data);
+        if (overlay) overlay.init(currentProject.toObject())
+        return true
     }
-    presenterView.webContents.send("file-params", data);
-    presentationView.webContents.send(IPCEvents.PRESENTATION_INIT, data);
-    if (overlay) overlay.init(currentProject.toObject())
+    dialog.showMessageBox({
+        type: "error", title: "Display Configuration Error", message: `We couldn't detect an extended second screen. To continue:
+1. Make sure your second display is powered on and plugged in.
+2. Press Win + P on your keyboard.
+3. Choose Extend from the display options.`
+        ,
+    });
+    return false
 
 }
 
